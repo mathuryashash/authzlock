@@ -61,3 +61,12 @@ def test_run_tool_env_has_no_api_keys(monkeypatch):
     monkeypatch.setenv("TAVILY_API_KEY", "y" * 20)
     env = tools.run_env()
     assert "NEBIUS_API_KEY" not in env and "TAVILY_API_KEY" not in env and "PATH" in env
+
+
+def test_read_file_refuses_env_files(tmp_path):
+    (tmp_path / ".env").write_text("SECRET_KEY=abc")
+    (tmp_path / "backend").mkdir()
+    (tmp_path / "backend" / "prod.env").write_text("X=1")
+    t = Tools(repo=tmp_path)
+    assert call(t, "read_file", path=".env").startswith("error:")
+    assert call(t, "read_file", path="backend/prod.env").startswith("error:")

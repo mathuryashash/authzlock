@@ -59,7 +59,10 @@ class Tools:
         self.log = self.repo / ".authzlock" / "tool_calls.jsonl"
 
     def read_file(self, path: str) -> str:
-        text = jail(self.repo, path).read_text(errors="replace")
+        p = jail(self.repo, path)
+        if p.name == ".env" or p.suffix == ".env":
+            raise ValueError("env files hold secrets and are not readable")
+        text = p.read_text(errors="replace")
         return text if len(text) <= self.max_read else text[:self.max_read] + "\n...[truncated]"
 
     def write_file(self, path: str, content: str) -> str:
