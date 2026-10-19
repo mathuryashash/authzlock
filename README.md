@@ -16,7 +16,7 @@ This prototype is only the **deterministic verdict engine**. The target app is `
 | Leak detection in responses (JSON and CSV), plus an SMTP sink for leaks sent by email | Built |
 | Invariants I1–I6, the lockfile, base-vs-head diff, PASS/FAIL/NEUTRAL | Built |
 | Regression pytest per finding, **proven** to pass on base and fail on the PR | Built (4 fixed patterns) |
-| Nemotron agent that *writes* the seeder, requests and tests and repairs them | **Not built.** Needs a Token Factory API key |
+| Nemotron agent that *writes* the seeder, requests and tests and repairs them | **In progress.** Agent layer built and stub-tested (see below); live runs need a Token Factory API key |
 | Running probes inside Token Factory Sandboxes (forks for base/head/shards) | **Not built.** Needs Sandboxes access. Runs on local Postgres for now |
 | GitHub Action, `/authz accept`, HTML report, Telegram notifier | **Not built** |
 
@@ -68,6 +68,31 @@ python3 authzlock.py diff --base results/base_run1.lock.json --head results/pr_i
 - **I4 privilege:** privilege columns (`is_superuser`, `is_active`) only change when a superuser makes the request.
 - **I5 authn:** forged, expired, `alg:none`, deleted, inactive and anonymous identities are never ALLOWed on non-public operations.
 - **I6 out-of-band:** no email carries another owner's data.
+
+## Built during Oct 20–29, 2026 (Nebius x NVIDIA Global AI Hackathon)
+
+The deterministic core above is the pre-hackathon prototype (25 Sep). During the hackathon it gained the following. See `docs/PLAN.md` for the full plan and threat model.
+
+| Part | Status |
+|---|---|
+| `agent/` Token Factory client: base URL, Nemotron Super/Ultra, retries/backoff, $1 cap per run, JSONL cost log | Built (stub-tested; live test waiting on API key) |
+| Tool dispatch: `write_file` jailed to `.authzlock/artifacts/`, fixed command templates, all calls logged | Built |
+| Agent loop: forced `tool_choice`, max-turns cap | Built |
+| Artifact cache per base SHA, keyless replay | Built |
+| Worker env allowlist (API keys never reach PR code) | Built |
+| Agent writes the seeder, hints and regression tests, then repairs them; JUnit-based proof criteria | Planned (D2–D3) |
+| Ultra root cause and Tavily OWASP/CWE citations; PR comment and Action (`pull_request` / `workflow_run` split) | Planned (D4) |
+| Second app: `eladgunders/fastapi-todos` @ `c059889` (fastapi-users, async SQLAlchemy) | Planned (D5) |
+| Static HTML report; mutation benchmark ($/PR, s/PR, detection rate) | Planned (D6) |
+
+Run the agent-layer tests (any OS):
+
+```bash
+python -m venv .venv && .venv/bin/pip install -r requirements-agent.txt   # Windows: .venv\Scripts\pip
+python -m pytest -q            # live tests auto-skip without NEBIUS_API_KEY
+```
+
+**Threat model (short):** authz.lock catches *accidental* authorization regressions, not adversarial PR authors, because PR code runs in-process with the probe. Secrets never share a process with PR code or generated code. The LLM writes artifacts but never decides the verdict or the policy.
 
 ## Known limitations of this prototype
 
