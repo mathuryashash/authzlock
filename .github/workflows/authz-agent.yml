@@ -1,0 +1,40 @@
+name: authz-agent
+# The only workflow with the Nebius/Tavily keys. Never triggered by PRs: only main or a manual dispatch.
+# Onboards the target with Nemotron and uploads the base-SHA artifacts (manifest.json, seeder.py) for a human to
+# review and commit (policy stays human-confirmed). Budget: $1 per run (agent/tf.py).
+on:
+  push:
+    branches: [main]
+    paths: ["agent/**"]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Build target app
+        run: ./setup.sh && python3 -m pip install -q -r requirements-agent.txt
+      - name: Onboard (Nemotron)
+        env:
+          NEBIUS_API_KEY: ${{ secrets.NEBIUS_API_KEY }}
+          AUTHZ_PG: postgresql://postgres@localhost:5432/postgres
+        run: python3 -m agent.onboard target 25
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: agent-artifacts
+          path: |
+            target/.authzlock/artifacts/manifest.json
+            target/.authzlock/artifacts/seeder.py
+            .authzlock/cost.jsonl

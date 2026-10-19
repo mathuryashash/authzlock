@@ -1,0 +1,69 @@
+name: authz-probe
+# Workflow A (security #2): runs on PR code, so NO secrets and read-only contents. The engine, policy manifest
+# and agent-written seeder all come from the BASE commit; the PR contributes only demo/app.patch (a change to the
+# pinned target app). Output: diff.json artifact, rendered by authz-comment.yml.
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 20
+    steps:
+      - name: Checkout base (trusted engine + policy + agent artifacts)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: tool
+          persist-credentials: false
+      - name: Checkout PR head (only demo/app.patch is used)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: head
+          persist-credentials: false
+      - name: Gate - PR may only change demo/ (else NEUTRAL, security #3)
+        id: gate
+        run: |
+          mkdir -p out
+          changed=$(diff -rq -x .git -x demo tool head | head -20 || true)
+          if [ -n "$changed" ]; then
+            python3 -c 'import json,sys;json.dump({"verdict":"NEUTRAL","changes":[],"new_violations":[],"new_ops":[],"new_unprobed":[],"harness_invalid":["PR edits authz.lock engine, policy or workflow files; probe skipped"]},open("out/diff.json","w"))'
+            echo "skip=1" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Build target app (pinned) with base and head patches
+        if: steps.gate.outputs.skip != '1'
+        working-directory: tool
+        run: |
+          ./setup.sh
+          cd target
+          for side in base head; do
+            src=$([ $side = base ] && echo .. || echo ../../head)
+            git checkout -q -B pr_$side base
+            if [ -f $src/demo/app.patch ]; then git apply $src/demo/app.patch && git add -A && git commit -qm "$side demo patch"; fi
+            git worktree add -q ../wt_$side pr_$side && cp ../target.env ../wt_$side/.env && ln -s "$PWD/.venv" ../wt_$side/.venv
+          done
+      - name: Probe base and head (deterministic; no LLM)
+        if: steps.gate.outputs.skip != '1'
+        working-directory: tool
+        env:
+          AUTHZ_PG: postgresql://postgres@localhost:5432/postgres
+        run: |
+          for side in base head; do
+            python3 authzlock.py lock --checkout wt_$side --out $side.lock.json --tag $side \
+              --manifest results/agent_run1/manifest.json --seeder results/agent_run1/seeder.py
+          done
+          python3 -c 'import json;from authzlock import diff;json.dump(diff(*(json.load(open(f"{s}.lock.json")) for s in ("base","head"))),open("../out/diff.json","w"),indent=1)'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: authz-diff
+          path: out/diff.json
+          retention-days: 7
