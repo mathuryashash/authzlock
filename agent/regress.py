@@ -98,7 +98,7 @@ class RegressTools(Tools):
         r = self.prove(self.art, self.s) if src else None
         ok, why = (False, [f"{TEST} not written"]) if r is None else is_proof(
             r["base"]["junit"], r["head"]["junit"], src, finding_path=self.s["path"], canary=self.s["canary"],
-            test_path=TEST, written=self.written, app_hash_before=r["base"]["app_hash_before"],
+            test_path=TEST, written=self.written, app_hash_before=r["head"]["app_hash_before"],
             app_hash_after=r["head"]["app_hash_after"])
         if r and r["base"]["app_hash_before"] != r["base"]["app_hash_after"]:
             ok, why = False, why + ["app source changed on base"]
@@ -168,7 +168,7 @@ if __name__ == "__main__":
         if r is None:
             rows.append({"scenario": scn, "verdict": d["verdict"], "status": "no test (not FAIL)"})
         else:
-            (out / f"{scn}.test_regression.py").write_text(r.pop("test"))
+            (out / f"{scn}.test_regression.py").write_text(r["test"])
             r["citations"] = tavily.cite(d)
             r["root_cause"] = root_cause(d, patch, r["citations"], llm)
             rows.append(r)

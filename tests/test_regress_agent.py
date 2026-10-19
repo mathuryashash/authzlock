@@ -25,7 +25,7 @@ def fake_prove(head_xml=FAIL_XML):
 
     def prove(art, spec):
         calls.append(art)
-        return {"base": {"junit": PASS_XML, "app_hash_before": "h", "app_hash_after": "h", "stdout": ""},
+        return {"base": {"junit": PASS_XML, "app_hash_before": "b", "app_hash_after": "b", "stdout": ""},
                 "head": {"junit": head_xml, "app_hash_before": "h", "app_hash_after": "h", "stdout": "1 failed"}}
     prove.calls = calls
     return prove
