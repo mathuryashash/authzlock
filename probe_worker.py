@@ -39,6 +39,8 @@ ap.add_argument("--out", required=True)
 ap.add_argument("--tag", required=True)
 ap.add_argument("--pg", default="postgresql://postgres@localhost:5432/postgres")
 ap.add_argument("--smtp-port", type=int, default=1025)
+ap.add_argument("--seeder", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "seeders",
+                                                 "fullstack_template.py"))
 args = ap.parse_args()
 
 MAN = json.load(open(args.manifest))
@@ -76,52 +78,30 @@ from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import create_engine, text  # noqa: E402
 from sqlmodel import Session  # noqa: E402
 
-from app import crud  # noqa: E402
 from app.api import deps  # noqa: E402
 from app.core import security  # noqa: E402
 from app.core.config import settings  # noqa: E402
-from app.core.db import engine as module_engine, init_db  # noqa: E402
 from app.main import app  # noqa: E402
-from app.models import Item, User, UserCreate  # noqa: E402
 
-FIRST_NAMES = {"user_a": "Asha Rao", "user_b": "Bilal Khan", "superuser": "Sofia Admin",
-               "inactive": "Ivan Idle"}
-ITEM_WORDS = ["vendor notes", "salary sheet", "trip plan", "draft contract", "invoice",
-              "roadmap", "medical form"]
+# Seeder plugin: hand-written reference or the agent's artifact. It gets only roles/canaries/passwords;
+# the gates below re-check its work against the seed DB instead of trusting what it returns.
+import importlib.util  # noqa: E402
 
+_spec = importlib.util.spec_from_file_location("authz_seeder", args.seeder)
+seeder = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(seeder)
+want = {role: {"spec": spec, "token": secrets.token_hex(5), "password": "Pw-" + secrets.token_hex(8)}
+        for role, spec in MAN["identities"].items() if spec["kind"] in ("login", "minted")}
+got = seeder.seed({r: dict(v) for r, v in want.items()})
 roles: dict[str, dict] = {}
-with Session(module_engine) as s:
-    init_db(s)
-    su = crud.get_user_by_email(session=s, email=settings.FIRST_SUPERUSER)
-    for role, spec in MAN["identities"].items():
-        if spec["kind"] not in ("login", "minted"):
-            continue
-        tok = secrets.token_hex(5)  # per-run random canary token
-        pw = "Pw-" + secrets.token_hex(8)
-        if spec.get("superuser"):
-            user = su
-            user.full_name = f"{FIRST_NAMES[role]} {tok}"
-            user.hashed_password = security.get_password_hash(pw)
-            s.add(user)
-            s.commit()
-            s.refresh(user)
-        else:
-            user = crud.create_user(session=s, user_create=UserCreate(
-                email=f"{role.replace('_', '.')}.{tok}@example.com", password=pw,
-                full_name=f"{FIRST_NAMES[role]} {tok}",
-                is_active=spec.get("is_active", True)))
-        items = []
-        for i in range(spec.get("owns_items", 0)):
-            it = Item(title=f"{ITEM_WORDS[i % len(ITEM_WORDS)]} {tok}{i}",
-                      description=f"private to {role} {tok}", owner_id=user.id)
-            s.add(it)
-            s.commit()
-            s.refresh(it)
-            items.append(str(it.id))
-        roles[role] = {"user_id": str(user.id), "email": user.email, "password": pw,
-                       "token": tok, "items": items}
-module_engine.dispose()
+for role, w in want.items():
+    g = got.get(role)
+    if not g:
+        sys.exit(f"harness invalid: seeder returned nothing for {role}")
+    roles[role] = {"user_id": str(g["user_id"]), "email": g["email"], "password": w["password"],
+                   "token": w["token"], "items": [str(i) for i in g.get("items", [])]}
 admin.execute(f'ALTER DATABASE "{SEED_DB}" ALLOW_CONNECTIONS false')
+admin.execute("select pg_terminate_backend(pid) from pg_stat_activity where datname = %s", (SEED_DB,))
 role_by_user_id = {v["user_id"]: k for k, v in roles.items()}
 
 # canary strings per role (exact, case-sensitive)
@@ -150,6 +130,7 @@ def new_clone():
     global _clone_n
     _clone_n += 1
     name = f"authz_c_{TAG}_{_clone_n}"
+    drop_db(name)  # leftover from a killed run
     admin.execute(f'CREATE DATABASE "{name}" TEMPLATE "{SEED_DB}"')
     H.engine = create_engine(db_url(name), poolclass=None)
     return name
@@ -232,6 +213,11 @@ seed_snapshot = None
 tokens: dict[str, str | None] = {}
 name = new_clone()
 seed_snapshot = snapshot(H.engine)
+# seeder gate input (security #3): rows each role really owns in the seed DB that carry its canary
+canaried_rows = {r: sum(1 for t, rows in seed_snapshot.items() if MAN["ownership"].get(t, {}).get("owner") != "self"
+                        for row in rows.values() if row_owner(t, row) == r
+                        and any(v and roles[r]["token"] in v for v in row.values()))
+                 for r in roles}
 for role, spec in MAN["identities"].items():
     k = spec["kind"]
     if k == "anonymous":
@@ -419,7 +405,7 @@ for op in ops:
 
 drop_db(SEED_DB)
 out = {"tag": args.tag, "elapsed_s": round(time.time() - t0, 1), "probes": len(results),
-       "roles": {r: {"owns_items": len(v["items"])} for r, v in roles.items()},
+       "roles": {r: {"owns_items": len(v["items"]), "canaried_rows": canaried_rows[r]} for r, v in roles.items()},
        "public_operations": MAN["public_operations"], "results": results}
 json.dump(out, open(args.out, "w"), indent=1)
 print(f"[{args.tag}] {len(results)} probes in {out['elapsed_s']}s")
