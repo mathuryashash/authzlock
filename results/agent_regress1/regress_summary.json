@@ -1,0 +1,63 @@
+{
+ "spent_usd": 0.0324,
+ "calls": 17,
+ "scenarios": [
+  {
+   "scenario": "pr-idor-refactor",
+   "finding": {
+    "scenario": "pr-idor-refactor",
+    "op": "GET /items/{id}",
+    "path": "/items/{id}",
+    "canary": "cnry-pr-idor-refactor",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /items/{id} | user_a | user_b | base",
+     "GET /items/{id} | user_a | superuser | base",
+     "GET /items/{id} | user_b | user_a | base",
+     "GET /items/{id} | user_b | superuser | base"
+    ]
+   },
+   "prove_runs": 3,
+   "agent_turns": 16,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /items/{id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The refactor introduced `_get_item_or_404` (lines 47\u201151) which only validates existence (404) but drops the ownership check that previously guarded `read_item`. The original lines 58\u201159 (`if not current_user.is_superuser and (item.owner_id != current_user.id): raise HTTPException(403,\u2026)`) are no longer executed, so any authenticated user can now read any item by ID \u2014 a classic IDOR / broken object-level authorization (OWASP API1:2023, CWE\u2011639). Fix: restore the authorization logic in `read_item` after calling the helper, or add an `owner_id`/`current_user` parameter to `_get_item_or_404` and enforce the 403 there.",
+   "status_live_run": "unproven",
+   "why_live_run": [
+    "app source changed"
+   ],
+   "status": "proven",
+   "why": [],
+   "note": "live run rejected only by a since-fixed bug (base-ref vs head-ref app hash compared); the same agent-written file re-checked key-free with the fixed proof.py criteria: proven"
+  }
+ ]
+}
