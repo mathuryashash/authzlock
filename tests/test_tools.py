@@ -53,3 +53,11 @@ def test_every_tool_call_is_logged(tmp_path):
     call(t, "nope")
     log = [json.loads(l) for l in (tmp_path / ".authzlock" / "tool_calls.jsonl").read_text().splitlines()]
     assert [r["tool"] for r in log] == ["write_file", "nope"]
+
+
+def test_run_tool_env_has_no_api_keys(monkeypatch):
+    from agent import tools
+    monkeypatch.setenv("NEBIUS_API_KEY", "x" * 20)
+    monkeypatch.setenv("TAVILY_API_KEY", "y" * 20)
+    env = tools.run_env()
+    assert "NEBIUS_API_KEY" not in env and "TAVILY_API_KEY" not in env and "PATH" in env

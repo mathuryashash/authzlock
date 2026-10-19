@@ -6,10 +6,15 @@ import sys
 from pathlib import Path
 
 ARTIFACTS = Path(".authzlock") / "artifacts"
+ENGINE = Path(__file__).resolve().parent.parent / "authzlock.py"
 # Fixed command templates only: no free shell (security #5). Run inside the no-secrets sandbox/container.
 TEMPLATES = {
     "pytest_artifacts": [sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
                          "--junitxml", str(ARTIFACTS / "junit.xml"), str(ARTIFACTS)],
+    # Base lock from the agent's artifacts only. The worker it spawns gets the env allowlist (no API keys).
+    "lock_artifacts": [sys.executable, str(ENGINE), "lock", "--checkout", ".", "--tag", "agent_check",
+                       "--out", str(Path(".authzlock") / "agent_check.lock.json"),
+                       "--manifest", str(ARTIFACTS / "manifest.json"), "--seeder", str(ARTIFACTS / "seeder.py")],
 }
 
 SCHEMAS = [
@@ -35,9 +40,15 @@ def jail(root: Path, rel: str) -> Path:
     return p
 
 
+def run_env() -> dict:
+    import os
+    return {k: v for k, v in os.environ.items() if not any(x in k.upper() for x in ("KEY", "TOKEN", "SECRET"))}
+
+
 def _run(argv, cwd):
     # ponytail: runs on the local host for now; D3 moves this into the no-secrets, --network none container.
-    p = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, timeout=600)
+    p = subprocess.run(argv, cwd=cwd, capture_output=True, text=True, timeout=600,
+                       env=run_env())
     return f"exit={p.returncode}\n{(p.stdout + p.stderr)[-4000:]}"
 
 
