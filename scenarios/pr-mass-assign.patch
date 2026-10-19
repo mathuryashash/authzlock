@@ -1,0 +1,25 @@
+From 959d7d978bee27691a22a4c675eed24713596ce1 Mon Sep 17 00:00:00 2001
+From: demo <demo@example.com>
+Date: Fri, 25 Sep 2026 11:02:23 +0000
+Subject: [PATCH] refactor(users): align /users/me schema with UserUpdate
+
+---
+ backend/app/models.py | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/backend/app/models.py b/backend/app/models.py
+index dcedf9a..0486cc7 100644
+--- a/backend/app/models.py
++++ b/backend/app/models.py
+@@ -41,6 +41,8 @@ class UserUpdate(SQLModel):
+ class UserUpdateMe(SQLModel):
+     full_name: str | None = Field(default=None, max_length=255)
+     email: EmailStr | None = Field(default=None, max_length=255)
++    is_active: bool | None = None
++    is_superuser: bool | None = None
+ 
+ 
+ class UpdatePassword(SQLModel):
+-- 
+2.43.0
+

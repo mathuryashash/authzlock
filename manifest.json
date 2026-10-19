@@ -1,0 +1,40 @@
+{
+  "_comment": "Declarative manifest. In the full product the agent proposes this and a human confirms it once. Hand-written here for fastapi/full-stack-fastapi-template.",
+  "api_prefix": "/api/v1",
+  "identities": {
+    "anonymous": {"kind": "anonymous"},
+    "user_a": {"kind": "login", "owns_items": 7},
+    "user_b": {"kind": "login", "owns_items": 3},
+    "superuser": {"kind": "login", "superuser": true, "owns_items": 2},
+    "inactive": {"kind": "minted", "is_active": false, "owns_items": 2},
+    "forged_sig": {"kind": "forged", "as": "user_a"},
+    "expired": {"kind": "expired", "as": "user_a"},
+    "alg_none": {"kind": "alg_none", "as": "superuser"},
+    "deleted_user": {"kind": "deleted"}
+  },
+  "privileged_identities": ["superuser"],
+  "invalid_identities": ["anonymous", "inactive", "forged_sig", "expired", "alg_none", "deleted_user"],
+  "targets": ["user_a", "user_b", "superuser", "nonexistent"],
+  "ownership": {
+    "user": {"owner": "self"},
+    "item": {"owner_column": "owner_id"}
+  },
+  "privilege_columns": {"user": ["is_superuser", "is_active"]},
+  "ignored_columns": ["created_at"],
+  "param_hints": {
+    "id": "item_id",
+    "user_id": "user_id",
+    "email": "user_email"
+  },
+  "public_operations": [
+    "POST /login/access-token",
+    "POST /users/signup",
+    "POST /password-recovery/{email}",
+    "POST /reset-password/",
+    "GET /utils/health-check/"
+  ],
+  "exceptions": [
+    {"op": "POST /users/signup", "identity": "*", "allow": "insert_user_nonprivileged",
+     "reason": "Public self-registration creates a new non-superuser account"}
+  ]
+}

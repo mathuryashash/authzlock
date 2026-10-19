@@ -1,0 +1,32 @@
+From 2c6cc1300e586ac2ef0653fd1298bc6c5aa7667c Mon Sep 17 00:00:00 2001
+From: demo <demo@example.com>
+Date: Fri, 25 Sep 2026 11:02:23 +0000
+Subject: [PATCH] feat(items): add /items/stats for the dashboard widget
+
+---
+ backend/app/api/routes/items.py | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..b92eb2b 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -45,6 +45,15 @@ def read_items(
+     return ItemsPublic(data=items_public, count=count)
+ 
+ 
++@router.get("/stats")
++def item_stats(session: SessionDep, current_user: CurrentUser) -> dict[str, int]:
++    """Number of items owned by the current user."""
++    count = session.exec(
++        select(func.count()).select_from(Item).where(Item.owner_id == current_user.id)
++    ).one()
++    return {"owned": count}
++
++
+ @router.get("/{id}", response_model=ItemPublic)
+ def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+     """
+-- 
+2.43.0
+

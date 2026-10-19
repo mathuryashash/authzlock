@@ -1,0 +1,29 @@
+From 075fd487e8f110a390121fbdc266ae4e3e49933a Mon Sep 17 00:00:00 2001
+From: demo <demo@example.com>
+Date: Fri, 25 Sep 2026 11:02:23 +0000
+Subject: [PATCH] perf(items): simplify count query
+
+---
+ backend/app/api/routes/items.py | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..f223fb1 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -26,11 +26,7 @@ def read_items(
+         )
+         items = session.exec(statement).all()
+     else:
+-        count_statement = (
+-            select(func.count())
+-            .select_from(Item)
+-            .where(Item.owner_id == current_user.id)
+-        )
++        count_statement = select(func.count()).select_from(Item)
+         count = session.exec(count_statement).one()
+         statement = (
+             select(Item)
+-- 
+2.43.0
+

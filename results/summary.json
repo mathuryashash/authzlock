@@ -1,0 +1,117 @@
+{
+ "total_seconds": 1040.3,
+ "base_coverage": {
+  "operations": 22,
+  "probed": 20,
+  "unprobed": [
+   "POST /password-recovery-html-content/{email}",
+   "POST /reset-password/"
+  ],
+  "unsupported": []
+ },
+ "base_violations": [],
+ "scenarios": [
+  {
+   "scenario": "same SHA twice",
+   "expected": "PASS",
+   "verdict": "PASS",
+   "changed_cells": 0,
+   "new_violations": 0
+  },
+  {
+   "scenario": "pr-benign-pagination",
+   "description": "Benign: default page size 100 -> 50",
+   "expected": "PASS",
+   "verdict": "PASS",
+   "changed_cells": 0,
+   "widened_cells": 0,
+   "new_violations": 0,
+   "rules": [],
+   "new_ops": [],
+   "head_seconds": 104.7
+  },
+  {
+   "scenario": "pr-benign-stats",
+   "description": "Benign: new owner-scoped /items/stats endpoint",
+   "expected": "PASS",
+   "verdict": "PASS",
+   "changed_cells": 0,
+   "widened_cells": 0,
+   "new_violations": 0,
+   "rules": [],
+   "new_ops": [
+    "GET /items/stats"
+   ],
+   "head_seconds": 107.6
+  },
+  {
+   "scenario": "pr-idor-refactor",
+   "description": "Refactor moves item lookup to a helper and silently drops the ownership check on GET /items/{id}",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 4,
+   "widened_cells": 4,
+   "new_violations": 4,
+   "rules": [
+    "I1 read-isolation"
+   ],
+   "new_ops": [],
+   "head_seconds": 119.7
+  },
+  {
+   "scenario": "pr-export-csv",
+   "description": "AI-written CSV export endpoint that forgets the owner filter",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 0,
+   "widened_cells": 0,
+   "new_violations": 2,
+   "rules": [
+    "I1 read-isolation"
+   ],
+   "new_ops": [
+    "GET /items/export"
+   ],
+   "head_seconds": 99.0
+  },
+  {
+   "scenario": "pr-mass-assign",
+   "description": "is_superuser / is_active added to the /users/me update schema",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 2,
+   "widened_cells": 2,
+   "new_violations": 2,
+   "rules": [
+    "I4 privilege"
+   ],
+   "new_ops": [],
+   "head_seconds": 110.2
+  },
+  {
+   "scenario": "pr-count-leak",
+   "description": "'Simplified' count query leaks the total item count to normal users",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 2,
+   "widened_cells": 2,
+   "new_violations": 0,
+   "rules": [],
+   "new_ops": [],
+   "head_seconds": 114.5
+  },
+  {
+   "scenario": "dev profile vs prod profile",
+   "expected": "FAIL (informational)",
+   "verdict": "FAIL",
+   "new_ops": [
+    "POST /private/users/"
+   ],
+   "new_violations": 28,
+   "rules": [
+    "I3 write-isolation",
+    "I5 authn"
+   ]
+  }
+ ]
+}

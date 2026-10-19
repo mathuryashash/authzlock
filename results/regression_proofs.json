@@ -1,0 +1,30 @@
+[
+ {
+  "scenario": "pr-count-leak",
+  "tests": 1,
+  "on_base": "1 passed in 0.80s",
+  "on_head": "1 failed in 0.73s",
+  "proven": true
+ },
+ {
+  "scenario": "pr-export-csv",
+  "tests": 1,
+  "on_base": "1 passed in 0.81s",
+  "on_head": "1 failed in 0.84s",
+  "proven": true
+ },
+ {
+  "scenario": "pr-idor-refactor",
+  "tests": 1,
+  "on_base": "1 passed in 0.76s",
+  "on_head": "1 failed in 0.77s",
+  "proven": true
+ },
+ {
+  "scenario": "pr-mass-assign",
+  "tests": 1,
+  "on_base": "1 passed in 0.56s",
+  "on_head": "1 failed in 0.59s",
+  "proven": true
+ }
+]
