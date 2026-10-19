@@ -3,18 +3,22 @@
 Base lock is computed once per base SHA and reused (cache), as the design specifies.
 """
 import json
+import os
 import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-from authzlock import cmd_lock, diff, render_report
+from authzlock import MANIFEST, cmd_lock, diff, render_report
 
 HERE = Path(__file__).resolve().parent
 REPO = Path(sys.argv[1] if len(sys.argv) > 1 else "/home/claude/tpl").resolve()
-OUT = HERE / "results"
-OUT.mkdir(exist_ok=True)
+# optional: <out dir> <manifest> <seeder>  (agent artifacts: .authzlock/artifacts/{manifest.json,seeder.py})
+OUT = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else HERE / "results"
+MAN_PATH = Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else MANIFEST
+SEEDER = Path(sys.argv[4]).resolve() if len(sys.argv) > 4 else None
+OUT.mkdir(parents=True, exist_ok=True)
 PROD_ENV, DEV_ENV = HERE / "target.env", HERE / "dev.env"
 
 SCENARIOS = [
@@ -35,7 +39,10 @@ def checkout(ref: str, env_file: Path) -> Path:
     subprocess.run(["git", "-C", str(REPO), "worktree", "add", "--detach", str(tree), ref], check=True,
                    capture_output=True)
     shutil.copy(env_file, tree / ".env")
-    (tree / ".venv").symlink_to(REPO / ".venv")
+    if (REPO / ".venv" / "Scripts").exists():  # Windows: no symlink privilege; point the worker at the venv
+        os.environ["AUTHZ_PY"] = str(REPO / ".venv" / "Scripts" / "python.exe")
+    else:
+        (tree / ".venv").symlink_to(REPO / ".venv")
     return tree
 
 
@@ -46,7 +53,7 @@ def cleanup(tree: Path):
 def lock_for(ref: str, tag: str, env_file: Path) -> dict:
     tree = checkout(ref, env_file)
     try:
-        return cmd_lock(tree, OUT / f"{tag}.lock.json", tag)
+        return cmd_lock(tree, OUT / f"{tag}.lock.json", tag, manifest=MAN_PATH, seeder=SEEDER)
     finally:
         cleanup(tree)
 
@@ -61,7 +68,7 @@ print(f"base lock: {base['probes']} probes, {base['elapsed_s']}s, violations={le
 again = lock_for("base", "base_run2", PROD_ENV)
 d = diff(base, again)
 (OUT / "same-sha.report.md").write_text(render_report("base vs base (same SHA, second run)", base, again, d))
-summary.append({"scenario": "same SHA twice", "expected": "PASS", "verdict": d["verdict"],
+summary.append({"scenario": "same SHA twice", "expected": "PASS", "verdict": d["verdict"], "harness": base["harness"],
                 "changed_cells": len(d["changes"]), "new_violations": len(d["new_violations"])})
 print(summary[-1], flush=True)
 
