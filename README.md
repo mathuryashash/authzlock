@@ -42,6 +42,18 @@ The base lock has 603 probes across 22 operations and takes about 100 s. The bas
 - `POST /reset-password/` needs a valid reset token. That's a job for the future agent.
 - `POST /password-recovery-html-content/{email}` crashes. The template sets an invalid response header name, `"subject:"`. That's a real bug in the template that the probe surfaced incidentally. It's recorded as INCONCLUSIVE, never green.
 
+## Run it natively on Windows (measured: base lock 603 probes in ~38 s, 8 scenarios in ~6.5 min)
+
+Postgres in Docker (`docker run -d -p 5433:5432 --tmpfs /var/lib/postgresql/data -e POSTGRES_HOST_AUTH_METHOD=trust postgres:16 -c fsync=off`), the template checked out to `target/` as in `setup.sh` with `uv sync --python 3.14` (its `.venv\Scripts\python.exe` is picked up automatically), then:
+
+```bash
+export AUTHZ_PG=postgresql://postgres@127.0.0.1:5433/postgres
+python -m agent.onboard target                        # needs NEBIUS_API_KEY; writes target/.authzlock/artifacts/
+python run_scenarios.py target .authzlock/agent_scen target/.authzlock/artifacts/manifest.json target/.authzlock/artifacts/seeder.py
+python run_scenarios.py target .authzlock/ref/scen manifest.json seeders/fullstack_template.py   # hand-written reference
+python compare.py .authzlock/ref/scen .authzlock/agent_scen   # decision matrix + invariants + verdicts
+```
+
 ## Run it yourself (Linux or WSL2 Ubuntu)
 
 ```bash
@@ -80,7 +92,10 @@ The deterministic core above is the pre-hackathon prototype (25 Sep). During the
 | Agent loop: forced `tool_choice`, max-turns cap | Built |
 | Artifact cache per base SHA, keyless replay | Built |
 | Worker env allowlist (API keys never reach PR code) | Built |
-| Agent writes the seeder, hints and regression tests, then repairs them; JUnit-based proof criteria | Planned (D2–D3) |
+| **Onboarding agent** (`agent/onboard.py`): Nemotron Super reads the app's OpenAPI + source and writes `manifest.json` (identities, ownership, `param_hints`, policy proposal) and `seeder.py` into `.authzlock/artifacts/`, runs the base lock through the fixed `lock_artifacts` template and repairs until the harness is valid | **Built, live.** Run 1: 14 turns, $0.051, 2m17s. With *only* the agent's artifacts: **8/8 scenario verdicts, 603/603 identical decision cells, 0 invariant diffs, coverage 20/22** (`results/agent_run1/`) |
+| Seeder gates (security #3): ≥2 non-privileged owners with canaried rows (counted by the worker from the seed DB) that read their own canary back; else "harness invalid" → NEUTRAL | Built |
+| JUnit proof criteria for agent-written regression tests (security #4), `proof.py` | Built (checker); agent repair loop is next (D3) |
+| Tavily angle 1 (`agent/tavily.py`): one OWASP/CWE-allowlisted search per FAIL finding, quoted in report prose only | Built (stub-tested; wired into the report on D4) |
 | Ultra root cause and Tavily OWASP/CWE citations; PR comment and Action (`pull_request` / `workflow_run` split) | Planned (D4) |
 | Second app: `eladgunders/fastapi-todos` @ `c059889` (fastapi-users, async SQLAlchemy) | Planned (D5) |
 | Static HTML report; mutation benchmark ($/PR, s/PR, detection rate) | Planned (D6) |

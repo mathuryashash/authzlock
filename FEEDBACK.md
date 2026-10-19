@@ -18,3 +18,10 @@ This is a running log of friction and wins, kept while building authz.lock for t
 - **Docs / OpenAI compatibility.** Not yet verified. The plan is to use the `openai` package with `base_url=https://api.tokenfactory.nebius.com/v1/`. Time to hello world: _pending key_.
 - **Model IDs are case-sensitive and inconsistent:** `nvidia/nemotron-3-super-120b-a12b` is lowercase, while `nvidia/Nemotron-3-Ultra-550b-a55b` is mixed case. Third-party catalogs list both spellings. To be verified against `/v1/models` once there's a key.
 - **Pricing source.** I could only find per-token prices for Super ($0.30/$0.90 per M) and Ultra ($1/$3 per M) on third-party aggregators. A machine-readable price list on `/v1/models` would make cost caps reliable.
+
+## 2026-10-20: first real agent run (D2)
+
+- **Used for:** Nemotron 3 Super (`nvidia/nemotron-3-super-120b-a12b`) as a tool-calling agent that reads a FastAPI app's OpenAPI + source and writes a seeder (Python) and a policy/param manifest (JSON).
+- **What worked:** OpenAI SDK with `base_url` worked unchanged; `tool_choice="required"` was honoured on every turn (14/14 calls returned a tool call, 0 malformed JSON arguments). The agent produced a working seeder on the first try, using the app's own `crud`/models, and followed the "every value carries the canary" contract. Latency 2–5 s per turn at 10–16k prompt tokens. Whole onboarding: 14 calls, 147k prompt / 8k completion tokens, **$0.051** (at the placeholder prices), 2m17s.
+- **Needs work:** (1) Usage objects don't report cached prompt tokens, and agent loops resend a growing history, so prompt caching visibility would matter a lot for cost. (2) Prices are still not machine-readable from the API, so the $ cap depends on numbers copied by hand. (3) The model did redundant work: after a green run it re-read the OpenAPI and rewrote the manifest twice before calling `done`. That's a prompt issue on my side, but a "stop when the tool says success" behaviour would cut ~30% of tokens.
+- **Would build with it again:** yes; tool calling on Super is reliable enough that the D1 fallback to Ultra for the loop was not needed.

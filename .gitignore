@@ -4,6 +4,5 @@ __pycache__/
 .env
 *.env
 target/
-.authzlock/*.jsonl
-.authzlock/artifacts/
+.authzlock/
 .pytest_cache/
