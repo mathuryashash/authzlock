@@ -9,10 +9,10 @@ DONE = {"type": "function", "function": {"name": "done", "description": "Finish;
 
 
 def run_agent(llm, tools, system: str, user: str, model: str = tf.SUPER, max_turns: int = 12,
-              tool_choice="required") -> dict:
+              tool_choice="required", schemas=None) -> dict:
     messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
     for turn in range(1, max_turns + 1):
-        msg = llm.chat(model, messages, tools=SCHEMAS + [DONE], tool_choice=tool_choice).choices[0].message
+        msg = llm.chat(model, messages, tools=(schemas or SCHEMAS) + [DONE], tool_choice=tool_choice).choices[0].message
         calls = msg.tool_calls or []
         if not calls:
             messages += [{"role": "assistant", "content": msg.content or ""},

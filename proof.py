@@ -17,7 +17,7 @@ def is_proof(base_junit: str, head_junit: str, test_src: str, *, finding_path: s
         why.append("base: every test must run and pass")
     fails = [c.find("failure") for c in head]
     if not head or not any(f is not None and "AssertionError" in (f.get("message", "") + (f.text or ""))
-                           and test_path in (f.text or "") for f in fails):
+                           and test_path in (f.text or "").replace("\\", "/") for f in fails):
         why.append("head: no AssertionError raised inside the test file")
     if any(c.find("error") is not None for c in head):
         why.append("head: errors (import/fixture) are not proofs")
