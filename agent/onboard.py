@@ -80,6 +80,10 @@ def validate_manifest(m) -> list[str]:
     errs += [f"targets: unknown identity {t!r}" for t in m.get("targets", []) if t not in ids and t != "nonexistent"]
     errs += [f"param_hints[{p}] = {h!r}: must be one of {sorted(HINTS)}"
              for p, h in m.get("param_hints", {}).items() if h not in HINTS]
+    for key in ("ignored_columns", "public_operations", "exceptions", "targets",
+                "privileged_identities", "invalid_identities"):
+        if key in m and not isinstance(m[key], list):
+            errs.append(f"{key} must be a JSON list, got {type(m[key]).__name__}")
     return errs
 
 
@@ -130,7 +134,7 @@ def dump_openapi(repo: Path) -> None:
     out.parent.mkdir(parents=True, exist_ok=True)
     env = {k: v for k, v in __import__("os").environ.items() if "KEY" not in k and "TOKEN" not in k}
     subprocess.run([str(py), "-c", f"import json;from app.main import app;open(r'{out}','w').write("
-                    "json.dumps(app.openapi(),indent=1))"], cwd=repo / "backend", env=env, check=True)
+                    "json.dumps(app.openapi(),separators=(',',':')))"], cwd=repo / "backend", env=env, check=True)
 
 
 if __name__ == "__main__":

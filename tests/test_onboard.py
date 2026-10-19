@@ -78,3 +78,11 @@ def test_onboard_reports_missing_artifacts(tmp_path):
     (tmp_path / ".authzlock" / "openapi.json").write_text("{}")
     res = onboard.onboard(tmp_path, StubLLM([tool_msg("done", {"summary": "lazy"})]), max_turns=2)
     assert any("manifest.json" in e for e in res["errors"]) and any("seeder.py" in e for e in res["errors"])
+
+
+def test_manifest_field_types_are_checked():
+    bad = json.loads(json.dumps(GOOD))
+    bad["ignored_columns"] = {"user": ["created_at"]}  # agent run 1 wrote this; the worker wants a list
+    bad["public_operations"] = "POST /login"
+    errs = "\n".join(onboard.validate_manifest(bad))
+    assert "ignored_columns" in errs and "public_operations" in errs
