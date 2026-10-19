@@ -30,6 +30,7 @@ def test_verdict_code_never_imports_llm_client():
 def test_verdict_independent_of_llm():
     """Same lock inputs -> same verdict, whether or not the agent ran (diff() is pure)."""
     base = json.loads((ROOT / "results" / "base_run1.lock.json").read_text())
+    base["harness"] = {"valid": True, "failures": []}  # pre-gate fixture; missing gates => NEUTRAL
     head = json.loads(json.dumps(base))
     cell = next(k for k, v in head["cells"].items() if v["decision"] == "DENY")
     head["cells"][cell] = dict(head["cells"][cell], decision="ALLOW", status=200, leaks=["owner_b"])

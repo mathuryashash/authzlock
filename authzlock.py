@@ -105,7 +105,20 @@ def build_lock(raw: dict, man: dict) -> dict:
                 "unprobed": sorted(all_ops - ok_ops), "unsupported": sorted(set(unsupported))}
     return {"format": "authz.lock/v0", "tag": raw["tag"], "probes": raw["probes"],
             "elapsed_s": raw["elapsed_s"], "coverage": coverage, "cells": cells,
-            "violations": violations}
+            "violations": violations, "harness": seeder_gates(raw, man)}
+
+
+def seeder_gates(raw: dict, man: dict) -> dict:
+    """Security #3: >=2 non-privileged owners with canaried rows (counted by the worker from the seed DB,
+    not claimed by the seeder), and each one gets ALLOW + its own canary back on some request."""
+    skip = set(man["privileged_identities"]) | set(man["invalid_identities"])
+    owners = [r for r, v in raw.get("roles", {}).items() if r not in skip and v.get("canaried_rows", 0) > 0]
+    fails = [] if len(owners) >= 2 else [f"need >=2 non-privileged owners with canaried rows, got {owners}"]
+    for o in owners:
+        if not any(r.get("identity") == o and 200 <= r.get("status", 0) < 300 and o in r.get("leaks", [])
+                   for r in raw["results"]):
+            fails.append(f"{o}: no self-read returned ALLOW with its own canary")
+    return {"valid": not fails, "failures": fails}
 
 
 # The worker imports PR code and LLM-written seeders: it must never see API keys (security #1).
@@ -174,7 +187,11 @@ def diff(base: dict, head: dict) -> dict:
     removed_ops = sorted(base_ops - head_ops)
     new_unprobed = sorted(set(head["coverage"]["unprobed"]) - set(base["coverage"]["unprobed"]))
     widened = [c for c in changes if c["class"] == "WIDENED"]
-    if new_violations or widened:
+    harness_invalid = [f"{side}: {f}" for side, lk in (("base", base), ("head", head))
+                       for f in lk.get("harness", {"failures": ["no seeder gate results"]})["failures"]]
+    if harness_invalid:  # a vacuous harness can neither pass nor fail a PR
+        verdict = "NEUTRAL"
+    elif new_violations or widened:
         verdict = "FAIL"
     elif changes or new_unprobed or head["coverage"]["unsupported"]:
         verdict = "NEUTRAL"
@@ -182,7 +199,7 @@ def diff(base: dict, head: dict) -> dict:
         verdict = "PASS"
     return {"verdict": verdict, "changes": changes, "new_violations": new_violations,
             "fixed_violations": fixed_violations, "new_ops": new_ops, "removed_ops": removed_ops,
-            "new_unprobed": new_unprobed}
+            "new_unprobed": new_unprobed, "harness_invalid": harness_invalid}
 
 
 
