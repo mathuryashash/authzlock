@@ -13,3 +13,7 @@ def test_worker_env_excludes_secrets(monkeypatch):
     assert env["DATABASE_URL"] == "postgresql://x/y"
     assert env["TZ"] == "UTC"
     assert "PATH" in env
+
+
+def test_worker_env_forces_utf8():  # Windows default cp1252 broke the template email reads (500s)
+    assert authzlock.worker_env()["PYTHONUTF8"] == "1"

@@ -127,26 +127,30 @@ WORKER_ENV_ALLOW = ("PATH", "DATABASE_URL", "SMTP_PORT", "HOME", "LANG", "SYSTEM
 
 def worker_env() -> dict:
     env = {k: os.environ[k] for k in WORKER_ENV_ALLOW if k in os.environ}
-    return dict(env, TZ="UTC", PYTHONWARNINGS="ignore")
+    return dict(env, TZ="UTC", PYTHONWARNINGS="ignore", PYTHONUTF8="1")
 
 
-def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int) -> dict:
+def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int, manifest: Path = MANIFEST,
+               seeder: Path | None = None) -> dict:
     backend = checkout / "backend"
-    venv_py = checkout / ".venv" / "bin" / "python"
-    if not venv_py.exists():
-        venv_py = Path(os.environ.get("AUTHZ_PY", sys.executable))
+    venv_py = next((p for p in (checkout / ".venv" / "bin" / "python", checkout / ".venv" / "Scripts" / "python.exe")
+                    if p.exists()), Path(os.environ.get("AUTHZ_PY", sys.executable)))
     env = worker_env()
-    p = subprocess.run([str(venv_py), str(HERE / "probe_worker.py"), "--manifest", str(MANIFEST),
-                        "--out", str(out_raw), "--tag", tag, "--smtp-port", str(smtp_port)],
-                       cwd=backend, env=env, capture_output=True, text=True)
+    argv = [str(venv_py), str(HERE / "probe_worker.py"), "--manifest", str(Path(manifest).resolve()),
+            "--out", str(Path(out_raw).resolve()), "--tag", tag, "--smtp-port", str(smtp_port),
+            "--pg", os.environ.get("AUTHZ_PG", "postgresql://postgres@localhost:5432/postgres")]
+    if seeder:
+        argv += ["--seeder", str(Path(seeder).resolve())]
+    p = subprocess.run(argv, cwd=backend, env=env, capture_output=True, text=True, timeout=1800)
     if p.returncode != 0:
         raise SystemExit(f"worker failed for {tag}:\n{p.stderr[-3000:]}")
-    return json.loads(out_raw.read_text())
+    return json.loads(Path(out_raw).read_text())
 
 
-def cmd_lock(checkout: Path, out: Path, tag: str, smtp_port: int = 1025) -> dict:
-    man = json.loads(MANIFEST.read_text())
-    raw = run_worker(checkout, tag, out.with_suffix(".raw.json"), smtp_port)
+def cmd_lock(checkout: Path, out: Path, tag: str, smtp_port: int = 1025, manifest: Path = MANIFEST,
+             seeder: Path | None = None) -> dict:
+    man = json.loads(Path(manifest).read_text())
+    raw = run_worker(checkout, tag, out.with_suffix(".raw.json"), smtp_port, manifest, seeder)
     lock = build_lock(raw, man)
     out.write_text(json.dumps(lock, indent=1, sort_keys=True))
     return lock
@@ -288,6 +292,7 @@ if __name__ == "__main__":
     sub = ap.add_subparsers(dest="cmd", required=True)
     a = sub.add_parser("lock"); a.add_argument("--checkout", type=Path, required=True)
     a.add_argument("--out", type=Path, required=True); a.add_argument("--tag", default="lock")
+    a.add_argument("--manifest", type=Path, default=MANIFEST); a.add_argument("--seeder", type=Path)
     b = sub.add_parser("diff"); b.add_argument("--base", type=Path, required=True)
     b.add_argument("--head", type=Path, required=True); b.add_argument("--out", type=Path)
     c = sub.add_parser("pr"); c.add_argument("--repo", type=Path, required=True)
@@ -295,8 +300,9 @@ if __name__ == "__main__":
     c.add_argument("--workdir", type=Path, required=True); c.add_argument("--env-file", type=Path, required=True)
     ns = ap.parse_args()
     if ns.cmd == "lock":
-        lk = cmd_lock(ns.checkout, ns.out, ns.tag)
-        print(json.dumps({"coverage": lk["coverage"], "violations": len(lk["violations"])}, indent=1))
+        lk = cmd_lock(ns.checkout, ns.out, ns.tag, manifest=ns.manifest, seeder=ns.seeder)
+        print(json.dumps({"coverage": lk["coverage"], "harness": lk["harness"],
+                          "violations": [f'{v["rule"]}: {v["cell"]}' for v in lk["violations"]][:20]}, indent=1))
     elif ns.cmd == "diff":
         bl, hl = json.loads(ns.base.read_text()), json.loads(ns.head.read_text())
         d = diff(bl, hl)
