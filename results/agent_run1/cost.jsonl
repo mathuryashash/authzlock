@@ -1,0 +1,14 @@
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 1763, "completion_tokens": 41, "usd": 0.000566, "latency_s": 1.653, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 6307, "completion_tokens": 41, "usd": 0.001929, "latency_s": 1.166, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 7303, "completion_tokens": 55, "usd": 0.00224, "latency_s": 1.062, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 7967, "completion_tokens": 141, "usd": 0.002517, "latency_s": 1.667, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 8789, "completion_tokens": 1143, "usd": 0.003665, "latency_s": 5.367, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 9334, "completion_tokens": 94, "usd": 0.002885, "latency_s": 1.543, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 9647, "completion_tokens": 88, "usd": 0.002973, "latency_s": 1.382, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 9940, "completion_tokens": 1184, "usd": 0.004048, "latency_s": 6.304, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 10822, "completion_tokens": 73, "usd": 0.003312, "latency_s": 1.429, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 10951, "completion_tokens": 685, "usd": 0.003902, "latency_s": 5.257, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 15495, "completion_tokens": 769, "usd": 0.005341, "latency_s": 4.17, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 16052, "completion_tokens": 123, "usd": 0.004926, "latency_s": 1.917, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 16181, "completion_tokens": 2368, "usd": 0.006986, "latency_s": 12.745, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 16738, "completion_tokens": 1132, "usd": 0.00604, "latency_s": 6.871, "attempts": 1}

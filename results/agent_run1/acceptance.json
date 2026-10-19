@@ -1,0 +1,68 @@
+{
+ "base": {
+  "same_cells": 603,
+  "cell_mismatches": [],
+  "only_in_a": [],
+  "only_in_b": [],
+  "violation_diff": [],
+  "coverage": [
+   20,
+   20
+  ]
+ },
+ "harness_b": {
+  "failures": [],
+  "valid": true
+ },
+ "verdicts": [
+  [
+   "same SHA twice",
+   "PASS",
+   "PASS",
+   "PASS"
+  ],
+  [
+   "pr-benign-pagination",
+   "PASS",
+   "PASS",
+   "PASS"
+  ],
+  [
+   "pr-benign-stats",
+   "PASS",
+   "PASS",
+   "PASS"
+  ],
+  [
+   "pr-idor-refactor",
+   "FAIL",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "pr-export-csv",
+   "FAIL",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "pr-mass-assign",
+   "FAIL",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "pr-count-leak",
+   "FAIL",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "dev profile vs prod profile",
+   "FAIL (informational)",
+   "FAIL",
+   "FAIL"
+  ]
+ ],
+ "same_verdicts": 8
+}
