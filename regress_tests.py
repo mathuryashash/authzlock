@@ -124,8 +124,8 @@ def run_tests(repo: Path, ref: str, test_src: str, env_file: Path, tag: str) -> 
     base_url = "postgresql://postgres@localhost:5432"
     subprocess.run(["psql", "-h", "localhost", "-U", "postgres", "-qc", f'DROP DATABASE IF EXISTS "{db}" WITH (FORCE)'])
     subprocess.run(["psql", "-h", "localhost", "-U", "postgres", "-qc", f'CREATE DATABASE "{db}"'], check=True)
-    env = dict(os.environ, TZ="UTC", DATABASE_URL=f"{base_url.replace('postgres@', 'postgres:x' + tag + '@')}/{db}",
-               PYTHONWARNINGS="ignore")
+    from authzlock import worker_env  # allowlisted env: generated tests never see API keys
+    env = dict(worker_env(), DATABASE_URL=f"{base_url.replace('postgres@', 'postgres:x' + tag + '@')}/{db}")
     py = str(tree / ".venv" / "bin" / "python")
     backend = tree / "backend"
     subprocess.run([py, "-m", "alembic", "upgrade", "head"], cwd=backend, env=env, check=True, capture_output=True)

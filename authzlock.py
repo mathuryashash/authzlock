@@ -108,12 +108,21 @@ def build_lock(raw: dict, man: dict) -> dict:
             "violations": violations}
 
 
+# The worker imports PR code and LLM-written seeders: it must never see API keys (security #1).
+WORKER_ENV_ALLOW = ("PATH", "DATABASE_URL", "SMTP_PORT", "HOME", "LANG", "SYSTEMROOT", "TEMP", "TMP")
+
+
+def worker_env() -> dict:
+    env = {k: os.environ[k] for k in WORKER_ENV_ALLOW if k in os.environ}
+    return dict(env, TZ="UTC", PYTHONWARNINGS="ignore")
+
+
 def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int) -> dict:
     backend = checkout / "backend"
     venv_py = checkout / ".venv" / "bin" / "python"
     if not venv_py.exists():
         venv_py = Path(os.environ.get("AUTHZ_PY", sys.executable))
-    env = dict(os.environ, TZ="UTC", PYTHONWARNINGS="ignore")
+    env = worker_env()
     p = subprocess.run([str(venv_py), str(HERE / "probe_worker.py"), "--manifest", str(MANIFEST),
                         "--out", str(out_raw), "--tag", tag, "--smtp-port", str(smtp_port)],
                        cwd=backend, env=env, capture_output=True, text=True)
