@@ -33,7 +33,7 @@ def test_escaping_of_untrusted_text():
     rc = md.split("Root cause")[1]
     assert "](" not in rc.split("\n```")[0] and "@org" not in rc and "<img" not in rc
     # the test source sits in a fence that its own backticks can't close
-    fence = md.split("def test_x")[0].rsplit("\n", 1)[-1]
+    fence = md.split("\ndef test_x")[0].rsplit("\n", 1)[-1]
     assert fence.startswith("~~~~")
 
 
