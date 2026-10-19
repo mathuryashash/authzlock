@@ -8,7 +8,7 @@ from pathlib import Path
 import authzlock
 
 ROOT = Path(__file__).resolve().parent.parent
-VERDICT_FILES = ["authzlock.py", "probe_worker.py"]
+VERDICT_FILES = ["authzlock.py", "probe_worker.py", "proof.py", "compare.py"]
 FORBIDDEN = {"agent", "openai", "tavily"}
 
 
