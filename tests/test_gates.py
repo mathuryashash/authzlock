@@ -54,3 +54,14 @@ def test_invalid_harness_is_neutral_never_pass_or_fail():
     for b, h in ((good, bad), (bad, good), (bad, bad)):
         d = authzlock.diff(b, h)
         assert d["verdict"] == "NEUTRAL" and d["harness_invalid"]
+
+
+def test_identity_flags_must_match_the_seed_db():  # D5: app-2 agent seeder silently lost is_active/is_superuser
+    roles = dict(GOOD_ROLES, superuser=dict(GOOD_ROLES["superuser"], flags={"is_superuser": "False"}),
+                 inactive={"owns_items": 0, "canaried_rows": 0, "flags": {"is_active": "True"}})
+    man = dict(MAN, identities=dict(MAN["identities"]))
+    lock = authzlock.build_lock(raw(roles, GOOD_RESULTS), man)
+    f = "\n".join(lock["harness"]["failures"])
+    assert "superuser: seeded user row has is_superuser=False" in f and "inactive: seeded user row has is_active=True" in f
+    ok = dict(GOOD_ROLES, superuser=dict(GOOD_ROLES["superuser"], flags={"is_superuser": "True"}))
+    assert authzlock.build_lock(raw(ok, GOOD_RESULTS), man)["harness"]["valid"]

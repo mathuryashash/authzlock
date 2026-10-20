@@ -120,6 +120,12 @@ def seeder_gates(raw: dict, man: dict) -> dict:
         if not any(r.get("identity") == o and 200 <= r.get("status", 0) < 300 and o in r.get("leaks", [])
                    for r in raw["results"]):
             fails.append(f"{o}: no self-read returned ALLOW with its own canary")
+    for role, spec in man["identities"].items():  # the seeder must create what the manifest declares
+        flags = raw.get("roles", {}).get(role, {}).get("flags", {})
+        want = {"is_superuser": "True" if spec.get("superuser") else None,
+                "is_active": "False" if spec.get("is_active") is False else None}
+        fails += [f"{role}: seeded user row has {c}={flags[c]}, manifest wants {v}"
+                  for c, v in want.items() if v and c in flags and flags[c] != v]
     return {"valid": not fails, "failures": fails}
 
 

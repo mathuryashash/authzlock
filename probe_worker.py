@@ -250,6 +250,10 @@ _schemes = app.openapi().get("components", {}).get("securitySchemes", {}).values
 LOGIN = next((f["password"]["tokenUrl"] for s in _schemes for f in [s.get("flows", {})] if "password" in f),
              f"{PREFIX}/login/access-token")
 LOGIN = LOGIN if LOGIN.startswith("/") else "/" + LOGIN
+# seeder gate input: the identity flags as they really are in the seed DB (not as the seeder claims)
+_utable = next((t for t, o in MAN["ownership"].items() if o.get("owner") == "self"), "user")
+flags = {r: {c: row.get(c) for c in ("is_superuser", "is_active") if c in row}
+         for r in roles for row in [seed_snapshot.get(_utable, {}).get(roles[r]["user_id"], {})]}
 for role, spec in MAN["identities"].items():
     if spec["kind"] == "login":  # real login path, every run
         r = client.post(LOGIN, data={"username": roles[role]["email"], "password": roles[role]["password"]})
@@ -440,7 +444,8 @@ for op in ops:
 
 drop_db(SEED_DB)
 out = {"tag": args.tag, "elapsed_s": round(time.time() - t0, 1), "probes": len(results),
-       "roles": {r: {"owns_items": len(v["items"]), "canaried_rows": canaried_rows[r]} for r, v in roles.items()},
+       "roles": {r: {"owns_items": len(v["items"]), "canaried_rows": canaried_rows[r], "flags": flags[r]}
+                 for r, v in roles.items()},
        "public_operations": MAN["public_operations"], "results": results}
 json.dump(out, open(args.out, "w"), indent=1)
 print(f"[{args.tag}] {len(results)} probes in {out['elapsed_s']}s")
