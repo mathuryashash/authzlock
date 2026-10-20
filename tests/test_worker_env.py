@@ -39,3 +39,10 @@ def test_run_worker_uses_absolute_python_for_relative_checkout(tmp_path, monkeyp
     except SystemExit:
         pass
     assert Path(seen["argv"][0]).is_absolute()
+
+
+def test_worker_env_keeps_windows_home_and_app_profile(monkeypatch):  # asyncpg needs a home dir (D5)
+    monkeypatch.setenv("USERPROFILE", "C:/Users/x")
+    monkeypatch.setenv("AUTHZ_PROFILE", "apps/todos/profile.json")
+    env = authzlock.worker_env()
+    assert env["USERPROFILE"] == "C:/Users/x" and env["AUTHZ_PROFILE"] == "apps/todos/profile.json"

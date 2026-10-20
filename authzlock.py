@@ -124,7 +124,8 @@ def seeder_gates(raw: dict, man: dict) -> dict:
 
 
 # The worker imports PR code and LLM-written seeders: it must never see API keys (security #1).
-WORKER_ENV_ALLOW = ("PATH", "DATABASE_URL", "SMTP_PORT", "HOME", "LANG", "SYSTEMROOT", "TEMP", "TMP")
+WORKER_ENV_ALLOW = ("PATH", "DATABASE_URL", "SMTP_PORT", "HOME", "USERPROFILE", "LANG", "SYSTEMROOT", "TEMP", "TMP",
+                    "AUTHZ_PROFILE", "AUTHZ_DEBUG")
 
 
 def worker_env() -> dict:

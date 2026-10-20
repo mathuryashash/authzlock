@@ -235,7 +235,7 @@ except Exception as ex:  # pragma: no cover
     print("SMTP sink unavailable:", ex, file=sys.stderr)
 
 # ---------------------------------------------------------------- identities
-client = TestClient(app, raise_server_exceptions=False)
+client = TestClient(app, raise_server_exceptions=bool(os.environ.get("AUTHZ_DEBUG")))
 seed_snapshot = None
 tokens: dict[str, str | None] = {}
 name = new_clone()
