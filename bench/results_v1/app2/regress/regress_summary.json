@@ -1,0 +1,311 @@
+{
+ "spent_usd": 0.2403,
+ "calls": 71,
+ "scenarios": [
+  {
+   "scenario": "pr-mut-categories-user-param",
+   "finding": {
+    "scenario": "pr-mut-categories-user-param",
+    "op": "GET /categories",
+    "path": "/categories",
+    "canary": "cnry-pr-mut-categories-user-param",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /categories | user_a | - | foreign_ref",
+     "GET /categories | user_b | - | foreign_ref"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 1,
+   "agent_turns": 7,
+   "written": [
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom tests.conftest_utils import get_tests_data\nfrom app.core.config import get_config\n\nconfig = get_config()\nCANARY = \"cnry-pr-mut-categories-user-param\"\n\n@pytest.mark.asyncio\nasync def test_categories_read_isolation_regression(client: AsyncClient):\n    # Obtain tokens for two users\n    tests_data = get_tests_data()\n    # User A (first user)\n    login_a = {\n        'username': tests_data['users'][0]['email'],\n        'password': tests_data['users'][0]['password'],\n    }\n    resp_a = await client.post(f'{config.API_V1_STR}/auth/login', data=login_a)\n    assert resp_a.status_code == 200\n    token_a = resp_a.json()['access_token']\n    headers_a = {'Authorization': f'Bearer {token_a}'}\n    # User B (second user)\n    login_b = {\n        'username': tests_data['users'][1]['email'],\n        'password': tests_data['users'][1]['password'],\n    }\n    resp_b = await client.post(f'{config.API_V1_STR}/auth/login', data=login_b)\n    assert resp_b.status_code == 200\n    token_b = resp_b.json()['access_token']\n    headers_b = {'Authorization': f'Bearer {token_b}'}\n\n    # User B creates a private category with the CANARY in its name\n    category_name = f\"{CANARY}_secret\"\n    create_resp = await client.post(\n        f'{config.API_V1_STR}/categories',\n        headers=headers_b,\n        json={'name': category_name}\n    )\n    # Expect 201 created (or 409 if duplicate; but we assume clean)\n    assert create_resp.status_code == 201, f\"Failed to create category: {create_resp.text}\"\n    created_category = create_resp.json()\n    category_id = created_category['id']\n\n    # Now User A tries to list categories, specifying User B's ID via query param\n    # (this is the vector introduced in the PR)\n    list_resp = await client.get(\n        f'{config.API_V1_STR}/categories?user_id={category_id}',\n        headers=headers_a\n    )\n    assert list_resp.status_code == 200\n    categories = list_resp.json()\n\n    # Verify that the CANARY-labeled category is NOT present in the list.\n    # On the base branch (without the vulnerable user_id param) this should hold.\n    # On the PR branch the endpoint incorrectly respects the user_id param and\n    # returns User B's private category, causing the assertion to fail.\n    assert not any(c['name'] == category_name for c in categories), (\n        f\"User A was able to see User B's private category '{category_name}' \"\n        f\"via the ?user_id= parameter, indicating an authorization bypass.\"\n    )",
+   "evidence": {
+    "base": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"1.078\" timestamp=\"2026-10-20T15:18:20.314570\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_categories_read_isolation_regression\" time=\"1.059\" /></testsuite></testsuites>",
+     "app_hash_before": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4",
+     "app_hash_after": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4"
+    },
+    "head": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"1\" skipped=\"0\" tests=\"1\" time=\"1.072\" timestamp=\"2026-10-20T15:18:23.706799\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_categories_read_isolation_regression\" time=\"1.017\"><failure message=\"assert 422 == 200&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\">client = &lt;httpx.AsyncClient object at 0x7ffff220a0a0&gt;\n\n    @pytest.mark.asyncio\n    async def test_categories_read_isolation_regression(client: AsyncClient):\n        # Obtain tokens for two users\n        tests_data = get_tests_data()\n        # User A (first user)\n        login_a = {\n            'username': tests_data['users'][0]['email'],\n            'password': tests_data['users'][0]['password'],\n        }\n        resp_a = await client.post(f'{config.API_V1_STR}/auth/login', data=login_a)\n        assert resp_a.status_code == 200\n        token_a = resp_a.json()['access_token']\n        headers_a = {'Authorization': f'Bearer {token_a}'}\n        # User B (second user)\n        login_b = {\n            'username': tests_data['users'][1]['email'],\n            'password': tests_data['users'][1]['password'],\n        }\n        resp_b = await client.post(f'{config.API_V1_STR}/auth/login', data=login_b)\n        assert resp_b.status_code == 200\n        token_b = resp_b.json()['access_token']\n        headers_b = {'Authorization': f'Bearer {token_b}'}\n    \n        # User B creates a private category with the CANARY in its name\n        category_name = f\"{CANARY}_secret\"\n        create_resp = await client.post(\n            f'{config.API_V1_STR}/categories',\n            headers=headers_b,\n            json={'name': category_name}\n        )\n        # Expect 201 created (or 409 if duplicate; but we assume clean)\n        assert create_resp.status_code == 201, f\"Failed to create category: {create_resp.text}\"\n        created_category = create_resp.json()\n        category_id = created_category['id']\n    \n        # Now User A tries to list categories, specifying User B's ID via query param\n        # (this is the vector introduced in the PR)\n        list_resp = await client.get(\n            f'{config.API_V1_STR}/categories?user_id={category_id}',\n            headers=headers_a\n        )\n&gt;       assert list_resp.status_code == 200\nE       assert 422 == 200\nE        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\n\ntodos/tests/authz/test_regression.py:50: AssertionError</failure></testcase></testsuite></testsuites>",
+     "app_hash_before": "692205c4c46e81e902008cc9acc2e1bdfc46e95e6a5d830ec3cb9d99d2c6bd9b",
+     "app_hash_after": "692205c4c46e81e902008cc9acc2e1bdfc46e95e6a5d830ec3cb9d99d2c6bd9b"
+    }
+   },
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /categories",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff introduces an optional `user_id` query parameter (line +6, +13) and changes the ownership filter from `created_by_id=user.id` to `created_by_id=user_id or user.id` (line -11/+14), allowing any authenticated caller to override the owner and read another user's categories. This breaks read-isolation by turning the user identifier into a user-controlled key, enabling IDOR/BOLA per CWE\u2011639 and OWASP API1:2023. Fix: remove the `user_id` parameter and always filter by the authenticated user's ID.",
+   "usd": 0.0113,
+   "calls": 8,
+   "seconds": 46.4
+  },
+  {
+   "scenario": "pr-mut-foreign-category-link",
+   "finding": {
+    "scenario": "pr-mut-foreign-category-link",
+    "op": "POST /todos",
+    "path": "/todos",
+    "canary": "cnry-pr-mut-foreign-category-link",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "POST /todos | user_a | - | foreign_ref",
+     "POST /todos | user_b | - | foreign_ref"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 1,
+   "agent_turns": 12,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom sqlalchemy import select\nfrom app.core.config import get_config\nfrom tests.conftest_utils import get_tests_data\nfrom app.models.tables import User, Category\n\nconfig = get_config()\nAPI_TODOS_PREFIX = f'{config.API_V1_STR}/todos'\nCANARY = \"cnry-pr-mut-foreign-category-link\"\n\n\n@pytest.mark.asyncio\nasync def test_foreign_category_link_isolation(client: AsyncClient, async_session):\n    tests_data = get_tests_data()\n\n    # retrieve user0 and user1 from DB\n    res = await async_session.execute(select(User).where(User.email == tests_data['users'][0]['email']))\n    user0 = res.scalar_one()\n    res = await async_session.execute(select(User).where(User.email == tests_data['users'][1]['email']))\n    user1 = res.scalar_one()\n\n    # get a private category belonging to each user\n    res = await async_session.execute(select(Category).where(Category.created_by_id == user0.id).limit(1))\n    cat0 = res.scalar_one()\n    res = await async_session.execute(select(Category).where(Category.created_by_id == user1.id).limit(1))\n    cat1 = res.scalar_one()\n\n    # obtain auth header for user0\n    login_resp = await client.post(\n        f'{config.API_V1_STR}/auth/login',\n        data={'username': user0.email, 'password': tests_data['users'][0]['password']},\n    )\n    assert login_resp.status_code == 200\n    token0 = login_resp.json()['access_token']\n    headers0 = {'Authorization': f'Bearer {token0}'}\n\n    # attempt to create a todo for user0 using user1's private category (should be forbidden)\n    todo_payload = {\n        'content': f'Test {CANARY}',\n        'priority_id': 1,  # assuming priority 1 exists in seed data\n        'categories_ids': [cat1.id],\n    }\n    resp = await client.post(API_TODOS_PREFIX, headers=headers0, json=todo_payload)\n\n    # the request must be rejected with a validation error\n    assert resp.status_code == 400\n    # ensure the todo was not created (the CANARY must not appear in user0's todo list)\n    list_resp = await client.get(API_TODOS_PREFIX, headers=headers0)\n    assert list_resp.status_code == 200\n    todos = list_resp.json()\n    assert all(CANARY not in t['content'] for t in todos)",
+   "evidence": {
+    "base": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.817\" timestamp=\"2026-10-20T15:19:34.754024\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_foreign_category_link_isolation\" time=\"0.797\" /></testsuite></testsuites>",
+     "app_hash_before": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4",
+     "app_hash_after": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4"
+    },
+    "head": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"1\" skipped=\"0\" tests=\"1\" time=\"0.853\" timestamp=\"2026-10-20T15:19:40.770434\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_foreign_category_link_isolation\" time=\"0.796\"><failure message=\"assert 201 == 400&#10; +  where 201 = &lt;Response [201 Created]&gt;.status_code\">client = &lt;httpx.AsyncClient object at 0x7ffff212b910&gt;\nasync_session = &lt;sqlalchemy.ext.asyncio.session.AsyncSession object at 0x7ffff2209490&gt;\n\n    @pytest.mark.asyncio\n    async def test_foreign_category_link_isolation(client: AsyncClient, async_session):\n        tests_data = get_tests_data()\n    \n        # retrieve user0 and user1 from DB\n        res = await async_session.execute(select(User).where(User.email == tests_data['users'][0]['email']))\n        user0 = res.scalar_one()\n        res = await async_session.execute(select(User).where(User.email == tests_data['users'][1]['email']))\n        user1 = res.scalar_one()\n    \n        # get a private category belonging to each user\n        res = await async_session.execute(select(Category).where(Category.created_by_id == user0.id).limit(1))\n        cat0 = res.scalar_one()\n        res = await async_session.execute(select(Category).where(Category.created_by_id == user1.id).limit(1))\n        cat1 = res.scalar_one()\n    \n        # obtain auth header for user0\n        login_resp = await client.post(\n            f'{config.API_V1_STR}/auth/login',\n            data={'username': user0.email, 'password': tests_data['users'][0]['password']},\n        )\n        assert login_resp.status_code == 200\n        token0 = login_resp.json()['access_token']\n        headers0 = {'Authorization': f'Bearer {token0}'}\n    \n        # attempt to create a todo for user0 using user1's private category (should be forbidden)\n        todo_payload = {\n            'content': f'Test {CANARY}',\n            'priority_id': 1,  # assuming priority 1 exists in seed data\n            'categories_ids': [cat1.id],\n        }\n        resp = await client.post(API_TODOS_PREFIX, headers=headers0, json=todo_payload)\n    \n        # the request must be rejected with a validation error\n&gt;       assert resp.status_code == 400\nE       assert 201 == 400\nE        +  where 201 = &lt;Response [201 Created]&gt;.status_code\n\ntodos/tests/authz/test_regression.py:47: AssertionError</failure></testcase></testsuite></testsuites>",
+     "app_hash_before": "688f0283ba9262f255c72701766cf388befd85b25411a553481b8cf6507981db",
+     "app_hash_after": "688f0283ba9262f255c72701766cf388befd85b25411a553481b8cf6507981db"
+    }
+   },
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "POST /todos",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    },
+    {
+     "rule": "I1 read-isolation",
+     "op": "PUT /todos/{todo_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The regression stems from line 30 where `Category.id.isnot(None)` was added to the `or_()` filter, making any existing category ID pass validation regardless of ownership. Previously only `default_categories_filter` (system categories) or `user_categories_filter` (caller's own categories) were allowed; the new clause matches every non\u2011null `Category.id`, so a user can reference another user's category on `POST /todos` and `PUT /todos/{todo_id}` \u2014 an IDOR/broken object\u2011level authorization flaw (CWE\u2011639, API1:2023). Revert the filter to `or_(default_categories_filter, user_categories_filter)` to restore per\u2011user isolation.",
+   "usd": 0.029,
+   "calls": 13,
+   "seconds": 75.7
+  },
+  {
+   "scenario": "pr-mut-swap-user-source",
+   "finding": {
+    "scenario": "pr-mut-swap-user-source",
+    "op": "GET /todos",
+    "path": "/todos",
+    "canary": "cnry-pr-mut-swap-user-source",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /todos | user_a | - | foreign_ref",
+     "GET /todos | user_b | - | foreign_ref"
+    ]
+   },
+   "status": "unproven",
+   "why": [
+    "base: every test must run and pass",
+    "head: no AssertionError raised inside the test file",
+    "head: errors (import/fixture) are not proofs"
+   ],
+   "prove_runs": 1,
+   "agent_turns": 24,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\n\nAPI_PREFIX = '/api/v1/todos'\nCANARY = 'cnry-pr-mut-swap-user-source'\n\n\nasync def _login(client: AsyncClient, email: str, password: str) -> dict[str, str]:\n    from app.core.config import get_config\n    config = get_config()\n    resp = await client.post(f'{config.API_V1_STR}/auth/login', data={'username': email, 'password': password})\n    assert resp.status_code == 200, f'Login failed: {resp.text}'\n    token = resp.json()['access_token']\n    return {'Authorization': f'Bearer {token}'}\n\n\n@pytest.mark.asyncio\nasync def test_get_todos_user_id_isolation(client: AsyncClient):\n    # attacker is test1@test.com (first user in seed data)\n    attacker_email = 'test1@test.com'\n    attacker_pass = 'test'\n    # victim is test2@test.com (second user)\n    victim_email = 'test2@test.com'\n    victim_pass = 'test'\n\n    # login as victim to create a private todo with CANARY\n    victim_headers = await _login(client, victim_email, victim_pass)\n    # create a todo\n    todo_payload = {\n        'content': f'Important task {CANARY}',\n        'priority_id': 1,\n        'categories_ids': [1]\n    }\n    resp_create = await client.post(API_PREFIX, headers=victim_headers, json=todo_payload)\n    assert resp_create.status_code == 201, f'Create todo failed: {resp_create.text}'\n\n    # login as attacker\n    attacker_headers = await _login(client, attacker_email, attacker_pass)\n\n    # request GET /todos with victim's user_id (we know victim id is 2 from seed data)\n    victim_user_id = 2\n    resp = await client.get(f'{API_PREFIX}?user_id={victim_user_id}', headers=attacker_headers)\n    assert resp.status_code == 200, f'GET todos failed: {resp.text}'\n    data = resp.json()\n    # Ensure attacker does NOT see the victim's CANARY todo\n    for todo in data:\n        assert CANARY not in todo['content'], f\\\"Attacker saw victim's private todo: {todo}\\\"",
+   "evidence": {
+    "base": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"1\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.190\" timestamp=\"2026-10-20T15:22:50.125604\" hostname=\"hostname\"><testcase classname=\"\" name=\"todos.tests.authz.test_regression\" time=\"0.000\"><error message=\"collection failure\">/usr/local/lib/python3.9/site-packages/_pytest/python.py:617: in _importtestmodule\n    mod = import_path(self.path, mode=importmode, root=self.config.rootpath)\n/usr/local/lib/python3.9/site-packages/_pytest/pathlib.py:567: in import_path\n    importlib.import_module(module_name)\n/usr/local/lib/python3.9/importlib/__init__.py:127: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n&lt;frozen importlib._bootstrap&gt;:1030: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1007: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:986: in _find_and_load_unlocked\n    ???\n&lt;frozen importlib._bootstrap&gt;:680: in _load_unlocked\n    ???\n/usr/local/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:177: in exec_module\n    source_stat, co = _rewrite_test(fn, self.config)\n/usr/local/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:359: in _rewrite_test\n    tree = ast.parse(source, filename=strfn)\n/usr/local/lib/python3.9/ast.py:50: in parse\n    return compile(source, filename, mode, flags,\nE     File \"/w/todos/tests/authz/test_regression.py\", line 47\nE       assert CANARY not in todo['content'], f\\\"Attacker saw victim's private todo: {todo}\\\"\nE                                               ^\nE   SyntaxError: unexpected character after line continuation character</error></testcase></testsuite></testsuites>",
+     "app_hash_before": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4",
+     "app_hash_after": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4"
+    },
+    "head": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"1\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.187\" timestamp=\"2026-10-20T15:22:48.905225\" hostname=\"hostname\"><testcase classname=\"\" name=\"todos.tests.authz.test_regression\" time=\"0.000\"><error message=\"collection failure\">/usr/local/lib/python3.9/site-packages/_pytest/python.py:617: in _importtestmodule\n    mod = import_path(self.path, mode=importmode, root=self.config.rootpath)\n/usr/local/lib/python3.9/site-packages/_pytest/pathlib.py:567: in import_path\n    importlib.import_module(module_name)\n/usr/local/lib/python3.9/importlib/__init__.py:127: in import_module\n    return _bootstrap._gcd_import(name[level:], package, level)\n&lt;frozen importlib._bootstrap&gt;:1030: in _gcd_import\n    ???\n&lt;frozen importlib._bootstrap&gt;:1007: in _find_and_load\n    ???\n&lt;frozen importlib._bootstrap&gt;:986: in _find_and_load_unlocked\n    ???\n&lt;frozen importlib._bootstrap&gt;:680: in _load_unlocked\n    ???\n/usr/local/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:177: in exec_module\n    source_stat, co = _rewrite_test(fn, self.config)\n/usr/local/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:359: in _rewrite_test\n    tree = ast.parse(source, filename=strfn)\n/usr/local/lib/python3.9/ast.py:50: in parse\n    return compile(source, filename, mode, flags,\nE     File \"/w/todos/tests/authz/test_regression.py\", line 47\nE       assert CANARY not in todo['content'], f\\\"Attacker saw victim's private todo: {todo}\\\"\nE                                               ^\nE   SyntaxError: unexpected character after line continuation character</error></testcase></testsuite></testsuites>",
+     "app_hash_before": "e1250757adbab33c5ec5e828455a59c3d1f95449175f116a07f0f6801e4f1147",
+     "app_hash_after": "e1250757adbab33c5ec5e828455a59c3d1f95449175f116a07f0f6801e4f1147"
+    }
+   },
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /todos",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff introduces an optional `user_id` query parameter (line\u202f+6) and changes the database lookup from the authenticated user\u2019s ID to `user_id or user.id` (line\u202f+12). This lets any logged\u2011in caller supply another user\u2019s UUID and retrieve that user\u2019s todos, breaking read isolation and enabling IDOR/BOLA. The vulnerability matches CWE\u2011639 (authorization bypass via user\u2011controlled key) and OWASP API1:2023 Broken Object Level Authorization. Fix: either drop the `user_id` parameter entirely or add a guard that rejects requests where `user_id` differs from the caller\u2019s identity (or requires elevated privileges).",
+   "usd": 0.0848,
+   "calls": 25,
+   "seconds": 185.1
+  },
+  {
+   "scenario": "pr-mut-update-skip-category-check",
+   "finding": {
+    "scenario": "pr-mut-update-skip-category-check",
+    "op": "PUT /todos/{todo_id}",
+    "path": "/todos/{todo_id}",
+    "canary": "cnry-pr-mut-update-skip-category-check",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "PUT /todos/{todo_id} | user_a | user_a | foreign_ref",
+     "PUT /todos/{todo_id} | user_b | user_b | foreign_ref"
+    ]
+   },
+   "status": "unproven",
+   "why": [
+    "base: every test must run and pass"
+   ],
+   "prove_runs": 3,
+   "agent_turns": 24,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom app.core.config import get_config\n\npytestmark = pytest.mark.asyncio\n\nconfig = get_config()\nAPI_TODOS_PREFIX = f'{config.API_V1_STR}/todos'\nAPI_AUTH_LOGIN = f'{config.API_V1_STR}/auth/login'\n\nasync def test_put_todo_cross_user_forbidden_with_canary(client: AsyncClient):\n    \"\"\"\n    Regression test for PR mut-update-skip-category-check.\n    The PR removed the validation that categories belong to the user making the update.\n    As a side effect, this might allow a user to update another user's todo by tampering with categories?\n    However, the direct authorization check (ownership) should still prevent cross-user updates.\n    This test ensures that a user cannot update another user's todo, and that the CANARY\n    placed in the victim's todo content is not exposed.\n    \"\"\"\n    # Helper to login and get token\n    async def login(email: str, password: str = \"test\"):\n        resp = await client.post(API_AUTH_LOGIN, data={'username': email, 'password': password})\n        assert resp.status_code == 200, f\"Login failed for {email}: {resp.status_code} {resp.text}\"\n        return resp.json()['access_token']\n\n    # Log in as user_a (test1@test.com) to create a todo with the CANARY.\n    token_a = await login('test1@test.com')\n    headers_a = {'Authorization': f'Bearer {token_a}'}\n\n    # Create a todo owned by user_a with the CANARY in its content.\n    todo_payload = {\n        \"content\": \"cnry-pr-mut-update-skip-category-check\",\n        \"priority_id\": 1,\n        \"category_ids\": [1]  # Personal category (global)\n    }\n    create_resp = await client.post(\n        API_TODOS_PREFIX,\n        json=todo_payload,\n        headers=headers_a\n    )\n    # Accept 200 or 201\n    assert create_resp.status_code in (200, 201), f\"Failed to create todo: {create_resp.status_code} {create_resp.text}\"\n    todo_id = create_resp.json()['id']\n\n    # Verify the todo was created and contains the CANARY.\n    get_resp = await client.get(f'{API_TODOS_PREFIX}/{todo_id}', headers=headers_a)\n    assert get_resp.status_code == 200, f\"Failed to fetch todo: {get_resp.status_code} {get_resp.text}\"\n    todo_data = get_resp.json()\n    assert todo_data['content'] == \"cnry-pr-mut-update-skip-category-check\", \"CANARY not set in created todo\"\n\n    # Log in as user_b (test2@test.com) who should NOT be able to update user_a's todo.\n    token_b = await login('test2@test.com')\n    headers_b = {'Authorization': f'Bearer {token_b}'}\n\n    # Attempt to update the todo as user_b.\n    update_payload = {\n        \"content\": \"should not be seen\",\n        \"priority_id\": 2,\n        \"category_ids\": [2]  # Work category (global)\n    }\n    update_resp = await client.put(\n        f'{API_TODOS_PREFIX}/{todo_id}',\n        json=update_payload,\n        headers=headers_b,\n        follow_redirects=True  # Ensure we follow any redirects to get final status\n    )\n\n    # The update must be forbidden (403) because user_b is not the owner.\n    assert update_resp.status_code == 403, (\n        f\"Expected 403 Forbidden when user_b updates user_a's todo, \"\n        f\"got {update_resp.status_code}: {update_resp.text}\"\n    )\n\n    # Additionally, verify that the todo still contains the CANARY and was not modified.\n    get_resp_after = await client.get(f'{API_TODOS_PREFIX}/{todo_id}', headers=headers_a)\n    assert get_resp_after.status_code == 200, f\"Failed to refetch todo: {get_resp_after.status_code} {get_resp_after.text}\"\n    todo_data_after = get_resp_after.json()\n    assert todo_data_after['content'] == \"cnry-pr-mut-update-skip-category-check\", (\n        f\"CANARY was altered! Expected 'cnry-pr-mut-update-skip-category-check', got '{todo_data_after['content']}'\"\n    )",
+   "evidence": {
+    "base": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"1\" skipped=\"0\" tests=\"1\" time=\"0.838\" timestamp=\"2026-10-20T15:30:00.907197\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_put_todo_cross_user_forbidden_with_canary\" time=\"0.781\"><failure message=\"AssertionError: Failed to create todo: 422 {&quot;detail&quot;:[{&quot;loc&quot;:[&quot;body&quot;,&quot;categories_ids&quot;],&quot;msg&quot;:&quot;field required&quot;,&quot;type&quot;:&quot;value_error.missing&quot;}]}&#10;assert 422 in (200, 201)&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\">client = &lt;httpx.AsyncClient object at 0x7ffff2180d60&gt;\n\n    async def test_put_todo_cross_user_forbidden_with_canary(client: AsyncClient):\n        \"\"\"\n        Regression test for PR mut-update-skip-category-check.\n        The PR removed the validation that categories belong to the user making the update.\n        As a side effect, this might allow a user to update another user's todo by tampering with categories?\n        However, the direct authorization check (ownership) should still prevent cross-user updates.\n        This test ensures that a user cannot update another user's todo, and that the CANARY\n        placed in the victim's todo content is not exposed.\n        \"\"\"\n        # Helper to login and get token\n        async def login(email: str, password: str = \"test\"):\n            resp = await client.post(API_AUTH_LOGIN, data={'username': email, 'password': password})\n            assert resp.status_code == 200, f\"Login failed for {email}: {resp.status_code} {resp.text}\"\n            return resp.json()['access_token']\n    \n        # Log in as user_a (test1@test.com) to create a todo with the CANARY.\n        token_a = await login('test1@test.com')\n        headers_a = {'Authorization': f'Bearer {token_a}'}\n    \n        # Create a todo owned by user_a with the CANARY in its content.\n        todo_payload = {\n            \"content\": \"cnry-pr-mut-update-skip-category-check\",\n            \"priority_id\": 1,\n            \"category_ids\": [1]  # Personal category (global)\n        }\n        create_resp = await client.post(\n            API_TODOS_PREFIX,\n            json=todo_payload,\n            headers=headers_a\n        )\n        # Accept 200 or 201\n&gt;       assert create_resp.status_code in (200, 201), f\"Failed to create todo: {create_resp.status_code} {create_resp.text}\"\nE       AssertionError: Failed to create todo: 422 {\"detail\":[{\"loc\":[\"body\",\"categories_ids\"],\"msg\":\"field required\",\"type\":\"value_error.missing\"}]}\nE       assert 422 in (200, 201)\nE        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\n\ntodos/tests/authz/test_regression.py:42: AssertionError</failure></testcase></testsuite></testsuites>",
+     "app_hash_before": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4",
+     "app_hash_after": "df0fe0d466db7523410f631fcb8ff4ef50e7c33cb610aa0803eaae08478f10e4"
+    },
+    "head": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites><testsuite name=\"pytest\" errors=\"0\" failures=\"1\" skipped=\"0\" tests=\"1\" time=\"0.891\" timestamp=\"2026-10-20T15:29:59.922595\" hostname=\"hostname\"><testcase classname=\"todos.tests.authz.test_regression\" name=\"test_put_todo_cross_user_forbidden_with_canary\" time=\"0.835\"><failure message=\"AssertionError: Failed to create todo: 422 {&quot;detail&quot;:[{&quot;loc&quot;:[&quot;body&quot;,&quot;categories_ids&quot;],&quot;msg&quot;:&quot;field required&quot;,&quot;type&quot;:&quot;value_error.missing&quot;}]}&#10;assert 422 in (200, 201)&#10; +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\">client = &lt;httpx.AsyncClient object at 0x7ffff221d8b0&gt;\n\n    async def test_put_todo_cross_user_forbidden_with_canary(client: AsyncClient):\n        \"\"\"\n        Regression test for PR mut-update-skip-category-check.\n        The PR removed the validation that categories belong to the user making the update.\n        As a side effect, this might allow a user to update another user's todo by tampering with categories?\n        However, the direct authorization check (ownership) should still prevent cross-user updates.\n        This test ensures that a user cannot update another user's todo, and that the CANARY\n        placed in the victim's todo content is not exposed.\n        \"\"\"\n        # Helper to login and get token\n        async def login(email: str, password: str = \"test\"):\n            resp = await client.post(API_AUTH_LOGIN, data={'username': email, 'password': password})\n            assert resp.status_code == 200, f\"Login failed for {email}: {resp.status_code} {resp.text}\"\n            return resp.json()['access_token']\n    \n        # Log in as user_a (test1@test.com) to create a todo with the CANARY.\n        token_a = await login('test1@test.com')\n        headers_a = {'Authorization': f'Bearer {token_a}'}\n    \n        # Create a todo owned by user_a with the CANARY in its content.\n        todo_payload = {\n            \"content\": \"cnry-pr-mut-update-skip-category-check\",\n            \"priority_id\": 1,\n            \"category_ids\": [1]  # Personal category (global)\n        }\n        create_resp = await client.post(\n            API_TODOS_PREFIX,\n            json=todo_payload,\n            headers=headers_a\n        )\n        # Accept 200 or 201\n&gt;       assert create_resp.status_code in (200, 201), f\"Failed to create todo: {create_resp.status_code} {create_resp.text}\"\nE       AssertionError: Failed to create todo: 422 {\"detail\":[{\"loc\":[\"body\",\"categories_ids\"],\"msg\":\"field required\",\"type\":\"value_error.missing\"}]}\nE       assert 422 in (200, 201)\nE        +  where 422 = &lt;Response [422 Unprocessable Entity]&gt;.status_code\n\ntodos/tests/authz/test_regression.py:42: AssertionError</failure></testcase></testsuite></testsuites>",
+     "app_hash_before": "18dc376fca092e84877fc70afb500e66541a61bebb0a55ba62cc8235d0966772",
+     "app_hash_after": "18dc376fca092e84877fc70afb500e66541a61bebb0a55ba62cc8235d0966772"
+    }
+   },
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "PUT /todos/{todo_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff removes the ownership check on `todos/app/dal/db_service.py:143-147` where `_validate_todo_categories` verified each `category_id` belonged to `created_by_id`, replacing it with a mere duplicate-ID check (line 148). Because the foreign-key constraint only ensures the category rows exist\u2014not that they belong to the requesting user\u2014a malicious actor can now reference another user\u2019s categories (`foreign_ref`) and update a todo they don\u2019t own, widening access for `superuser`, `user_a`, and `user_b`. This is a classic IDOR / broken object-level authorization (OWASP API1:2023, CWE-639). The fix is to reinstate the per-category ownership validation before the update.",
+   "usd": 0.1152,
+   "calls": 25,
+   "seconds": 434.5
+  }
+ ]
+}

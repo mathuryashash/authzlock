@@ -1,0 +1,120 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "POST /items/ | superuser | - | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "insert:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "insert:item:user_b"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "POST /items/ | user_a | - | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "insert:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "insert:item:user_b"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "POST /items/ | user_b | - | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "insert:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "insert:item:user_a"
+    ],
+    "count": null,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I3 write-isolation",
+   "cell": "POST /items/ | user_a | - | hostile",
+   "op": "POST /items/",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "hostile",
+   "detail": "user_a created a item row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "POST /items/ | user_a | - | foreign_ref",
+   "op": "POST /items/",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_a created a item row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "POST /items/ | user_b | - | hostile",
+   "op": "POST /items/",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "hostile",
+   "detail": "user_b created a item row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "POST /items/ | user_b | - | foreign_ref",
+   "op": "POST /items/",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_b created a item row owned by user_a"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

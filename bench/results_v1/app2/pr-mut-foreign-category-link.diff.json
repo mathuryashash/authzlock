@@ -1,0 +1,189 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "POST /todos | superuser | - | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "db": [
+     "insert:todo:self",
+     "insert:todo_category:self"
+    ],
+    "count": null,
+    "status": 201
+   }
+  },
+  {
+   "cell": "POST /todos | user_a | - | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "db": [
+     "insert:todo:self",
+     "insert:todo_category:self"
+    ],
+    "count": null,
+    "status": 201
+   }
+  },
+  {
+   "cell": "POST /todos | user_b | - | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_a"
+    ],
+    "db": [
+     "insert:todo:self",
+     "insert:todo_category:self"
+    ],
+    "count": null,
+    "status": 201
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | superuser | superuser | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "db": [
+     "delete:todo_category:self",
+     "insert:todo_category:self",
+     "update:todo:self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_a | user_a | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "db": [
+     "delete:todo_category:self",
+     "insert:todo_category:self",
+     "update:todo:self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_b | user_b | foreign_ref",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_a"
+    ],
+    "db": [
+     "delete:todo_category:self",
+     "insert:todo_category:self",
+     "update:todo:self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I1 read-isolation",
+   "cell": "POST /todos | user_a | - | foreign_ref",
+   "op": "POST /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_a received data owned by user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "POST /todos | user_b | - | foreign_ref",
+   "op": "POST /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_b received data owned by user_a"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | user_a | foreign_ref",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_a",
+   "variant": "foreign_ref",
+   "detail": "user_a received data owned by user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | user_b | foreign_ref",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_b",
+   "variant": "foreign_ref",
+   "detail": "user_b received data owned by user_a"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

@@ -32,16 +32,20 @@ def run(app: str, names: list[str]) -> None:
     import probe_lib
     from authzlock import cmd_lock, diff
     prof = probe_lib.profile()
-    repo, out = cfg["repo"], ROOT / "bench/results" / app
+    repo, out = cfg["repo"], ROOT / os.environ.get("BENCH_OUT", "bench/results") / app
     out.mkdir(parents=True, exist_ok=True)
     os.environ["AUTHZ_PY"] = str(repo / ".venv/Scripts/python.exe") if (repo / ".venv/Scripts").exists() \
         else str(repo / ".venv/bin/python")
-    base = json.loads(cfg["base"].read_text(encoding="utf-8"))
-    muts = [m for m in MUTATIONS[app] if not names or m[0] in names]
+    if names == ["base"]:  # (re)build the base lock with the current probe into <out>/base.lock.json
+        muts = [("base", "PASS", "base", None)]
+    else:  # a base lock built by this probe version wins over the recorded one
+        bp = out / "base.lock.json" if (out / "base.lock.json").exists() else cfg["base"]
+        base = json.loads(bp.read_text(encoding="utf-8"))
+        muts = [m for m in MUTATIONS[app] if not names or m[0] in names]
 
     def one(i_m):
         i, (name, expected, desc, _) = i_m
-        tree = ROOT / ".authzlock" / f"bench_wt_{name}"
+        tree = ROOT / ".authzlock" / f"bench_wt_{app}_{name}"
         subprocess.run(["git", "-C", str(repo), "worktree", "remove", "--force", str(tree)], capture_output=True)
         subprocess.run(["git", "-C", str(repo), "worktree", "add", "--detach", str(tree), name], check=True,
                        capture_output=True)
@@ -52,9 +56,13 @@ def run(app: str, names: list[str]) -> None:
                             manifest=cfg["art"] / "manifest.json", seeder=cfg["art"] / "seeder.py")
         finally:
             subprocess.run(["git", "-C", str(repo), "worktree", "remove", "--force", str(tree)], capture_output=True)
+        (out / f"{name}.lock.raw.json").unlink(missing_ok=True)
+        if name == "base":
+            print(json.dumps({"app": app, "base_probes": head["probes"], "violations": len(head["violations"]),
+                              "harness": head["harness"], "probe_s": head["elapsed_s"]}), flush=True)
+            return
         d = diff(base, head)
         (out / f"{name}.diff.json").write_text(json.dumps(d, indent=1))
-        (out / f"{name}.lock.raw.json").unlink(missing_ok=True)
         row = {"app": app, "scenario": name, "expected": expected, "description": desc, "verdict": d["verdict"],
                "rules": sorted({v["rule"] for v in d["new_violations"]}), "new_violations": len(d["new_violations"]),
                "widened_cells": sum(c["class"] == "WIDENED" for c in d["changes"]), "changed_cells": len(d["changes"]),

@@ -1,0 +1,268 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "PUT /items/{id} | superuser | superuser | base",
+   "class": "INCONCLUSIVE",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "INCONCLUSIVE",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 500
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | superuser | superuser | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "db": [
+     "update:item:self->user_b"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | superuser | user_a | base",
+   "class": "INCONCLUSIVE",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:user_a"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "user_a"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "INCONCLUSIVE",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 500
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | superuser | user_a | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:user_a"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "user_a"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_a"
+    ],
+    "db": [
+     "update:item:user_a->user_b"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | superuser | user_b | base",
+   "class": "INCONCLUSIVE",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:user_b"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "INCONCLUSIVE",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 500
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | superuser | user_b | hostile",
+   "class": "CHANGED",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:user_b"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "user_b"
+    ],
+    "db": [],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | user_a | user_a | base",
+   "class": "INCONCLUSIVE",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "INCONCLUSIVE",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 500
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | user_a | user_a | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "db": [
+     "update:item:self->user_b"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | user_b | user_b | base",
+   "class": "INCONCLUSIVE",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "INCONCLUSIVE",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 500
+   }
+  },
+  {
+   "cell": "PUT /items/{id} | user_b | user_b | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [
+     "update:item:self"
+    ],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "db": [
+     "update:item:self->user_a"
+    ],
+    "count": null,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /items/{id} | user_a | user_a | hostile",
+   "op": "PUT /items/{id}",
+   "identity": "user_a",
+   "target": "user_a",
+   "variant": "hostile",
+   "detail": "user_a updated a item row owned by self (ownership moved to user_b)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /items/{id} | user_b | user_b | hostile",
+   "op": "PUT /items/{id}",
+   "identity": "user_b",
+   "target": "user_b",
+   "variant": "hostile",
+   "detail": "user_b updated a item row owned by self (ownership moved to user_a)"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

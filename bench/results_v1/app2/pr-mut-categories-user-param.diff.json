@@ -1,0 +1,29 @@
+{
+ "verdict": "FAIL",
+ "changes": [],
+ "new_violations": [
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /categories | user_a | - | foreign_ref",
+   "op": "GET /categories",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_a received data owned by user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /categories | user_b | - | foreign_ref",
+   "op": "GET /categories",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "foreign_ref",
+   "detail": "user_b received data owned by user_a"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

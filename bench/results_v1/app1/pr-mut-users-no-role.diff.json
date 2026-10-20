@@ -1,0 +1,322 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "GET /users/ | alg_none | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | anonymous | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 401
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | deleted_user | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 404
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | expired | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | forged_sig | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | inactive | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 400
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "self",
+     "superuser",
+     "user_a",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | user_a | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "self",
+     "superuser",
+     "user_b"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /users/ | user_b | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "self",
+     "superuser",
+     "user_a"
+    ],
+    "db": [],
+    "count": 4,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | anonymous | - | base",
+   "op": "GET /users/",
+   "identity": "anonymous",
+   "target": "-",
+   "variant": "base",
+   "detail": "anonymous received data owned by inactive, superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | anonymous | - | base",
+   "op": "GET /users/",
+   "identity": "anonymous",
+   "target": "-",
+   "variant": "base",
+   "detail": "anonymous was allowed (HTTP 200) on a non-public operation"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | user_a | - | base",
+   "op": "GET /users/",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a received data owned by inactive, superuser, user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | user_b | - | base",
+   "op": "GET /users/",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b received data owned by inactive, superuser, user_a"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | inactive | - | base",
+   "op": "GET /users/",
+   "identity": "inactive",
+   "target": "-",
+   "variant": "base",
+   "detail": "inactive received data owned by superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | inactive | - | base",
+   "op": "GET /users/",
+   "identity": "inactive",
+   "target": "-",
+   "variant": "base",
+   "detail": "inactive was allowed (HTTP 200) on a non-public operation"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | forged_sig | - | base",
+   "op": "GET /users/",
+   "identity": "forged_sig",
+   "target": "-",
+   "variant": "base",
+   "detail": "forged_sig received data owned by inactive, superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | forged_sig | - | base",
+   "op": "GET /users/",
+   "identity": "forged_sig",
+   "target": "-",
+   "variant": "base",
+   "detail": "forged_sig was allowed (HTTP 200) on a non-public operation"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | expired | - | base",
+   "op": "GET /users/",
+   "identity": "expired",
+   "target": "-",
+   "variant": "base",
+   "detail": "expired received data owned by inactive, superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | expired | - | base",
+   "op": "GET /users/",
+   "identity": "expired",
+   "target": "-",
+   "variant": "base",
+   "detail": "expired was allowed (HTTP 200) on a non-public operation"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | alg_none | - | base",
+   "op": "GET /users/",
+   "identity": "alg_none",
+   "target": "-",
+   "variant": "base",
+   "detail": "alg_none received data owned by inactive, superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | alg_none | - | base",
+   "op": "GET /users/",
+   "identity": "alg_none",
+   "target": "-",
+   "variant": "base",
+   "detail": "alg_none was allowed (HTTP 200) on a non-public operation"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /users/ | deleted_user | - | base",
+   "op": "GET /users/",
+   "identity": "deleted_user",
+   "target": "-",
+   "variant": "base",
+   "detail": "deleted_user received data owned by inactive, superuser, user_a, user_b"
+  },
+  {
+   "rule": "I5 authn",
+   "cell": "GET /users/ | deleted_user | - | base",
+   "op": "GET /users/",
+   "identity": "deleted_user",
+   "target": "-",
+   "variant": "base",
+   "detail": "deleted_user was allowed (HTTP 200) on a non-public operation"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

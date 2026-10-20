@@ -1,0 +1,86 @@
+{
+ "spent_usd": 0.097,
+ "calls": 25,
+ "scenarios": [
+  {
+   "scenario": "pr-mut-update-owner-field",
+   "finding": {
+    "scenario": "pr-mut-update-owner-field",
+    "op": "PUT /items/{id}",
+    "path": "/items/{id}",
+    "canary": "cnry-pr-mut-update-owner-field",
+    "rules": [
+     "I3 write-isolation"
+    ],
+    "cells": [
+     "PUT /items/{id} | user_a | user_a | hostile",
+     "PUT /items/{id} | user_a | user_a | foreign_ref",
+     "PUT /items/{id} | user_b | user_b | hostile",
+     "PUT /items/{id} | user_b | user_b | foreign_ref"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 24,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import uuid\n\nfrom fastapi.testclient import TestClient\nfrom sqlmodel import Session\n\nfrom app.core.config import settings\nfrom tests.utils.user import create_random_user, authentication_token_from_email\nfrom tests.utils.item import create_random_item\n\n\ndef test_put_item_owner_cannot_change_owner_id(\n    client: TestClient, db: Session\n) -> None:\n    \"\"\"\n    Regression test for PR-mut-update-owner-field:\n    PUT /items/{id} should not allow changing the owner_id via update.\n    The CANARY is embedded in the item title.\n    \"\"\"\n    # Create two distinct users\n    user_a = create_random_user(db)\n    user_b = create_random_user(db)\n    assert user_a.id != user_b.id\n\n    # Get headers for each user\n    headers_a = authentication_token_from_email(\n        client=client, email=user_a.email, db=db\n    )\n    headers_b = authentication_token_from_email(\n        client=client, email=user_b.email, db=db\n    )\n\n    # User A creates an item with the canary in the title\n    caesar = \"cnry-pr-mut-update-owner-field\"\n    item_data = {\n        \"title\": caesar,\n        \"description\": \"owned by user A\",\n    }\n    resp = client.post(\n        f\"{settings.API_V1_STR}/items/\",\n        headers=headers_a,\n        json=item_data,\n    )\n    assert resp.status_code == 200\n    item = resp.json()\n    item_id = item[\"id\"]\n    assert item[\"title\"] == caesar\n    assert str(item[\"owner_id\"]) == str(user_a.id)\n\n    # User A (owner) attempts to update the item, trying to change owner_id to user B\n    update_payload = {\"owner_id\": str(user_b.id)}\n    resp = client.put(\n        f\"{settings.API_V1_STR}/items/{item_id}\",\n        headers=headers_a,\n        json=update_payload,\n    )\n    # We do not assert on the response code because:\n    #   - On base: extra field -> 422 (unprocessable entity) or 200 with ignored field.\n    #   - On head: field allowed -> 200 (and changes ownership, which is the bug)\n    # Instead, we check the state after the update attempt.\n\n    # Retrieve the item to see if the owner_id changed\n    resp_get = client.get(\n        f\"{settings.API_V1_STR}/items/{item_id}\",\n        headers=headers_a,\n    )\n    assert resp_get.status_code == 200\n    updated = resp_get.json()\n    # The title should remain the same (canary)\n    assert updated[\"title\"] == caesar, \"Item title should not change\"\n    # The owner_id must still be user_a's id. If it changed to user_b's id, then the regression is present.\n    assert str(updated[\"owner_id\"]) == str(user_a.id), (\n        f\"Owner ID changed from {user_a.id} to {updated['owner_id']} after update by owner. \"\n        f\"This indicates the write-isolation regression allowing ownership transfer.\"\n    )",
+   "evidence": {
+    "base": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"0\" skipped=\"0\" tests=\"1\" time=\"0.601\" timestamp=\"2026-10-20T15:24:07.433745+00:00\" hostname=\"hostname\"><testcase classname=\"tests.authz.test_regression\" name=\"test_put_item_owner_cannot_change_owner_id\" time=\"0.576\" /></testsuite></testsuites>",
+     "app_hash_before": "2c220c6d150b1e4f47c7c5f4eb0238c6a3e433772c4e3d78d682865d3a2500c2",
+     "app_hash_after": "2c220c6d150b1e4f47c7c5f4eb0238c6a3e433772c4e3d78d682865d3a2500c2"
+    },
+    "head": {
+     "junit": "<?xml version=\"1.0\" encoding=\"utf-8\"?><testsuites name=\"pytest tests\"><testsuite name=\"pytest\" errors=\"0\" failures=\"1\" skipped=\"0\" tests=\"1\" time=\"0.929\" timestamp=\"2026-10-20T15:24:08.384711+00:00\" hostname=\"hostname\"><testcase classname=\"tests.authz.test_regression\" name=\"test_put_item_owner_cannot_change_owner_id\" time=\"0.880\"><failure message=\"assert 403 == 200&#10; +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code\">client = &lt;starlette.testclient.TestClient object at 0x7fffef8d74d0&gt;\ndb = &lt;sqlmodel.orm.session.Session object at 0x7fffef8d5400&gt;\n\n    def test_put_item_owner_cannot_change_owner_id(\n        client: TestClient, db: Session\n    ) -&gt; None:\n        \"\"\"\n        Regression test for PR-mut-update-owner-field:\n        PUT /items/{id} should not allow changing the owner_id via update.\n        The CANARY is embedded in the item title.\n        \"\"\"\n        # Create two distinct users\n        user_a = create_random_user(db)\n        user_b = create_random_user(db)\n        assert user_a.id != user_b.id\n    \n        # Get headers for each user\n        headers_a = authentication_token_from_email(\n            client=client, email=user_a.email, db=db\n        )\n        headers_b = authentication_token_from_email(\n            client=client, email=user_b.email, db=db\n        )\n    \n        # User A creates an item with the canary in the title\n        caesar = \"cnry-pr-mut-update-owner-field\"\n        item_data = {\n            \"title\": caesar,\n            \"description\": \"owned by user A\",\n        }\n        resp = client.post(\n            f\"{settings.API_V1_STR}/items/\",\n            headers=headers_a,\n            json=item_data,\n        )\n        assert resp.status_code == 200\n        item = resp.json()\n        item_id = item[\"id\"]\n        assert item[\"title\"] == caesar\n        assert str(item[\"owner_id\"]) == str(user_a.id)\n    \n        # User A (owner) attempts to update the item, trying to change owner_id to user B\n        update_payload = {\"owner_id\": str(user_b.id)}\n        resp = client.put(\n            f\"{settings.API_V1_STR}/items/{item_id}\",\n            headers=headers_a,\n            json=update_payload,\n        )\n        # We do not assert on the response code because:\n        #   - On base: extra field -&gt; 422 (unprocessable entity) or 200 with ignored field.\n        #   - On head: field allowed -&gt; 200 (and changes ownership, which is the bug)\n        # Instead, we check the state after the update attempt.\n    \n        # Retrieve the item to see if the owner_id changed\n        resp_get = client.get(\n            f\"{settings.API_V1_STR}/items/{item_id}\",\n            headers=headers_a,\n        )\n&gt;       assert resp_get.status_code == 200\nE       assert 403 == 200\nE        +  where 403 = &lt;Response [403 Forbidden]&gt;.status_code\n\ntests/authz/test_regression.py:66: AssertionError</failure></testcase></testsuite></testsuites>",
+     "app_hash_before": "62c95ef03bdaa35285bbf3c8fb2e91e5ed383f4909db4f2f8fb429d50243aa0d",
+     "app_hash_after": "62c95ef03bdaa35285bbf3c8fb2e91e5ed383f4909db4f2f8fb429d50243aa0d"
+    }
+   },
+   "citations": [
+    {
+     "rule": "I3 write-isolation",
+     "op": "PUT /items/{id}",
+     "citations": [
+      {
+       "title": "A01 Broken Access Control - OWASP Top 10:2021",
+       "url": "https://owasp.org/Top10/2021/A01_2021-Broken_Access_Control",
+       "snippet": "some form of broken access control with the average incidence rate of 3.81%, and has the most occurrences in the contributed dataset with over 318k. Notable Common Weakness Enumerations (CWEs) included are *CWE-200: Exposure of Sensitive Information to an Unauthorized Actor*, *CWE-201:. Insertion of"
+      },
+      {
+       "title": "OWASP Top 10 API Security Risks \u2013 2023 - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0x11-t10",
+       "snippet": "| API1:2023 - Broken Object Level Authorization | APIs tend to expose endpoints that handle object identifiers, creating a wide attack surface of Object Level Access Control issues. Object level authorization checks should be considered in every function that accesses a data source using an ID from "
+      },
+      {
+       "title": "CWE - CWE-862: Missing Authorization (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/862.html",
+       "snippet": "CWE Top 25 Most Dangerous Weaknesses. | |  | | --- | | CWE Glossary Definition | |  |  CWE-862: Missing Authorization  |  | | --- | | Weakness ID: 862   Vulnerability Mapping: ALLOWED This CWE ID could be used to map to real-world vulnerabilities in limited situations requiring careful review  (with"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff adds `owner_id: uuid.UUID | None = None` to `ItemUpdate` (backend/app/models.py:+84), exposing a mutable owner field on PUT /items/{id}. This lets any authenticated caller\u2014including hostile superuser or regular users\u2014reassign item ownership to arbitrary accounts, bypassing object-level authorization checks and creating a classic Broken Object Level Authorization (API1:2023) / Missing Authorization (CWE-862) flaw. Fix: remove `owner_id` from `ItemUpdate` (or guard it with a strict ownership/role check before apply).",
+   "usd": 0.097,
+   "calls": 25,
+   "seconds": 319.0
+  }
+ ]
+}

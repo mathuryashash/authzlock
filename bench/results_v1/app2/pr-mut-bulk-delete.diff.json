@@ -1,0 +1,337 @@
+{
+ "verdict": "FAIL",
+ "changes": [],
+ "new_violations": [
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_a | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by inactive"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /todos | user_b | - | base",
+   "op": "DELETE /todos",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [
+  "DELETE /todos"
+ ],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

@@ -1,0 +1,10 @@
+{
+ "verdict": "PASS",
+ "changes": [],
+ "new_violations": [],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}
