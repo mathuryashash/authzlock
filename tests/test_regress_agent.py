@@ -96,3 +96,19 @@ def test_root_cause_is_one_ultra_call_with_quoted_citations_and_no_verdict_effec
     sent = json.dumps(llm.requests[0]["messages"])
     assert "owasp.org/x" in sent and "DATA" in sent
     assert para.startswith("The refactor dropped")
+
+
+def test_user_prompt_carries_api_prefix_and_the_apps_test_files(tmp_path):
+    # D5 live run: the agent called /categories/{id} without /api/v1 (404 on base and head) and spent 9 of
+    # 16 turns guessing conftest paths. Both facts are now in the first message; the turn cap is 24.
+    (tmp_path / "todos/tests/api").mkdir(parents=True)
+    for f in ("todos/tests/conftest.py", "todos/tests/conftest_utils.py", "todos/tests/api/test_todos.py"):
+        (tmp_path / f).write_text("x = 1\n")
+    llm = StubLLM([tool_msg("done", {"summary": "x"}, id="a")])
+    regress.prove_scenario(tmp_path, FAIL_DIFF, "pr-x", llm, prove=fake_prove(), api_prefix="/api/v1",
+                           prof={"cwd": ".", "tests_dir": "todos/tests", "src_dir": "todos/app"})
+    first = llm.requests[0]["messages"][1]["content"]
+    assert "API prefix: /api/v1" in first and "/api/v1/items/{id}" in first
+    assert "todos/tests/conftest_utils.py" in first and "todos/tests/api/test_todos.py" in first
+    import inspect
+    assert inspect.signature(regress.prove_scenario).parameters["max_turns"].default == 24

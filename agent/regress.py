@@ -145,15 +145,24 @@ class RegressTools(Tools):
                 + "".join(f"\n--- {k} pytest output ---\n{raw[k]['stdout'][-1500:]}" for k in raw))
 
 
-def prove_scenario(repo: Path, diff: dict, scenario: str, llm, prove=None, patch: str = "", max_turns: int = 16):
+def test_files(repo: Path, prof: dict) -> list[str]:
+    root = Path(repo) / prof["cwd"] / prof["tests_dir"]
+    return sorted(p.relative_to(repo).as_posix() for p in root.rglob("*.py") if "authz" not in p.parts)[:30]
+
+
+def prove_scenario(repo: Path, diff: dict, scenario: str, llm, prove=None, patch: str = "", max_turns: int = 24,
+                   api_prefix: str = "", prof: dict | None = None):
     s = spec(diff, scenario)
     if s is None:
         return None
+    prof = prof or pl.profile()
     art = Path(repo) / ARTIFACTS / "regress" / scenario
     tools = RegressTools(repo, art, s, prove or (lambda a, sp: prove_local(a, sp, Path(repo))))
     user = (f"Finding: {json.dumps({k: s[k] for k in ('op', 'path', 'rules', 'cells')})}\n"
+            f"API prefix: {api_prefix or '(none)'} (full URL: {api_prefix}{s['path']})\n"
+            f"The app's existing test files (read paths exactly as listed): {', '.join(test_files(repo, prof))}\n"
             f"CANARY: {s['canary']}\nPR diff (data):\n```diff\n{patch[:6000]}\n```")
-    res = run_agent(llm, tools, system_prompt(pl.profile()), user, max_turns=max_turns, schemas=RUN_PROVE)
+    res = run_agent(llm, tools, system_prompt(prof), user, max_turns=max_turns, schemas=RUN_PROVE)
     final = tools.check()
     return {"scenario": scenario, "finding": s, "status": "proven" if final["ok"] else "unproven",
             "why": final["why"], "prove_runs": tools.prove_runs, "agent_turns": res["turns"],
@@ -184,6 +193,8 @@ if __name__ == "__main__":
     flags = sys.argv[4:]
     sbx = pick_prove(flags)
     only = [a for a in flags if not a.startswith("--") and a not in ("local", "sandbox")]
+    man = os.environ.get("AUTHZ_MANIFEST")  # the manifest the lock was built with (agent artifact)
+    api_prefix = json.loads(Path(man).read_text()).get("api_prefix", "") if man else ""
     rows = []
     for f in sorted(diffs.glob("pr-*.diff.json")):
         scn = f.name.removesuffix(".diff.json")
@@ -192,7 +203,8 @@ if __name__ == "__main__":
         d = json.loads(f.read_text())
         pf = HERE / pl.profile()["patches_dir"] / f"{scn}.patch"
         patch = pf.read_text() if pf.exists() else ""
-        r = prove_scenario(repo, d, scn, llm, patch=patch, prove=sbx and (lambda a, sp: sbx(a, sp, repo)))
+        r = prove_scenario(repo, d, scn, llm, patch=patch, prove=sbx and (lambda a, sp: sbx(a, sp, repo)),
+                           api_prefix=api_prefix)
         if r is None:
             rows.append({"scenario": scn, "verdict": d["verdict"], "status": "no test (not FAIL)"})
         else:

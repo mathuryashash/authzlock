@@ -1,0 +1,7 @@
+sandbox: transient ApiStatusCodeError 500, retry 1/3
+sandbox: transient ApiStatusCodeError 500, retry 2/3
+{"scenario": "pr-category-cleanup", "status": "unproven", "prove_runs": 2, "why": ["head: no AssertionError raised inside the test file"]}
+sandbox: transient ApiStatusCodeError 500, retry 1/3
+{"scenario": "pr-todo-get-by-id", "status": "unproven", "prove_runs": 1, "why": ["base: every test must run and pass"]}
+{"scenario": "pr-todos-completed-filter", "status": "no test (not FAIL)", "prove_runs": null, "why": null}
+spent $0.0639 in 34 calls

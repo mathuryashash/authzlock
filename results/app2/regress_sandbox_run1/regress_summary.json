@@ -1,0 +1,124 @@
+{
+ "spent_usd": 0.0639,
+ "calls": 34,
+ "scenarios": [
+  {
+   "scenario": "pr-category-cleanup",
+   "finding": {
+    "scenario": "pr-category-cleanup",
+    "op": "DELETE /categories/{category_id}",
+    "path": "/categories/{category_id}",
+    "canary": "cnry-pr-category-cleanup",
+    "rules": [
+     "I3 write-isolation"
+    ],
+    "cells": [
+     "DELETE /categories/{category_id} | user_a | shared | base",
+     "DELETE /categories/{category_id} | user_b | shared | base"
+    ]
+   },
+   "status": "unproven",
+   "why": [
+    "head: no AssertionError raised inside the test file"
+   ],
+   "prove_runs": 2,
+   "agent_turns": 16,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom app.models.tables import Category\n\nCANARY = \"cnry-pr-category-cleanup\"\n\n@pytest.mark.asyncio\nasync def test_shared_category_delete_isolation(async_session, user_token_headers, client: AsyncClient):\n    # Create a shared category (created_by_id=None) with the canary in its name\n    shared_cat = Category(name=f\"shared-{CANARY}\", created_by_id=None)\n    async_session.add(shared_cat)\n    await async_session.commit()\n    await async_session.refresh(shared_cat)\n    cat_id = shared_cat.id\n\n    # Verify category exists before deletion attempt\n    before = await async_session.get(Category, cat_id)\n    assert before is not None, \"Setup failed: shared category not found\"\n\n    # Attempt to delete the shared category as a regular user\n    headers = user_token_headers\n    response = await client.delete(f\"/categories/{cat_id}\", headers=headers)\n\n    # After deletion attempt, check if category still exists\n    after = await async_session.get(Category, cat_id)\n    # On base branch, deletion should be blocked, so category still exists\n    # On PR branch, bug allows deletion, so category will be None\n    assert after is not None, f\"Shared category {cat_id} was deleted (should be isolated)\"",
+   "citations": [
+    {
+     "rule": "I3 write-isolation",
+     "op": "DELETE /categories/{category_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "as described in the OWASP Top Ten, is broader than this CWE because it also covers path traversal (CWE-22). Within the context of vulnerability theory, there is a similarity between the OWASP concept and CWE-706: Use of Incorrectly-Resolved Name or Reference. | | Broken Object Level Authorization / "
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "## References\n\n### OWASP\n\n Authorization Cheat Sheet\n Authorization Testing Automation Cheat Sheet\n\n### External\n\n CWE-285: Improper Authorization\n CWE-639: Authorization Bypass Through User-Controlled Key [...] ## Is the API Vulnerable?\n\nObject level authorization is an access control mechanism tha"
+      },
+      {
+       "title": "CWE - CWE-1450: Weaknesses in OWASP Top Ten RC1 (2025) (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/1450.html",
+       "snippet": "authorization functionality does not prevent one user from gaining access to another user's data or record by modifying the key value identifying the data.  Insecure Direct Object Reference / IDOR Broken Object Level Authorization / BOLA Horizontal Authorization     Variant Variant - a weakness that"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff changes line 91 in `db_service.py` from `if category_to_delete.created_by_id != created_by_id:` to `if category_to_delete.created_by_id not in (created_by_id, None):`, allowing any authenticated user to delete categories whose `created_by_id` is `NULL` (default/shared categories). This widens the DELETE /categories/{category_id} operation so that `user_a` and `user_b` can now remove shared base categories they did not create, violating write isolation by letting one user destroy another\u2019s accessible data \u2014 a classic Broken Object Level Authorization / IDOR flaw [https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization](https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization) [https://cwe.mitre.org/data/definitions/639.html](https://cwe.mitre.org/data/definitions/639.html). Restore the strict ownership check or gate default-category deletion behind a superuser-only policy."
+  },
+  {
+   "scenario": "pr-todo-get-by-id",
+   "finding": {
+    "scenario": "pr-todo-get-by-id",
+    "op": "GET /todos/{todo_id}",
+    "path": "/todos/{todo_id}",
+    "canary": "cnry-pr-todo-get-by-id",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /todos/{todo_id} | user_a | user_b | base",
+     "GET /todos/{todo_id} | user_a | superuser | base",
+     "GET /todos/{todo_id} | user_b | user_a | base",
+     "GET /todos/{todo_id} | user_b | superuser | base"
+    ]
+   },
+   "status": "unproven",
+   "why": [
+    "base: every test must run and pass"
+   ],
+   "prove_runs": 1,
+   "agent_turns": 16,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom tests.conftest_utils import get_tests_data\n\nCANARY = \"cnry-pr-todo-get-by-id\"\n\n@pytest.mark.asyncio\nasync def test_todo_get_by_id_isolation(client: AsyncClient):\n    # Get token for first user (user_a)\n    tests_data = get_tests_data()\n    login_data_a = {\n        'username': tests_data['users'][0]['email'],\n        'password': tests_data['users'][0]['password'],\n    }\n    res_a = await client.post('/api/v1/auth/login', data=login_data_a)\n    assert res_a.status_code == 200\n    token_a = res_a.json()['access_token']\n    headers_a = {'Authorization': f'Bearer {token_a}'}\n\n    # Get token for second user (user_b)\n    login_data_b = {\n        'username': tests_data['users'][1]['email'],\n        'password': tests_data['users'][1]['password'],\n    }\n    res_b = await client.post('/api/v1/auth/login', data=login_data_b)\n    assert res_b.status_code == 200\n    token_b = res_b.json()['access_token']\n    headers_b = {'Authorization': f'Bearer {token_b}'}\n\n    # Create a todo for user_a with CANARY in title\n    resp_create_a = await client.post(\n        '/api/v1/todos/',\n        json={'title': f'{CANARY} user_a todo', 'description': 'private'},\n        headers=headers_a,\n    )\n    assert resp_create_a.status_code == 200\n    todo_a = resp_create_a.json()\n    todo_id_a = todo_a['id']\n\n    # Create a todo for user_b with CANARY in title\n    resp_create_b = await client.post(\n        '/api/v1/todos/',\n        json={'title': f'{CANARY} user_b todo', 'description': 'private'},\n        headers=headers_b,\n    )\n    assert resp_create_b.status_code == 200\n    todo_b = resp_create_b.json()\n    todo_id_b = todo_b['id']\n\n    # Attempt to fetch user_b's todo using user_a's token (should be forbidden)\n    resp = await client.get(f'/api/v1/todos/{todo_id_b}', headers=headers_a)\n    # Base branch: isolation works -> 403 Forbidden (or maybe 404)\n    # We assert that the response is NOT successful and does not leak CANARY\n    assert resp.status_code != 200, f\"Expected non-200, got {resp.status_code}\"\n    # Additionally, ensure CANARY not in response body (if any)\n    assert CANARY not in resp.text\n",
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /todos/{todo_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The new `GET /todos/{todo_id}` endpoint in `todos/app/api/v1/todos.py:42-54` accepts a `user` dependency but never passes it to the data layer. The `db_service.get_todo` method added in `todos/app/dal/db_service.py:111-115` queries only by `todo_id` without verifying the todo belongs to the requesting user. This allows any authenticated user to read any todo by ID \u2014 an IDOR/broken object-level authorization flaw (CWE-639, API1:2023). Fix: add `user_id` filter to the repository query (e.g., `Todo.id == todo_id, Todo.user_id == user.id`) and thread the `user` parameter through the service call."
+  },
+  {
+   "scenario": "pr-todos-completed-filter",
+   "verdict": "PASS",
+   "status": "no test (not FAIL)"
+  }
+ ]
+}
