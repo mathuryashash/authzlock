@@ -10,6 +10,7 @@ import sys
 import time
 from pathlib import Path
 
+import probe_lib
 from authzlock import MANIFEST, cmd_lock, diff, render_report
 
 HERE = Path(__file__).resolve().parent
@@ -19,7 +20,8 @@ OUT = Path(sys.argv[2]).resolve() if len(sys.argv) > 2 else HERE / "results"
 MAN_PATH = Path(sys.argv[3]).resolve() if len(sys.argv) > 3 else MANIFEST
 SEEDER = Path(sys.argv[4]).resolve() if len(sys.argv) > 4 else None
 OUT.mkdir(parents=True, exist_ok=True)
-PROD_ENV, DEV_ENV = HERE / "target.env", HERE / "dev.env"
+PROF = probe_lib.profile()  # AUTHZ_PROFILE=apps/todos/profile.json for app #2
+PROD_ENV, DEV_ENV = HERE / PROF["env_file"], HERE / "dev.env"
 
 SCENARIOS = [
     # (branch, expected, what it is)
@@ -30,6 +32,7 @@ SCENARIOS = [
     ("pr-mass-assign", "FAIL", "is_superuser / is_active added to the /users/me update schema"),
     ("pr-count-leak", "FAIL", "'Simplified' count query leaks the total item count to normal users"),
 ]
+SCENARIOS = [tuple(x) for x in PROF.get("scenarios", [])] or SCENARIOS
 
 
 def checkout(ref: str, env_file: Path) -> Path:
@@ -86,14 +89,16 @@ for ref, expected, desc in SCENARIOS:
                     "new_ops": d["new_ops"], "head_seconds": head["elapsed_s"]})
     print(summary[-1], flush=True)
 
-# 3. environment profile: identical code, template's shipped dev .env vs production profile
-dev = lock_for("base", "base_devprofile", DEV_ENV)
-d = diff(base, dev)
-(OUT / "dev-profile.report.md").write_text(render_report("same code, development profile vs production profile", base, dev, d))
-summary.append({"scenario": "dev profile vs prod profile", "expected": "FAIL (informational)", "verdict": d["verdict"],
-                "new_ops": d["new_ops"], "new_violations": len(d["new_violations"]),
-                "rules": sorted({v["rule"] for v in d["new_violations"]})})
-print(summary[-1], flush=True)
+# 3. environment profile: identical code, template's shipped dev .env vs production profile (app #1 only)
+if "scenarios" not in PROF:
+    dev = lock_for("base", "base_devprofile", DEV_ENV)
+    d = diff(base, dev)
+    (OUT / "dev-profile.report.md").write_text(render_report("same code, development profile vs production profile",
+                                                             base, dev, d))
+    summary.append({"scenario": "dev profile vs prod profile", "expected": "FAIL (informational)",
+                    "verdict": d["verdict"], "new_ops": d["new_ops"], "new_violations": len(d["new_violations"]),
+                    "rules": sorted({v["rule"] for v in d["new_violations"]})})
+    print(summary[-1], flush=True)
 
 (OUT / "summary.json").write_text(json.dumps({"total_seconds": round(time.time() - t, 1),
                                               "base_coverage": base["coverage"],

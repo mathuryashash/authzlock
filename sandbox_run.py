@@ -5,9 +5,11 @@
 Re-proves already-written tests (<tests dir>/<scenario>.test_regression.py) on base and head, no LLM.
 Host side: one snapshot per (app, base SHA) = python:3.14-slim + Postgres + the app's locked deps, built once with
 network ON and reused by tag. Every proof run is disposable, has NO guest network (networking.enabled=false) and no
-env= at all: the API key stays on the host. `git archive <ref> backend` (committed tree only) + the test + target.env
+env= at all: the API key stays on the host. `git archive <ref> <profile archive paths>` (committed tree only) + the test + target.env
 are uploaded via files=; the guest starts Postgres, runs this file with --inner and prints one MARK+json line.
 """
+from __future__ import annotations
+
 import hashlib
 import json
 import os
@@ -19,20 +21,36 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(HERE))
+import probe_lib as pl  # noqa: E402
 INNER_NAME = "sandbox_run.py"
 MARK = "AUTHZLOCK_RESULT "
 TEST = "tests/authz/test_regression.py"
-BASE_IMAGE = "python:3.14-slim"
 GUEST_PG = "postgresql://postgres@127.0.0.1:5432/postgres"
 PG = "$(ls -d /usr/lib/postgresql/*/bin)"
 # Guest kernel has no SysV shm (shmget -> ENOSYS): sandbox/shmshim.c fakes the one interlock segment Postgres needs.
-BUILD = ("set -e; exec 2>&1; apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql gcc "
-         "libc6-dev >/dev/null; gcc -shared -fPIC -O2 -o /usr/local/lib/shmshim.so /dep/shmshim.c && "
-         "echo /usr/local/lib/shmshim.so > /etc/ld.so.preload; mkdir -p /pg /run/postgresql && "
-         f"chown postgres /pg /run/postgresql && su postgres -c \"timeout 60 {PG}/initdb -D /pg -A trust -U postgres -E UTF8 "
-         "--locale=C.UTF-8 -c shared_memory_type=mmap -c dynamic_shared_memory_type=mmap >/dev/null\"; "
-         "pip install -q uv && cd /dep && uv export -q --frozen --no-dev --no-hashes --no-emit-project "
-         "--no-emit-workspace --package app -o r.txt && uv pip install -q --system -r r.txt pytest==9.1.1")
+PG_BUILD = ("set -e; exec 2>&1; apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq postgresql "
+            "gcc libc6-dev >/dev/null; gcc -shared -fPIC -O2 -o /usr/local/lib/shmshim.so /dep/shmshim.c && "
+            "echo /usr/local/lib/shmshim.so > /etc/ld.so.preload; mkdir -p /pg /run/postgresql && "
+            f"chown postgres /pg /run/postgresql && su postgres -c \"timeout 60 {PG}/initdb -D /pg -A trust -U postgres "
+            "-E UTF8 --locale=C.UTF-8 -c shared_memory_type=mmap -c dynamic_shared_memory_type=mmap >/dev/null\"; ")
+# App #1 (the template) default: uv.lock deps on python:3.14. Other apps set profile["sandbox"] = {image, dep_files, deps}.
+TEMPLATE_SANDBOX = {"image": "python:3.14-slim", "dep_files": ["pyproject.toml", "uv.lock", "backend/pyproject.toml"],
+                    "deps": ("pip install -q uv && cd /dep && uv export -q --frozen --no-dev --no-hashes --no-emit-project "
+                             "--no-emit-workspace --package app -o r.txt && uv pip install -q --system -r r.txt "
+                             "pytest==9.1.1")}
+
+
+def recipe(prof: dict) -> tuple:
+    sbx = prof.get("sandbox") or TEMPLATE_SANDBOX
+    return sbx["image"], PG_BUILD + sbx["deps"]
+
+
+def dep_files(repo: Path, ref: str, prof: dict) -> dict:
+    sbx = prof.get("sandbox") or TEMPLATE_SANDBOX
+    dep = {f"/dep/{p}": git_out(repo, "show", f"{ref}:{p}") for p in sbx["dep_files"]}
+    dep["/dep/shmshim.c"] = (HERE / "sandbox" / "shmshim.c").read_bytes()
+    return dep
 RUN = (f"cd /w && su postgres -c \"timeout 40 {PG}/pg_ctl -D /pg -l /tmp/pg.log -t 30 -w start\" >/dev/null "
        f"&& timeout 400 python {INNER_NAME} --inner; tail -3 /tmp/pg.log >&2")
 
@@ -41,10 +59,13 @@ def git_out(repo: Path, *a) -> bytes:
     return subprocess.run(["git", "-C", str(repo), *a], check=True, capture_output=True).stdout
 
 
-def tree_files(repo: Path, ref: str, test: bytes, env_file: Path) -> dict:
-    f = {"/w/src.tar": git_out(repo, "archive", "--format=tar", ref, "backend"),
-         "/w/backend/tests/authz/__init__.py": b"", "/w/backend/" + TEST: test,
-         "/w/" + INNER_NAME: (HERE / INNER_NAME).read_bytes(), "/w/regress_run.py": (HERE / "regress_run.py").read_bytes()}
+def tree_files(repo: Path, ref: str, test: bytes, env_file: Path, prof: dict | None = None) -> dict:
+    prof = prof or pl.profile()
+    tdir = "/w/" + Path(prof["cwd"], prof["tests_dir"], "authz").as_posix().lstrip("./")
+    f = {"/w/src.tar": git_out(repo, "archive", "--format=tar", ref, *prof["archive"]),
+         f"{tdir}/__init__.py": b"", f"{tdir}/test_regression.py": test, "/w/profile.json": json.dumps(prof).encode(),
+         "/w/" + INNER_NAME: (HERE / INNER_NAME).read_bytes(), "/w/regress_run.py": (HERE / "regress_run.py").read_bytes(),
+         "/w/probe_lib.py": (HERE / "probe_lib.py").read_bytes()}
     if Path(env_file).exists():
         f["/w/.env"] = Path(env_file).read_bytes()
     return f
@@ -102,60 +123,57 @@ def make_client():
     return ContreeSync()
 
 
-def snapshot(client, repo: Path, ref: str = "base"):
+def snapshot(client, repo: Path, ref: str = "base", prof: dict | None = None):
     """One image per (app, base SHA) with deps + Postgres, reused by tag across runs and scenarios."""
     from contree_sdk.sdk.exceptions import ContreeError
+    prof = prof or pl.profile()
+    image, build = recipe(prof)
     sha = git_out(repo, "rev-parse", ref).decode().strip()
-    recipe = hashlib.sha256((BASE_IMAGE + BUILD).encode() + (HERE / "sandbox" / "shmshim.c").read_bytes()).hexdigest()
-    tag = f"authzlock-{Path(repo).name}-{sha[:12]}-{recipe[:8]}"  # new base SHA or new recipe = new snapshot
+    rh = hashlib.sha256((image + build).encode() + (HERE / "sandbox" / "shmshim.c").read_bytes()).hexdigest()
+    tag = f"authzlock-{Path(repo).name}-{sha[:12]}-{rh[:8]}"  # new base SHA or new recipe = new snapshot
     try:
         return client.images.use(tag, strict=True)
     except ContreeError:
         pass
     set_network(client, True)  # the build alone needs the network (apt, PyPI)
-    dep = {f"/dep/{p}": git_out(repo, "show", f"{ref}:{p}") for p in ("pyproject.toml", "uv.lock", "backend/pyproject.toml")}
-    dep["/dep/shmshim.c"] = (HERE / "sandbox" / "shmshim.c").read_bytes()
-    base = client.images.use(BASE_IMAGE)
-    img = retry(lambda: base.run(shell=BUILD, files=dep, disposable=False, timeout=900).wait())
+    dep = dep_files(repo, ref, prof)
+    base = client.images.use(image)
+    img = retry(lambda: base.run(shell=build, files=dep, disposable=False, timeout=900).wait())
     if img.exit_code != 0:
         raise RuntimeError(f"snapshot build failed: {(img.stderr or img.stdout or '')[-1500:]}")
     return img.tag_as(tag)
 
 
-def run_ref(client, img, repo: Path, ref: str, test: bytes, env_file: Path) -> dict:
-    files = tree_files(repo, ref, test, env_file)
+def run_ref(client, img, repo: Path, ref: str, test: bytes, env_file: Path, prof: dict | None = None) -> dict:
+    files = tree_files(repo, ref, test, env_file, prof)
     r = retry(lambda: img.run(shell=RUN, files=files, disposable=True, timeout=600).wait())
     return dict(parse_result(r.stdout or "", ref), ref=ref)
 
 
-def prove_sandbox(art: Path, s: dict, repo: Path, client=None, env_file: Path = HERE / "target.env") -> dict:
+def prove_sandbox(art: Path, s: dict, repo: Path, client=None, env_file: Path | None = None,
+                  prof: dict | None = None) -> dict:
+    prof = prof or pl.profile()
+    env_file = env_file or HERE / prof["env_file"]
     client = client or make_client()
-    img = snapshot(client, Path(repo), "base")
+    img = snapshot(client, Path(repo), "base", prof)
     set_network(client, False)
     test = (Path(art) / TEST).read_bytes()
     sides = (("base", "base"), ("head", s["scenario"]))
     with ThreadPoolExecutor(2) as ex:  # base and head are independent VMs: run them concurrently
-        res = list(ex.map(lambda sr_: run_ref(client, img, Path(repo), sr_[1], test, env_file), sides))
+        res = list(ex.map(lambda sr_: run_ref(client, img, Path(repo), sr_[1], test, env_file, prof), sides))
     return {side: r for (side, _), r in zip(sides, res)}
 
 
 def inner() -> None:
     """Guest side: unpack the committed tree, migrate, pytest --junitxml, print one result line."""
     import tarfile
-    from regress_run import app_hash
+    from regress_run import run_env, run_pytest
     with tarfile.open("/w/src.tar") as t:
         t.extractall("/w", filter="data")
-    backend = Path("/w/backend")
-    env = dict(os.environ, DATABASE_URL=GUEST_PG, PYTHONUTF8="1", TZ="UTC")
-    before = app_hash(backend)
-    mig = subprocess.run([sys.executable, "-m", "alembic", "upgrade", "head"], cwd=backend, env=env,
-                         capture_output=True, text=True)
-    p = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "--junitxml", "/w/junit.xml",
-                        TEST], cwd=backend, env=env, capture_output=True, text=True, timeout=300)
-    junit = Path("/w/junit.xml")
-    print(MARK + json.dumps({"junit": junit.read_text() if junit.exists() else "<testsuite/>",
-                             "app_hash_before": before, "app_hash_after": app_hash(backend),
-                             "stdout": (mig.stderr[-800:] if mig.returncode else "") + (p.stdout + p.stderr)[-3000:]}))
+    prof = pl.load_profile("/w/profile.json")
+    cwd = Path("/w", prof["cwd"])
+    env = run_env(prof, GUEST_PG, "postgres", cwd)
+    print(MARK + json.dumps(run_pytest(cwd, prof, env, Path("/w/junit.xml"))))
 
 
 def main(argv: list[str]) -> None:

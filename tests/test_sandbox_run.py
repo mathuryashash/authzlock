@@ -84,7 +84,7 @@ def test_prove_sandbox_runs_base_and_head_offline_and_keyless(repo, tmp_path, mo
     (art / "tests/authz").mkdir(parents=True)
     (art / "tests/authz/test_regression.py").write_text("def test_a(): pass\n")
     log = []
-    monkeypatch.setattr(sr, "snapshot", lambda client, repo, ref: FakeImage(log))
+    monkeypatch.setattr(sr, "snapshot", lambda client, repo, ref, prof=None: FakeImage(log))
     nets = []
     monkeypatch.setattr(sr, "set_network", lambda client, on: nets.append(on))
     out = sr.prove_sandbox(art, {"scenario": "pr-x"}, repo, client=object(), env_file=tmp_path / "none.env")
@@ -116,5 +116,5 @@ def test_agent_regress_picks_runner(monkeypatch):
     assert regress.pick_prove(["--runner", "local"]) is None
     p = regress.pick_prove(["--runner", "sandbox"])
     seen = []
-    monkeypatch.setattr(sr, "prove_sandbox", lambda art, s, repo, client=None: seen.append((art, s, repo)) or "r")
+    monkeypatch.setattr(sr, "prove_sandbox", lambda art, s, repo, client=None, prof=None: seen.append((art, s, repo)) or "r")
     assert p("art", {"scenario": "x"}, "repo") == "r" and seen == [("art", {"scenario": "x"}, Path("repo"))]

@@ -86,3 +86,44 @@ def test_manifest_field_types_are_checked():
     bad["public_operations"] = "POST /login"
     errs = "\n".join(onboard.validate_manifest(bad))
     assert "ignored_columns" in errs and "public_operations" in errs
+
+
+def test_d5_manifest_accepts_row_hints_shared_target_link_tables_and_app_section():
+    m = json.loads(json.dumps(GOOD))
+    m["param_hints"] = {"todo_id": "item_id", "category_id": "row:category", "id": "user_id"}
+    m["targets"] = ["user_a", "user_b", "shared", "nonexistent"]
+    m["ownership"] = {"user": {"owner": "self"}, "category": {"owner_column": "created_by_id"},
+                      "todo_category": {"owner_column": "todo_id", "parent": "todo"},
+                      "todo": {"owner_column": "created_by_id"}}
+    m["app"] = {"db_dependency": "app.core.db:get_async_session", "session_class":
+                "sqlalchemy.ext.asyncio:AsyncSession", "db_driver": "postgresql+asyncpg",
+                "jwt_secret_setting": "JWT_SECRET_KEY"}
+    assert onboard.validate_manifest(m) == []
+    m["param_hints"]["x"] = "row:nope"
+    m["ownership"]["todo_category"]["parent"] = "ghost"
+    m["app"]["db_dependency"] = "no_colon"
+    errs = "\n".join(onboard.validate_manifest(m))
+    assert "row:nope" in errs and "ghost" in errs and "no_colon" in errs
+
+
+def test_prompts_follow_the_app_profile(tmp_path):
+    import probe_lib as pl
+    prof = pl.load_profile({"cwd": ".", "pythonpath": ["todos"], "tests_dir": "todos/tests"})
+    s = onboard.system_prompt(prof)
+    assert "<checkout>/backend" not in s and "row:<table>" in s and "db_dependency" in s and "PYTHONPATH = todos" in s
+    from agent import regress
+    r = regress.system_prompt(prof)
+    assert "todos/tests/conftest.py" in r and "backend/" not in r
+    assert "backend/tests/conftest.py" in regress.system_prompt(pl.load_profile(None))
+
+
+def test_source_files_list_helps_a_non_backend_layout(tmp_path):
+    (tmp_path / "todos/app").mkdir(parents=True)
+    (tmp_path / "todos/app/main.py").write_text("")
+    (tmp_path / "todos/scripts").mkdir()
+    (tmp_path / "todos/scripts/initial_data.json").write_text("{}")
+    (tmp_path / "todos/tests").mkdir()
+    (tmp_path / "todos/tests/test_x.py").write_text("")
+    files = onboard.source_files(tmp_path)
+    assert "todos/app/main.py" in files and "todos/scripts/initial_data.json" in files
+    assert not any("tests/" in f for f in files)
