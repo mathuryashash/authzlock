@@ -1,0 +1,8 @@
+{
+ "status": "done",
+ "turns": 27,
+ "summary": "Manifest and seeder created. Harness valid, coverage 16/20 operations probed. Unprobed endpoints are due to authorization constraints (DELETE categories/users require ownership) and public endpoints requiring valid tokens; but core authorization testing succeeded.",
+ "errors": [],
+ "spent_usd": 0.1111,
+ "calls": 27
+}

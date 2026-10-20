@@ -66,7 +66,7 @@ def test_onboard_writes_artifacts_via_tools_and_reports_validation(tmp_path):
                    tool_msg("write_file", {"path": "seeder.py", "content": "def seed(roles):\n    return {}\n"}, "b"),
                    tool_msg("done", {"summary": "ok"}, "d")])
     res = onboard.onboard(tmp_path, llm, max_turns=5)
-    assert res["status"] == "done" and res["errors"] == []
+    assert res["status"] == "done" and res["errors"] == ["artifacts never locked green (harness valid) inside the loop"]
     art = tmp_path / ".authzlock" / "artifacts"
     assert json.loads((art / "manifest.json").read_text()) == GOOD
     user_prompt = llm.requests[0][1]["content"]
@@ -139,3 +139,31 @@ def test_manifest_write_returns_validation_errors_to_the_agent(tmp_path):
     assert "INVALID" not in out
     out = t.dispatch("write_file", json.dumps({"path": "seeder.py", "content": "x = 1\n"}))
     assert "INVALID" in out and "seed(roles)" in out
+
+
+def test_unverified_final_rewrite_is_rolled_back_to_last_green_artifacts(tmp_path):
+    # D5 agent runs 2 and 4: harness valid on lock_artifacts, then one more manifest rewrite (dropping the
+    # "app" section) before done. Only artifacts that actually locked green may leave the loop.
+    (tmp_path / ".authzlock").mkdir()
+    (tmp_path / ".authzlock" / "openapi.json").write_text("{}")
+    green = '{"coverage": {"operations": 2, "probed": 2}, "harness": {"valid": true, "failures": []}}'
+    worse = dict(GOOD, ignored_columns=["x"])
+    llm = StubLLM([tool_msg("write_file", {"path": "manifest.json", "content": json.dumps(GOOD)}, "a"),
+                   tool_msg("write_file", {"path": "seeder.py", "content": "def seed(roles):\n    return {}\n"}, "b"),
+                   tool_msg("run", {"template": "lock_artifacts"}, "c"),
+                   tool_msg("write_file", {"path": "manifest.json", "content": json.dumps(worse)}, "e"),
+                   tool_msg("done", {"summary": "ok"}, "d")])
+    res = onboard.onboard(tmp_path, llm, max_turns=6, runner=lambda argv, cwd: "exit=0 " + green)
+    art = tmp_path / ".authzlock" / "artifacts"
+    assert json.loads((art / "manifest.json").read_text()) == GOOD
+    assert res["restored_last_green"] is True and res["errors"] == []
+
+
+def test_no_green_lock_means_no_rollback_and_an_honest_error(tmp_path):
+    (tmp_path / ".authzlock").mkdir()
+    (tmp_path / ".authzlock" / "openapi.json").write_text("{}")
+    llm = StubLLM([tool_msg("write_file", {"path": "manifest.json", "content": json.dumps(GOOD)}, "a"),
+                   tool_msg("write_file", {"path": "seeder.py", "content": "def seed(roles):\n    return {}\n"}, "b"),
+                   tool_msg("done", {"summary": "ok"}, "d")])
+    res = onboard.onboard(tmp_path, llm, max_turns=4, runner=lambda argv, cwd: "exit=1 boom")
+    assert res["restored_last_green"] is False and any("never locked green" in e for e in res["errors"])
