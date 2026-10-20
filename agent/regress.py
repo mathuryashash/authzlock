@@ -12,6 +12,7 @@ import json
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import probe_lib as pl
@@ -182,7 +183,9 @@ def prove_scenario(repo: Path, diff: dict, scenario: str, llm, prove=None, patch
     final = tools.check()
     return {"scenario": scenario, "finding": s, "status": "proven" if final["ok"] else "unproven",
             "why": final["why"], "prove_runs": tools.prove_runs, "agent_turns": res["turns"],
-            "written": tools.written, "test": (art / TEST).read_text() if (art / TEST).exists() else ""}
+            "written": tools.written, "test": (art / TEST).read_text() if (art / TEST).exists() else "",
+            "evidence": {k: {f: v.get(f) for f in ("junit", "app_hash_before", "app_hash_after")}
+                         for k, v in (final["raw"] or {}).items()}}  # cached: replay re-checks the proof keyless
 
 
 def root_cause(diff: dict, patch: str, cites: list, llm) -> str:
@@ -218,7 +221,9 @@ if __name__ == "__main__":
             continue
         d = json.loads(f.read_text())
         pf = HERE / pl.profile()["patches_dir"] / f"{scn}.patch"
+        pf = pf if pf.exists() else next(HERE.glob(f"bench/mutations/*/{scn}.patch"), pf)  # mutation benchmark
         patch = pf.read_text() if pf.exists() else ""
+        usd0, calls0, t0 = llm.spent_usd, llm.calls, time.time()
         r = prove_scenario(repo, d, scn, llm, patch=patch, prove=sbx and (lambda a, sp: sbx(a, sp, repo)),
                            api_prefix=api_prefix)
         if r is None:
@@ -228,7 +233,8 @@ if __name__ == "__main__":
             r["citations"] = tavily.cite(d)
             r["root_cause"] = root_cause(d, patch, r["citations"], llm)
             rows.append(r)
-        print(json.dumps({k: rows[-1].get(k) for k in ("scenario", "status", "prove_runs", "why")}), flush=True)
+        rows[-1].update(usd=round(llm.spent_usd - usd0, 4), calls=llm.calls - calls0, seconds=round(time.time() - t0, 1))
+        print(json.dumps({k: rows[-1].get(k) for k in ("scenario", "status", "prove_runs", "why", "usd", "seconds")}), flush=True)
     (out / "regress_summary.json").write_text(json.dumps({"spent_usd": round(llm.spent_usd, 4), "calls": llm.calls,
                                                           "scenarios": rows}, indent=1))
     print(f"spent ${llm.spent_usd:.4f} in {llm.calls} calls")
