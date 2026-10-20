@@ -121,3 +121,14 @@ def test_seeder_runs_in_its_own_process(tmp_path):
         assert "ValueError: boom" in str(e)
     else:
         raise AssertionError("seeder failure must raise")
+
+
+def test_shared_target_comes_from_the_seed_db_not_the_agents_discretion():
+    # D5 run 5: the agent's targets omitted "shared", so the default-category PR was never probed (verdict PASS).
+    snap = {"category": {"1": {"id": "1", "created_by_id": None}, "2": {"id": "2", "created_by_id": "u-a"}}}
+    own = {"category": {"owner_column": "created_by_id"}}
+    assert pl.effective_targets(["user_a", "nonexistent"], own, {"u-a": "user_a"}, snap) == \
+        ["user_a", "nonexistent", "shared"]
+    assert pl.effective_targets(["user_a", "shared"], own, {"u-a": "user_a"}, snap) == ["user_a", "shared"]
+    no_shared = {"category": {"2": {"id": "2", "created_by_id": "u-a"}}}
+    assert pl.effective_targets(["user_a"], own, {"u-a": "user_a"}, no_shared) == ["user_a"]

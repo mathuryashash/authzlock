@@ -372,6 +372,7 @@ def caller_role(identity: str) -> str | None:
         "inactive" if identity == "inactive" else None)
 
 
+TARGETS = pl.effective_targets(MAN["targets"], MAN["ownership"], role_by_user_id, seed_snapshot)
 results = []
 t0 = time.time()
 for op in ops:
@@ -379,7 +380,7 @@ for op in ops:
     if op["unsupported"]:
         results.append({"op": op["key"], "unsupported": op["unsupported"]})
         continue
-    targets = MAN["targets"] if (op["path_params"] or creds_op) else ["-"]
+    targets = TARGETS if (op["path_params"] or creds_op) else ["-"]
     variants = ["base"]
     if op["body_kind"] == "json" and op["method"] in ("POST", "PUT", "PATCH"):
         variants.append("hostile")

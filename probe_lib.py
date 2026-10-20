@@ -152,3 +152,10 @@ def run_seeder(path: str, roles: dict, cwd=None, env=None) -> dict:
         tb = [x for x in p.stderr.splitlines() if re.match(r"^[\w.]*(Error|Exception):", x)]
         raise RuntimeError(f"seeder failed (exit {p.returncode}): {tb[-1] if tb else ''}\n{p.stderr[-2500:]}")
     return json.loads(line[len("AUTHZ_SEED "):])
+
+
+def effective_targets(targets: list, own: dict, by_uid: dict, snap: dict) -> list:
+    """Manifest targets, plus "shared" whenever the seed DB holds NULL-owner rows in an owned table: whether
+    non-owners may mutate those is exactly the question a PR can silently change, so it is always probed."""
+    has_shared = any(row_owner(t, r, own, by_uid, snap) == "shared" for t in own for r in snap.get(t, {}).values())
+    return list(targets) + (["shared"] if has_shared and "shared" not in targets else [])
