@@ -56,3 +56,27 @@ def test_sandbox_tree_files_and_recipe_follow_profile(tmp_path):
     assert set(sr.dep_files(r, "base", TODOS)) == {"/dep/requirements.txt", "/dep/shmshim.c"}
     t_image, t_build = sr.recipe(pl.load_profile(None))
     assert t_image == "python:3.14-slim" and "uv export" in t_build
+
+
+def test_base_image_is_imported_once_when_the_registry_lacks_it():
+    # D5: python:3.9-slim was not yet imported in the project ("Image with tag 'tag:python:3.9-slim' not found").
+    calls = []
+
+    class Imgs:
+        def use(self, tag, strict=False):
+            calls.append(("use", tag))
+            raise sr_missing()
+
+        def pull(self, ref, new_tag=None, timeout=None):
+            calls.append(("pull", ref, new_tag))
+            return "IMG"
+
+    class C:
+        images = Imgs()
+
+    from contree_sdk.sdk.exceptions import ContreeError
+
+    def sr_missing():
+        return ContreeError()
+    assert sr.base_image(C(), "python:3.9-slim") == "IMG"
+    assert calls == [("use", "python:3.9-slim"), ("pull", "docker.io/library/python:3.9-slim", "python:3.9-slim")]

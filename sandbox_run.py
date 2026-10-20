@@ -137,11 +137,21 @@ def snapshot(client, repo: Path, ref: str = "base", prof: dict | None = None):
         pass
     set_network(client, True)  # the build alone needs the network (apt, PyPI)
     dep = dep_files(repo, ref, prof)
-    base = client.images.use(image)
+    base = base_image(client, image)
     img = retry(lambda: base.run(shell=build, files=dep, disposable=False, timeout=900).wait())
     if img.exit_code != 0:
         raise RuntimeError(f"snapshot build failed: {(img.stderr or img.stdout or '')[-1500:]}")
     return img.tag_as(tag)
+
+
+def base_image(client, image: str):
+    """Use the project's copy of a public image, importing it from Docker Hub the first time (app #2's 3.9)."""
+    from contree_sdk.sdk.exceptions import ContreeError
+    try:
+        return client.images.use(image, strict=True)
+    except ContreeError:
+        ref = image if "/" in image else f"docker.io/library/{image}"
+        return retry(lambda: client.images.pull(ref, new_tag=image, timeout=900))
 
 
 def run_ref(client, img, repo: Path, ref: str, test: bytes, env_file: Path, prof: dict | None = None) -> dict:
