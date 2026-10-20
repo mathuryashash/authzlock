@@ -14,6 +14,7 @@ USERS1 = "backend/app/api/routes/users.py"
 MODELS1 = "backend/app/models.py"
 SVC2 = "todos/app/dal/db_service.py"
 TODOS2 = "todos/app/api/v1/todos.py"
+CATS2 = "todos/app/api/v1/categories.py"
 
 OWNCHK = ("    if not current_user.is_superuser and (item.owner_id != current_user.id):\n"
           "        raise HTTPException(status_code=403, detail=\"Not enough permissions\")\n")
@@ -55,6 +56,19 @@ MUTATIONS = {
         ("pr-mut-benign-order", "PASS", "Benign: GET /items/ orders by title instead of created_at for normal users",
          [(APP1, "            .where(Item.owner_id == current_user.id)\n            .order_by(col(Item.created_at).desc())\n",
            "            .where(Item.owner_id == current_user.id)\n            .order_by(col(Item.title))\n")]),
+        # ---- held-out (written before the foreign-reference probe variant was run on them; see HELDOUT)
+        ("pr-mut-items-owner-param", "FAIL", "GET /items/: optional ?owner_id= query param overrides the caller as the list filter",
+         [(APP1, "    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100\n) -> Any:\n",
+           "    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100,\n"
+           "    owner_id: uuid.UUID | None = None,\n) -> Any:\n"),
+          (APP1, "            .select_from(Item)\n            .where(Item.owner_id == current_user.id)\n",
+           "            .select_from(Item)\n            .where(Item.owner_id == (owner_id or current_user.id))\n"),
+          (APP1, "            select(Item)\n            .where(Item.owner_id == current_user.id)\n",
+           "            select(Item)\n            .where(Item.owner_id == (owner_id or current_user.id))\n")]),
+        ("pr-mut-update-owner-field", "FAIL", "PUT /items/{id}: ItemUpdate gains owner_id (applied by the generic update: hand an item to someone else)",
+         [(MODELS1, "class ItemUpdate(SQLModel):\n    title: str | None = Field(default=None, min_length=1, max_length=255)\n",
+           "class ItemUpdate(SQLModel):\n    owner_id: uuid.UUID | None = None\n"
+           "    title: str | None = Field(default=None, min_length=1, max_length=255)\n")]),
     ],
     "app2": [
         ("pr-mut-update-todo-no-owner", "FAIL", "PUT /todos/{id}: service-level owner comparison removed",
@@ -93,8 +107,34 @@ MUTATIONS = {
            "        if row.created_by_id != created_by_id:\n"
            "            raise UserNotAllowed(f'a user can not delete a {name} that was not created by him')\n"
            "        return row\n\n    async def get_priorities(")]),
+        # ---- held-out (written before the foreign-reference probe variant was run on them; see HELDOUT)
+        ("pr-mut-categories-user-param", "FAIL", "GET /categories takes the owner from an optional ?user_id= query param",
+         [(CATS2, "    user: User = Depends(current_logged_user)\n) -> list[Category]:\n    return await db_service.get_categories(\n"
+                  "        session,\n        created_by_id=user.id,\n",
+           "    user: User = Depends(current_logged_user),\n    user_id: Optional[uuid.UUID] = None\n) -> list[Category]:\n"
+           "    return await db_service.get_categories(\n        session,\n        created_by_id=user_id or user.id,\n"),
+          (CATS2, "from fastapi import APIRouter, status, Depends\n",
+           "import uuid\nfrom typing import Optional\n\nfrom fastapi import APIRouter, status, Depends\n")]),
+        ("pr-mut-update-skip-category-check", "FAIL", "PUT /todos/{id}: category validation replaced by a duplicates-only check (FK is 'enough')",
+         [(SVC2, "        if await self._validate_todo_categories(\n            session,\n"
+                 "            todo_categories_ids=updated_todo.categories_ids,\n"
+                 "            created_by_id=updated_todo.created_by_id\n        ):\n",
+           "        if len(set(updated_todo.categories_ids)) == len(updated_todo.categories_ids):  # FK checks the ids\n")]),
+        ("pr-mut-benign-category-filter", "PASS", "Benign: GET /todos gains an optional ?category_id= filter over the caller's own todos",
+         [(TODOS2, "    user: User = Depends(current_logged_user)\n) -> Todo:\n    return await db_service.get_todos(\n"
+                   "        session,\n        created_by_id=user.id,\n        skip=skip,\n        limit=limit\n    )\n",
+           "    user: User = Depends(current_logged_user),\n    category_id: Optional[int] = None\n) -> Todo:\n"
+           "    todos = await db_service.get_todos(\n        session,\n        created_by_id=user.id,\n        skip=skip,\n"
+           "        limit=limit\n    )\n"
+           "    return [t for t in todos if category_id is None or any(c.id == category_id for c in t.categories)]\n"),
+          (TODOS2, "from fastapi import APIRouter, Depends, status\n",
+           "from typing import Optional\n\nfrom fastapi import APIRouter, Depends, status\n")]),
     ],
 }
+# Written after the first benchmark (9/11) and committed BEFORE the foreign-reference probe variant ran on them:
+# a generalisation check for that fix, not a tuning set.
+HELDOUT = {"pr-mut-items-owner-param", "pr-mut-update-owner-field", "pr-mut-categories-user-param",
+           "pr-mut-update-skip-category-check", "pr-mut-benign-category-filter"}
 REPOS = {"app1": ROOT / "target", "app2": ROOT / "target2"}
 
 

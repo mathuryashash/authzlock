@@ -1,0 +1,42 @@
+From 4747d40975dd0c160e71e650f8f4f26f953edf3d Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 20:19:26 +0530
+Subject: [PATCH] pr-mut-items-owner-param: GET /items/: optional ?owner_id=
+ query param overrides the caller as the list filter
+
+---
+ backend/app/api/routes/items.py | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..02bd84a 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -12,7 +12,8 @@ router = APIRouter(prefix="/items", tags=["items"])
+ 
+ @router.get("/", response_model=ItemsPublic)
+ def read_items(
+-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
++    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100,
++    owner_id: uuid.UUID | None = None,
+ ) -> Any:
+     """
+     Retrieve items.
+@@ -29,12 +30,12 @@ def read_items(
+         count_statement = (
+             select(func.count())
+             .select_from(Item)
+-            .where(Item.owner_id == current_user.id)
++            .where(Item.owner_id == (owner_id or current_user.id))
+         )
+         count = session.exec(count_statement).one()
+         statement = (
+             select(Item)
+-            .where(Item.owner_id == current_user.id)
++            .where(Item.owner_id == (owner_id or current_user.id))
+             .order_by(col(Item.created_at).desc())
+             .offset(skip)
+             .limit(limit)
+-- 
+2.47.0.windows.1
+

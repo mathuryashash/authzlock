@@ -1,0 +1,39 @@
+From d1da7938ed6852f00828f857e9070ee4bae38b44 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 20:19:27 +0530
+Subject: [PATCH] pr-mut-categories-user-param: GET /categories takes the owner
+ from an optional ?user_id= query param
+
+---
+ todos/app/api/v1/categories.py | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/todos/app/api/v1/categories.py b/todos/app/api/v1/categories.py
+index 2fd78f1..0a442b2 100644
+--- a/todos/app/api/v1/categories.py
++++ b/todos/app/api/v1/categories.py
+@@ -1,3 +1,6 @@
++import uuid
++from typing import Optional
++
+ from fastapi import APIRouter, status, Depends
+ from sqlalchemy.ext.asyncio import AsyncSession
+ from pydantic import conint
+@@ -29,11 +32,12 @@ async def get_categories(
+     skip: conint(ge=0, le=MAX_POSTGRES_INTEGER) = GET_MULTI_DEFAULT_SKIP,  # type: ignore[valid-type]
+     limit: conint(ge=0, le=MAX_POSTGRES_INTEGER) = GET_MULTI_DEFAULT_LIMIT,  # type: ignore[valid-type]
+     session: AsyncSession = Depends(get_async_session),
+-    user: User = Depends(current_logged_user)
++    user: User = Depends(current_logged_user),
++    user_id: Optional[uuid.UUID] = None
+ ) -> list[Category]:
+     return await db_service.get_categories(
+         session,
+-        created_by_id=user.id,
++        created_by_id=user_id or user.id,
+         skip=skip,
+         limit=limit
+     )
+-- 
+2.47.0.windows.1
+

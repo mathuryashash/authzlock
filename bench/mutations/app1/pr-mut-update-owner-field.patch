@@ -1,0 +1,25 @@
+From f91c026cc9d83cc4bef3a9e73acf4adcf91a8a21 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 20:19:26 +0530
+Subject: [PATCH] pr-mut-update-owner-field: PUT /items/{id}: ItemUpdate gains
+ owner_id (applied by the generic update: hand an item to someone else)
+
+---
+ backend/app/models.py | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/backend/app/models.py b/backend/app/models.py
+index dcedf9a..05ca805 100644
+--- a/backend/app/models.py
++++ b/backend/app/models.py
+@@ -83,6 +83,7 @@ class ItemCreate(ItemBase):
+ 
+ # Properties to receive on item update
+ class ItemUpdate(SQLModel):
++    owner_id: uuid.UUID | None = None
+     title: str | None = Field(default=None, min_length=1, max_length=255)
+     description: str | None = Field(default=None, max_length=255)
+ 
+-- 
+2.47.0.windows.1
+

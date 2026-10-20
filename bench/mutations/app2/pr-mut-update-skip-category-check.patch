@@ -1,0 +1,30 @@
+From a12d0ebf00d034c9b92e4844f881c9733ed19e7a Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 20:19:27 +0530
+Subject: [PATCH] pr-mut-update-skip-category-check: PUT /todos/{id}: category
+ validation replaced by a duplicates-only check (FK is 'enough')
+
+---
+ todos/app/dal/db_service.py | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..f0c22d5 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -140,11 +140,7 @@ class DBService:
+             raise ResourceNotExists(resource='todo')
+         if not todo_to_update.created_by_id == updated_todo.created_by_id:
+             raise UserNotAllowed('a user can not update a todo that was not created by him')
+-        if await self._validate_todo_categories(
+-            session,
+-            todo_categories_ids=updated_todo.categories_ids,
+-            created_by_id=updated_todo.created_by_id
+-        ):
++        if len(set(updated_todo.categories_ids)) == len(updated_todo.categories_ids):  # FK checks the ids
+             try:
+                 todo_updated_obj: Optional[Todo] = await self._repo.update(
+                     session,
+-- 
+2.47.0.windows.1
+
