@@ -1,0 +1,437 @@
+{
+ "apps": {
+  "app1": {
+   "name": "full-stack-fastapi-template@cb740b6",
+   "base": "results/app1/base.lock.json",
+   "scenarios": [
+    {
+     "id": "same-sha",
+     "expected": "PASS",
+     "desc": "Same SHA, second run (fresh seed + canaries)",
+     "head": "results/app1/scenarios/same-sha.lock.json"
+    },
+    {
+     "id": "pr-benign-pagination",
+     "expected": "PASS",
+     "desc": "Benign: default page size 100 -> 50",
+     "head": "results/app1/scenarios/pr-benign-pagination.lock.json"
+    },
+    {
+     "id": "pr-benign-stats",
+     "expected": "PASS",
+     "desc": "Benign: new owner-scoped GET /items/stats",
+     "head": "results/app1/scenarios/pr-benign-stats.lock.json"
+    },
+    {
+     "id": "pr-idor-refactor",
+     "expected": "FAIL",
+     "desc": "Refactor drops the ownership check on GET /items/{id}",
+     "head": "results/app1/scenarios/pr-idor-refactor.lock.json",
+     "proof": "results/app1/scenarios/pr-idor-refactor.proof.json"
+    },
+    {
+     "id": "pr-export-csv",
+     "expected": "FAIL",
+     "desc": "AI-written GET /items/export CSV with no owner filter",
+     "head": "results/app1/scenarios/pr-export-csv.lock.json",
+     "proof": "results/app1/scenarios/pr-export-csv.proof.json"
+    },
+    {
+     "id": "pr-mass-assign",
+     "expected": "FAIL",
+     "desc": "is_superuser added to the /users/me update schema",
+     "head": "results/app1/scenarios/pr-mass-assign.lock.json",
+     "proof": "results/app1/scenarios/pr-mass-assign.proof.json"
+    },
+    {
+     "id": "pr-count-leak",
+     "expected": "FAIL",
+     "desc": "'Simplified' count query leaks the total item count",
+     "head": "results/app1/scenarios/pr-count-leak.lock.json",
+     "proof": "results/app1/scenarios/pr-count-leak.proof.json"
+    },
+    {
+     "id": "pr-mut-update-no-owner.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /items/{id}: ownership check dropped in an update refactor",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-update-no-owner.lock.json",
+     "proof": "bench/results/app1/pr-mut-update-no-owner.proof.json"
+    },
+    {
+     "id": "pr-mut-delete-no-owner.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "DELETE /items/{id}: ownership check dropped",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-delete-no-owner.lock.json",
+     "proof": "bench/results/app1/pr-mut-delete-no-owner.proof.json"
+    },
+    {
+     "id": "pr-mut-list-leak.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /items/: non-superuser list query loses its owner filter (count kept)",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-list-leak.lock.json",
+     "proof": "bench/results/app1/pr-mut-list-leak.proof.json"
+    },
+    {
+     "id": "pr-mut-superuser-inverted.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /items/: superuser branch condition inverted (`if not current_user.is_superuser`)",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-superuser-inverted.lock.json",
+     "proof": "bench/results/app1/pr-mut-superuser-inverted.proof.json"
+    },
+    {
+     "id": "pr-mut-users-no-role.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /users/: superuser dependency removed from the user list",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-users-no-role.lock.json",
+     "proof": "bench/results/app1/pr-mut-users-no-role.proof.json"
+    },
+    {
+     "id": "pr-mut-mass-assign-owner.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "POST /items/: client may set owner_id (added to ItemCreate, honoured if sent)",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-mass-assign-owner.lock.json",
+     "proof": "bench/results/app1/pr-mut-mass-assign-owner.proof.json"
+    },
+    {
+     "id": "pr-mut-benign-helper.v0",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign refactor: item lookup + ownership check moved into one helper used by GET/PUT/DELETE",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-benign-helper.lock.json"
+    },
+    {
+     "id": "pr-mut-benign-order.v0",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign: GET /items/ orders by title instead of created_at for normal users",
+     "kind": "mutation v0",
+     "head": "bench/results/app1/pr-mut-benign-order.lock.json"
+    },
+    {
+     "id": "pr-mut-items-owner-param.v0",
+     "expected": "FAIL",
+     "recorded": "PASS",
+     "desc": "GET /items/: optional ?owner_id= query param overrides the caller as the list filter",
+     "kind": "mutation v0 held-out",
+     "head": "bench/results_preheldout/app1/pr-mut-items-owner-param.lock.json"
+    },
+    {
+     "id": "pr-mut-update-owner-field.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /items/{id}: ItemUpdate gains owner_id (applied by the generic update: hand an item to someone else)",
+     "kind": "mutation v0 held-out",
+     "head": "bench/results_preheldout/app1/pr-mut-update-owner-field.lock.json"
+    },
+    {
+     "id": "base.v1",
+     "expected": "PASS",
+     "kind": "probe v1 base",
+     "head": "bench/results_v1/app1/base.lock.json",
+     "desc": "Base lock rebuilt by probe v1 vs the recorded base (new cells only add)"
+    },
+    {
+     "id": "pr-mut-update-no-owner.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /items/{id}: ownership check dropped in an update refactor",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-update-no-owner.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-delete-no-owner.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "DELETE /items/{id}: ownership check dropped",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-delete-no-owner.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-list-leak.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /items/: non-superuser list query loses its owner filter (count kept)",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-list-leak.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-superuser-inverted.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /items/: superuser branch condition inverted (`if not current_user.is_superuser`)",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-superuser-inverted.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-users-no-role.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /users/: superuser dependency removed from the user list",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-users-no-role.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-mass-assign-owner.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "POST /items/: client may set owner_id (added to ItemCreate, honoured if sent)",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-mass-assign-owner.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-benign-helper.v1",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign refactor: item lookup + ownership check moved into one helper used by GET/PUT/DELETE",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-benign-helper.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-benign-order.v1",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign: GET /items/ orders by title instead of created_at for normal users",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app1/pr-mut-benign-order.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json"
+    },
+    {
+     "id": "pr-mut-items-owner-param.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /items/: optional ?owner_id= query param overrides the caller as the list filter",
+     "kind": "mutation v1 held-out",
+     "head": "bench/results_v1/app1/pr-mut-items-owner-param.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json",
+     "proof": "bench/results_v1/app1/pr-mut-items-owner-param.proof.json"
+    },
+    {
+     "id": "pr-mut-update-owner-field.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /items/{id}: ItemUpdate gains owner_id (applied by the generic update: hand an item to someone else)",
+     "kind": "mutation v1 held-out",
+     "head": "bench/results_v1/app1/pr-mut-update-owner-field.lock.json",
+     "base": "bench/results_v1/app1/base.lock.json",
+     "proof": "bench/results_v1/app1/pr-mut-update-owner-field.proof.json"
+    }
+   ]
+  },
+  "app2": {
+   "name": "fastapi-todos@c059889",
+   "base": "results/app2/scenarios/base_run1.lock.json",
+   "scenarios": [
+    {
+     "id": "same-sha",
+     "expected": "PASS",
+     "desc": "Same SHA, second run",
+     "head": "results/app2/scenarios/base_run2.lock.json"
+    },
+    {
+     "id": "pr-todo-get-by-id",
+     "expected": "FAIL",
+     "desc": "New GET /todos/{todo_id} with no created_by_id filter",
+     "head": "results/app2/scenarios/pr_todo_get_by_id.lock.json",
+     "proof": "results/app2/scenarios/pr-todo-get-by-id.proof.json"
+    },
+    {
+     "id": "pr-category-cleanup",
+     "expected": "FAIL",
+     "desc": "Non-owners may delete shared default categories",
+     "head": "results/app2/scenarios/pr_category_cleanup.lock.json",
+     "proof": "results/app2/scenarios/pr-category-cleanup.proof.json"
+    },
+    {
+     "id": "pr-todos-completed-filter",
+     "expected": "PASS",
+     "desc": "Benign: ?completed= filter on GET /todos",
+     "head": "results/app2/scenarios/pr_todos_completed_filter.lock.json"
+    },
+    {
+     "id": "pr-mut-update-todo-no-owner.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /todos/{id}: service-level owner comparison removed",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-update-todo-no-owner.lock.json"
+    },
+    {
+     "id": "pr-mut-categories-list-leak.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /categories: user filter replaced by `created_by_id.isnot(None) | default` (all users' categories)",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-categories-list-leak.lock.json"
+    },
+    {
+     "id": "pr-mut-bulk-delete.v0",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "New DELETE /todos 'clear my todos' bulk endpoint deletes without an owner filter",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-bulk-delete.lock.json"
+    },
+    {
+     "id": "pr-mut-swap-user-source.v0",
+     "expected": "FAIL",
+     "recorded": "PASS",
+     "desc": "GET /todos takes the owner from an optional ?user_id= query param, falling back to the caller",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-swap-user-source.lock.json"
+    },
+    {
+     "id": "pr-mut-foreign-category-link.v0",
+     "expected": "FAIL",
+     "recorded": "PASS",
+     "desc": "Todo create/update: category validation drops the per-user filter (link another user's category)",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-foreign-category-link.lock.json"
+    },
+    {
+     "id": "pr-mut-benign-delete-helper.v0",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign refactor: delete_todo/delete_category share one owner-checked lookup helper",
+     "kind": "mutation v0",
+     "head": "bench/results/app2/pr-mut-benign-delete-helper.lock.json"
+    },
+    {
+     "id": "pr-mut-categories-user-param.v0",
+     "expected": "FAIL",
+     "recorded": "PASS",
+     "desc": "GET /categories takes the owner from an optional ?user_id= query param",
+     "kind": "mutation v0 held-out",
+     "head": "bench/results_preheldout/app2/pr-mut-categories-user-param.lock.json"
+    },
+    {
+     "id": "pr-mut-update-skip-category-check.v0",
+     "expected": "FAIL",
+     "recorded": "PASS",
+     "desc": "PUT /todos/{id}: category validation replaced by a duplicates-only check (FK is 'enough')",
+     "kind": "mutation v0 held-out",
+     "head": "bench/results_preheldout/app2/pr-mut-update-skip-category-check.lock.json"
+    },
+    {
+     "id": "pr-mut-benign-category-filter.v0",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign: GET /todos gains an optional ?category_id= filter over the caller's own todos",
+     "kind": "mutation v0 held-out",
+     "head": "bench/results_preheldout/app2/pr-mut-benign-category-filter.lock.json"
+    },
+    {
+     "id": "base.v1",
+     "expected": "PASS",
+     "kind": "probe v1 base",
+     "head": "bench/results_v1/app2/base.lock.json",
+     "desc": "Base lock rebuilt by probe v1 vs the recorded base (new cells only add)"
+    },
+    {
+     "id": "pr-mut-update-todo-no-owner.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /todos/{id}: service-level owner comparison removed",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-update-todo-no-owner.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json"
+    },
+    {
+     "id": "pr-mut-categories-list-leak.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /categories: user filter replaced by `created_by_id.isnot(None) | default` (all users' categories)",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-categories-list-leak.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json"
+    },
+    {
+     "id": "pr-mut-bulk-delete.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "New DELETE /todos 'clear my todos' bulk endpoint deletes without an owner filter",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-bulk-delete.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json"
+    },
+    {
+     "id": "pr-mut-swap-user-source.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /todos takes the owner from an optional ?user_id= query param, falling back to the caller",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-swap-user-source.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json",
+     "proof": "bench/results_v1/app2/pr-mut-swap-user-source.proof.json"
+    },
+    {
+     "id": "pr-mut-foreign-category-link.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "Todo create/update: category validation drops the per-user filter (link another user's category)",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-foreign-category-link.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json",
+     "proof": "bench/results_v1/app2/pr-mut-foreign-category-link.proof.json"
+    },
+    {
+     "id": "pr-mut-benign-delete-helper.v1",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign refactor: delete_todo/delete_category share one owner-checked lookup helper",
+     "kind": "mutation v1",
+     "head": "bench/results_v1/app2/pr-mut-benign-delete-helper.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json"
+    },
+    {
+     "id": "pr-mut-categories-user-param.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "GET /categories takes the owner from an optional ?user_id= query param",
+     "kind": "mutation v1 held-out",
+     "head": "bench/results_v1/app2/pr-mut-categories-user-param.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json",
+     "proof": "bench/results_v1/app2/pr-mut-categories-user-param.proof.json"
+    },
+    {
+     "id": "pr-mut-update-skip-category-check.v1",
+     "expected": "FAIL",
+     "recorded": "FAIL",
+     "desc": "PUT /todos/{id}: category validation replaced by a duplicates-only check (FK is 'enough')",
+     "kind": "mutation v1 held-out",
+     "head": "bench/results_v1/app2/pr-mut-update-skip-category-check.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json",
+     "proof": "bench/results_v1/app2/pr-mut-update-skip-category-check.proof.json"
+    },
+    {
+     "id": "pr-mut-benign-category-filter.v1",
+     "expected": "PASS",
+     "recorded": "PASS",
+     "desc": "Benign: GET /todos gains an optional ?category_id= filter over the caller's own todos",
+     "kind": "mutation v1 held-out",
+     "head": "bench/results_v1/app2/pr-mut-benign-category-filter.lock.json",
+     "base": "bench/results_v1/app2/base.lock.json"
+    }
+   ]
+  }
+ }
+}

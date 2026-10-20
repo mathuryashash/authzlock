@@ -9,7 +9,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-from bench.make_mutations import MUTATIONS  # noqa: E402  (ROOT on sys.path when run as a module)
+from bench.make_mutations import HELDOUT, MUTATIONS  # noqa: E402  (ROOT on sys.path when run as a module)
 
 A1 = [("pr-benign-pagination", "PASS", "Benign: default page size 100 -> 50"),
       ("pr-benign-stats", "PASS", "Benign: new owner-scoped GET /items/stats"),
@@ -69,17 +69,33 @@ def main() -> None:
         scen.append(c)
     out["apps"]["app2"] = {"name": "fastapi-todos@c059889", "base": "results/app2/scenarios/base_run1.lock.json",
                            "scenarios": scen}
-    for app in ("app1", "app2"):  # mutation benchmark
-        for name, exp, desc, _ in MUTATIONS[app]:
-            lk = ROOT / "bench/results" / app / f"{name}.lock.json"
-            if lk.exists():
-                rec = json.loads((lk.with_name(f"{name}.diff.json")).read_text(encoding="utf-8"))["verdict"]
-                c = {"id": name, "expected": exp, "recorded": rec, "desc": desc, "kind": "mutation",
-                     "head": lk.relative_to(ROOT).as_posix()}
-                pj = ROOT / "bench/results" / app / f"{name}.proof.json"
-                rs = ROOT / "bench/results" / app / "regress/regress_summary.json"
-                r = next((x for x in json.loads(rs.read_text(encoding="utf-8"))["scenarios"]
-                          if x["scenario"] == name and x.get("evidence")), None) if rs.exists() else None
+    # Mutation benchmark. v0 = probe before the foreign-reference variant (original 11+3 in bench/results, the
+    # held-out 4+1 in bench/results_preheldout, both vs the recorded base lock); v1 = with it (bench/results_v1,
+    # vs a base lock rebuilt by the same probe version).
+    runs = [("v0", "bench/results", None), ("v0", "bench/results_preheldout", None),
+            ("v1", "bench/results_v1", "bench/results_v1/{app}/base.lock.json")]
+    for app in ("app1", "app2"):
+        scen = out["apps"][app]["scenarios"]
+        for ver, rdir, rbase in runs:
+            rbase = rbase and rbase.format(app=app)
+            if rbase:  # the rebuilt base itself, diffed against the recorded one: no probed cell may change
+                scen.append({"id": f"base.{ver}", "expected": "PASS", "kind": f"probe {ver} base", "head": rbase,
+                             "desc": f"Base lock rebuilt by probe {ver} vs the recorded base (new cells only add)"})
+            for name, exp, desc, _ in MUTATIONS[app]:
+                lk = ROOT / rdir / app / f"{name}.lock.json"
+                if not lk.exists():
+                    continue
+                rec = json.loads(lk.with_name(f"{name}.diff.json").read_text(encoding="utf-8"))["verdict"]
+                c = {"id": f"{name}.{ver}", "expected": exp, "recorded": rec, "desc": desc,
+                     "kind": f"mutation {ver}" + (" held-out" if name in HELDOUT else ""),
+                     "head": lk.relative_to(ROOT).as_posix(), **({"base": rbase} if rbase else {})}
+                pj = lk.with_name(f"{name}.proof.json")
+                tries = [x for rs in sorted((ROOT / rdir / app).glob("regress*/regress_summary.json"))
+                         for x in json.loads(rs.read_text(encoding="utf-8"))["scenarios"]
+                         if x["scenario"] == name and x.get("evidence")]  # every recorded run, proven first
+                r = next((x for x in tries if x["status"] == "proven"), None)
+                if tries and not r:
+                    c["proof_status"] = f"unproven after {len(tries)} agent run(s)"
                 if r:
                     pj.write_text(json.dumps({"scenario": name, "path": r["finding"]["path"],
                                               "canary": r["finding"]["canary"], "test": r["test"],
@@ -88,10 +104,9 @@ def main() -> None:
                                               "evidence": r["evidence"]}, indent=1))
                 if pj.exists():
                     c["proof"] = pj.relative_to(ROOT).as_posix()
-                out["apps"][app]["scenarios"].append(c)
+                scen.append(c)
     (ROOT / "results/cases.json").write_text(json.dumps(out, indent=1))
     print(sum(len(a["scenarios"]) for a in out["apps"].values()), "cases")
-
 
 if __name__ == "__main__":
     main()

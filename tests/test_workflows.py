@@ -12,7 +12,7 @@ def read(name):
 
 def test_all_workflows_pinned_least_privilege_no_pull_request_target():
     files = sorted(WF.glob("*.yml"))
-    assert {f.name for f in files} == {"authz-probe.yml", "authz-comment.yml", "authz-agent.yml"}
+    assert {f.name for f in files} == {"authz-probe.yml", "authz-comment.yml", "authz-agent.yml", "replay.yml"}
     for f in files:
         s = f.read_text()
         assert "pull_request_target" not in s
@@ -52,3 +52,9 @@ def test_agent_workflow_never_on_pull_requests():
     s = read("authz-agent.yml")
     on = s.split("on:", 1)[1].split("permissions:", 1)[0]
     assert "pull_request" not in on and "push:" in on and "workflow_dispatch" in on
+
+
+def test_replay_workflow_is_keyless():
+    s = read("replay.yml")
+    assert "secrets." not in s and "NEBIUS" not in s and "TAVILY" not in s and "pull_request" not in s
+    assert "python3 replay.py site" in s
