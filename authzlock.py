@@ -148,9 +148,19 @@ def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int, manifest
     if seeder:
         argv += ["--seeder", str(Path(seeder).resolve())]
     p = subprocess.run(argv, cwd=backend, env=env, capture_output=True, text=True, timeout=1800)
-    if p.returncode != 0:
-        raise SystemExit(f"worker failed for {tag}:\n{p.stderr[-3000:]}")
+    if p.returncode != 0:  # root cause first: the agent only sees the tail, and asyncio shutdown noise buries it
+        raise SystemExit(f"worker failed for {tag}: {root_error(p.stderr)}\n{p.stderr[-3000:]}")
     return json.loads(Path(out_raw).read_text())
+
+
+def root_error(stderr: str) -> str:
+    """Final line of the first traceback (later ones are interpreter-shutdown noise), else the last line."""
+    tb = stderr.split("Traceback (most recent call last):")
+    if len(tb) > 1:
+        lines = [ln for ln in tb[1].splitlines() if ln.strip() and not ln.startswith(" ")]
+        if lines:
+            return lines[-1] if not lines[-1].startswith("Exception ignored") else lines[0]
+    return (stderr.strip().splitlines() or [""])[-1]
 
 
 def cmd_lock(checkout: Path, out: Path, tag: str, smtp_port: int = 1025, manifest: Path = MANIFEST,

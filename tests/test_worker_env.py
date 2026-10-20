@@ -46,3 +46,13 @@ def test_worker_env_keeps_windows_home_and_app_profile(monkeypatch):  # asyncpg 
     monkeypatch.setenv("AUTHZ_PROFILE", "apps/todos/profile.json")
     env = authzlock.worker_env()
     assert env["USERPROFILE"] == "C:/Users/x" and env["AUTHZ_PROFILE"] == "apps/todos/profile.json"
+
+
+def test_worker_failure_leads_with_the_root_exception_not_shutdown_noise():
+    err = ("INFO sql echo\nTraceback (most recent call last):\n  File \"seeder.py\", line 73, in _seed\n"
+           "AttributeError: 'dict' object has no attribute 'password'\n"
+           "Exception ignored in: <function _ProactorBasePipeTransport.__del__>\nTraceback (most recent call last):\n"
+           "  File \"proactor_events.py\", line 116\nRuntimeError: Event loop is closed\n")
+    assert authzlock.root_error(err) == "AttributeError: 'dict' object has no attribute 'password'"
+    assert authzlock.root_error("harness invalid: seeder returned nothing for user_a\n") == \
+        "harness invalid: seeder returned nothing for user_a"
