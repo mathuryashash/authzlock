@@ -148,11 +148,26 @@ def source_files(repo: Path) -> list[str]:
                   and not any(s in p.relative_to(repo).as_posix() for s in skip))[:80]
 
 
+class OnboardTools(Tools):
+    """Validate artifacts the moment they are written, so the model repairs them inside the loop."""
+
+    def write_file(self, path: str, content: str) -> str:
+        out = super().write_file(path, content)
+        if path == "manifest.json":
+            try:
+                errs = validate_manifest(json.loads(content))
+            except ValueError as e:
+                errs = [f"not valid JSON: {e}"]
+        else:
+            errs = validate_seeder(content) if path == "seeder.py" else []
+        return out + ("\nINVALID, fix and rewrite: " + "; ".join(errs) if errs else "")
+
+
 def onboard(repo: Path, llm, max_turns: int = 25, prof: dict | None = None) -> dict:
     files = "\n".join(source_files(repo))
     user = (f"Onboard this app. Its OpenAPI schema is at .authzlock/openapi.json. Source files:\n{files}\n"
             "Start with read_file('.authzlock/openapi.json'), then the models, crud, db/config and login code.")
-    res = run_agent(llm, Tools(repo), system_prompt(prof or pl.profile()), user, max_turns=max_turns)
+    res = run_agent(llm, OnboardTools(repo), system_prompt(prof or pl.profile()), user, max_turns=max_turns)
     res["errors"] = check_artifacts(repo)
     return res
 

@@ -127,3 +127,15 @@ def test_source_files_list_helps_a_non_backend_layout(tmp_path):
     files = onboard.source_files(tmp_path)
     assert "todos/app/main.py" in files and "todos/scripts/initial_data.json" in files
     assert not any("tests/" in f for f in files)
+
+
+def test_manifest_write_returns_validation_errors_to_the_agent(tmp_path):
+    # D5 agent run 2 ended with "ignored_columns": {} after its last good lock; the error only surfaced post-run.
+    t = onboard.OnboardTools(tmp_path)
+    bad = dict(GOOD, ignored_columns={})
+    out = t.dispatch("write_file", json.dumps({"path": "manifest.json", "content": json.dumps(bad)}))
+    assert "ok: wrote" in out and "INVALID" in out and "ignored_columns" in out
+    out = t.dispatch("write_file", json.dumps({"path": "manifest.json", "content": json.dumps(GOOD)}))
+    assert "INVALID" not in out
+    out = t.dispatch("write_file", json.dumps({"path": "seeder.py", "content": "x = 1\n"}))
+    assert "INVALID" in out and "seed(roles)" in out
