@@ -5,7 +5,8 @@ For each FAIL scenario the agent writes tests/authz/test_regression.py into its 
 decides from JUnit XML; the model never does. Max 5 prove runs, then 'unproven'. Benign PRs get no test.
 Ultra then writes one root-cause paragraph: report prose only, computed after the verdict.
 
-  python -m agent.regress <target checkout> <scenario diff dir> <out dir>   (NEBIUS_API_KEY, AUTHZ_PG)
+  python -m agent.regress <target checkout> <scenario diff dir> <out dir> [scenario ...] [--runner local|sandbox]
+  (NEBIUS_API_KEY; AUTHZ_PG for local. --runner sandbox runs the prove template in Nebius Sandboxes, sandbox_run.py)
 """
 import json
 import os
@@ -78,6 +79,14 @@ def prove_local(art: Path, s: dict, repo: Path) -> dict:
         out[side] = json.loads(res.read_text()) if res.exists() else {
             "junit": "<testsuite/>", "app_hash_before": "", "app_hash_after": "?", "stdout": p.stderr[-1500:]}
     return out
+
+
+def pick_prove(argv: list[str]):
+    """--runner sandbox -> prove in Nebius Sandboxes (offline, keyless VMs); default/local -> None = prove_local."""
+    if "--runner" in argv and argv[argv.index("--runner") + 1] == "sandbox":
+        import sandbox_run
+        return lambda art, s, repo: sandbox_run.prove_sandbox(art, s, Path(repo))
+    return None
 
 
 class RegressTools(Tools):
@@ -156,7 +165,9 @@ if __name__ == "__main__":
     repo, diffs, out = Path(sys.argv[1]).resolve(), Path(sys.argv[2]), Path(sys.argv[3])
     out.mkdir(parents=True, exist_ok=True)
     llm = tf.LLM(log_path=(out / "cost.jsonl").resolve(), budget_usd=float(os.environ.get("AUTHZ_BUDGET", "1.0")))
-    only = sys.argv[4:]
+    flags = sys.argv[4:]
+    sbx = pick_prove(flags)
+    only = [a for a in flags if not a.startswith("--") and a not in ("local", "sandbox")]
     rows = []
     for f in sorted(diffs.glob("pr-*.diff.json")):
         scn = f.name.removesuffix(".diff.json")
@@ -164,7 +175,7 @@ if __name__ == "__main__":
             continue
         d = json.loads(f.read_text())
         patch = (HERE / "scenarios" / f"{scn}.patch").read_text() if (HERE / "scenarios" / f"{scn}.patch").exists() else ""
-        r = prove_scenario(repo, d, scn, llm, patch=patch)
+        r = prove_scenario(repo, d, scn, llm, patch=patch, prove=sbx and (lambda a, sp: sbx(a, sp, repo)))
         if r is None:
             rows.append({"scenario": scn, "verdict": d["verdict"], "status": "no test (not FAIL)"})
         else:
