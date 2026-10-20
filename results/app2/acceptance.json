@@ -1,0 +1,73 @@
+{
+ "app": "eladgunders/fastapi-todos@c059889336b7497ce80b9948a3720fb8c4b469e5",
+ "artifacts": "results/app2/onboard_run5 (agent-written, 0 human edits)",
+ "base_lock": {
+  "operations": 20,
+  "probed": 17,
+  "unprobed": [
+   "DELETE /users/{id}",
+   "POST /auth/reset-password",
+   "POST /auth/verify"
+  ],
+  "unsupported": [],
+  "probes": 639,
+  "harness_valid": true,
+  "violations": 0
+ },
+ "verdicts": [
+  [
+   "same SHA twice",
+   "PASS",
+   "PASS"
+  ],
+  [
+   "pr-todo-get-by-id",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "pr-category-cleanup",
+   "FAIL",
+   "FAIL"
+  ],
+  [
+   "pr-todos-completed-filter",
+   "PASS",
+   "PASS"
+  ]
+ ],
+ "regression_proofs_runner": "sandbox (Nebius Sandboxes, python:3.9-slim + PG, networking off), live agent loop",
+ "proofs": [
+  {
+   "scenario": "pr-todo-get-by-id",
+   "status": "proven",
+   "prove_runs": 2,
+   "agent_turns": 11,
+   "from": "regress_sandbox_run3"
+  },
+  {
+   "scenario": "pr-category-cleanup",
+   "status": "proven",
+   "prove_runs": 1,
+   "agent_turns": 6,
+   "from": "regress_sandbox_run2"
+  }
+ ],
+ "benign": {
+  "scenario": "pr-todos-completed-filter",
+  "status": "no test (not FAIL)",
+  "llm_calls_for_tests": 0
+ },
+ "proof_attempts_note": "sandbox run 1: 0/2 (missing /api/v1 prefix, conftest path guessing); run 2: category proven, todo voided by a mis-placed write; run 3 (todo only): proven. Each failure -> regress.py fix with a test.",
+ "usd_by_run": {
+  "onboard_run1": 0.1288,
+  "onboard_run2": 0.1894,
+  "onboard_run3": 0.2537,
+  "onboard_run4": 0.1111,
+  "onboard_run5": 0.288,
+  "regress_sandbox_run1": 0.0639,
+  "regress_sandbox_run2": 0.0832,
+  "regress_sandbox_run3": 0.0222
+ },
+ "usd_total": 1.1403
+}

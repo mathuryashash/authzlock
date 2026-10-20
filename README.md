@@ -98,7 +98,7 @@ The deterministic core above is the pre-hackathon prototype (25 Sep). During the
 | Tavily angle 1 (`agent/tavily.py`): one OWASP/CWE-allowlisted search per FAIL finding, quoted in report prose only | Built (stub-tested; wired into the report on D4) |
 | Ultra root cause (one call per FAIL, quoted DATA, never read by verdict code) + Tavily OWASP/CWE citations; Markdown PR comment (`comment.py`: escapes `\|`, backticks, `<`, `@`, `](`; redacts JWTs/passwords; 60 KB cap) | **Built** (live on idor: CWE-639 + OWASP API1:2023 cited; sample comment `results/agent_regress1/pr-idor-refactor.comment.md`) |
 | GitHub Actions split (security #2): `authz-probe` (`pull_request`, `contents: read`, no secrets, engine/policy/artifacts from base SHA, PR may only change `demo/`) → `diff.json`; `authz-comment` (`workflow_run`, renders the untrusted artifact, same-repo PRs only); `authz-agent` (push to main / dispatch, Nebius key). SHA-pinned | **Live on GitHub**: demo PR [#1](https://github.com/mathuryashash/authzlock/pull/1) (IDOR) → probe green, comment ❌ FAIL (I1 read-isolation on `GET /items/{id}`); PR [#2](https://github.com/mathuryashash/authzlock/pull/2) (benign) → ✅ PASS. Probe ~1m50s. `authz-agent` not re-run yet |
-| Second app: `eladgunders/fastapi-todos` @ `c059889` (fastapi-users, async SQLAlchemy) | Planned (D5) |
+| **Second app** (D5): `eladgunders/fastapi-todos` @ `c059889` (fastapi-users JWT, async SQLAlchemy, int ids, link table, shared NULL-owner rows, Python 3.9) | **Live.** See *App #2* below |
 | Static HTML report; mutation benchmark ($/PR, s/PR, detection rate) | Planned (D6) |
 
 Run the agent-layer tests (any OS):
@@ -122,6 +122,40 @@ python -m pytest -q            # live tests auto-skip without NEBIUS_API_KEY
 | sandbox, cold (first build) | 4/4 | 54 s build + ~17 s per proof |
 
 **Threat model (short):** authz.lock catches *accidental* authorization regressions, not adversarial PR authors, because PR code runs in-process with the probe. Secrets never share a process with PR code or generated code. The LLM writes artifacts but never decides the verdict or the policy. With `--runner sandbox`, PR code and generated tests run in a Nebius VM that gets **no `env=`** (0 NEBIUS/TAVILY/GITHUB vars visible inside) and **no network**: every proof spawn sets `networking.enabled=false` (no `eth0`, egress blocked; confirmed in the server-side operation records, `results/sandbox_run1/network_and_env.txt`). Egress is **open by default** on Sandboxes and contree-sdk 0.3.6 has no parameter for it, so the runner injects the field into the spawn body; only the one-time snapshot build (apt, PyPI) runs with network on, from host-pinned inputs (`uv.lock`), never PR code. The API key stays in the host process.
+
+## App #2: fastapi-todos, agent-written artifacts only (D5)
+
+The onboarding agent (Nemotron Super) wrote `manifest.json` + `seeder.py` from the app's OpenAPI and source. **0 human
+edits** to them (`results/app2/HUMAN_EDITS.md`). Humans wrote only the infra profile (`apps/todos/profile.json`: how
+to boot/migrate/test, pins) and the 3 planted PRs.
+
+| | Result |
+|---|---|
+| Base lock (agent artifacts, run 5) | 639 probes, harness valid, **coverage 17/20** (unprobed: `DELETE /users/{id}`, `POST /auth/reset-password`, `POST /auth/verify`; they need a superuser target / emailed tokens), 0 violations. Same SHA twice: 0 changed cells |
+| `pr-todo-get-by-id` (new endpoint, no owner filter) | ❌ FAIL, I1 read-isolation |
+| `pr-category-cleanup` (non-owners may delete default categories) | ❌ FAIL, I3 write-isolation on `shared` rows |
+| `pr-todos-completed-filter` (benign) | ✅ PASS, no test, no model call |
+| Regression tests, agent loop live with `--runner sandbox` (python:3.9-slim + PG snapshot, no network) | **2/2 proven** in Sandboxes: todo IDOR (2 prove runs, 11 turns), default-category delete (1 prove run, 6 turns). Needed 3 sandbox runs; failures 1-2 led to `regress.py` fixes (API prefix + test file list in the prompt, mis-placed writes refused, junit failure messages fed back). `results/app2/acceptance.json` |
+| LLM spend for D5 | $1.14 total (5 onboarding runs $0.97, 3 regress runs $0.17) |
+
+It took 5 onboarding runs. Each failure became an engine fix with a test, never a hand-edit to an artifact. The fixes:
+- a per-app profile replaces the `backend/` and `app.api.deps` assumptions;
+- the seeder runs in a subprocess, because async engines leaked across event loops;
+- seeded identity flags are checked against the manifest;
+- artifacts are validated on write;
+- the last green artifacts are kept;
+- NULL-owner rows are always probed as target `shared`.
+
+App #1's lock is unchanged: 603/603 cells identical.
+
+**Policy question raised by shared default categories.** fastapi-todos seeds categories with `created_by_id = NULL`.
+Every user can read them and nobody may delete them. Which reading is right?
+- They are system rows. A non-owner deleting one is a write-isolation break, which is what authz.lock flags.
+- They are per-user clutter that users may hide or remove.
+
+authz.lock cannot know. It records base behaviour (403 for everyone, superuser included) as the lock. A PR that
+changes it fails until a maintainer accepts the decision. A real deployment would put this in the policy as an explicit
+`exceptions` entry, or move hiding to a per-user link table so the shared row is never mutated.
 
 ## Known limitations of this prototype
 

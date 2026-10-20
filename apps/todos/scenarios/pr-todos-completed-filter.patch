@@ -1,0 +1,41 @@
+From aff355ce377e20c0d34fe60a642bd9333b49c084 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 14:20:25 +0530
+Subject: [PATCH] Optional ?completed= filter on GET /todos
+
+---
+ todos/app/api/v1/todos.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/todos/app/api/v1/todos.py b/todos/app/api/v1/todos.py
+index 54e61f4..d5be2d2 100644
+--- a/todos/app/api/v1/todos.py
++++ b/todos/app/api/v1/todos.py
+@@ -1,3 +1,5 @@
++from typing import Optional
++
+ from fastapi import APIRouter, Depends, status
+ from sqlalchemy.ext.asyncio import AsyncSession
+ from pydantic import conint
+@@ -28,15 +30,17 @@ router = APIRouter(
+ async def get_todos(
+     skip: conint(ge=0, le=MAX_POSTGRES_INTEGER) = GET_MULTI_DEFAULT_SKIP,  # type: ignore[valid-type]
+     limit: conint(ge=0, le=MAX_POSTGRES_INTEGER) = GET_MULTI_DEFAULT_LIMIT,  # type: ignore[valid-type]
++    completed: Optional[bool] = None,
+     session: AsyncSession = Depends(get_async_session),
+     user: User = Depends(current_logged_user)
+ ) -> Todo:
+-    return await db_service.get_todos(
++    todos = await db_service.get_todos(
+         session,
+         created_by_id=user.id,
+         skip=skip,
+         limit=limit
+     )
++    return [t for t in todos if completed is None or t.is_completed == completed]
+ 
+ 
+ @router.post(
+-- 
+2.47.0.windows.1
+

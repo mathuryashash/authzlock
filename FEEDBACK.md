@@ -51,3 +51,9 @@ This is a running log of friction and wins, kept while building authz.lock for t
   5. **No SysV shared memory in the guest** (`shmget` ENOSYS): stock Postgres `initdb` fails. Worked around with a 20-line LD_PRELOAD shim + `shared_memory_type=mmap`. Also `python:*-slim` has no UTF-8 locale, so `initdb` picks SQL_ASCII unless `-E UTF8 --locale=C.UTF-8`. A documented "databases in sandboxes" recipe would help.
   6. One cold-run proof took 196 s vs ~17 s for its siblings, no error surfaced; not reproduced in 3 later runs.
 - **Would build with it again:** yes. Forkable snapshots are the right primitive for base/head proofs.
+
+## 2026-10-20: app #2 (fastapi-todos) onboarded by Nemotron; regression proofs live in Sandboxes
+
+- **Result:** Super wrote the manifest and seeder for a Python 3.9, async-SQLAlchemy, fastapi-users app with 0 human edits. Base lock 17/20, 2/2 planted FAIL PRs caught, benign PASS. The live regress loop proved both FAIL tests inside Sandboxes (python:3.9-slim snapshot). D5 spend: $1.14.
+- **Friction (model):** (1) It took 5 onboarding runs. Super often rewrote a working manifest one last time before `done` and broke it, so the engine now keeps the last green pair. (2) Async seeders leaked the app's engine onto a closed event loop, so seeding now runs in its own process. (3) It guessed paths (`tests/conftest.py` instead of `todos/tests/conftest.py`) and dropped the `/api/v1` prefix until both were put in the first message. A `list_dir` tool would still help.
+- **Friction (Sandboxes):** (1) `images.use('python:3.9-slim')` returns 404 until the image is imported. `images.pull` resolves tags only, `import_from` is the call that works, and the names are easy to confuse. (2) Transient 500s are still common (about 1 in 5 spawns), all absorbed by the retry.

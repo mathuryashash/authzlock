@@ -1,0 +1,55 @@
+From 6784c97ce4ecd1e872a4570a21b36abb0cdb7c7f Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 14:20:25 +0530
+Subject: [PATCH] Add GET /todos/{todo_id} to fetch a single todo
+
+---
+ todos/app/api/v1/todos.py   | 14 ++++++++++++++
+ todos/app/dal/db_service.py |  6 ++++++
+ 2 files changed, 20 insertions(+)
+
+diff --git a/todos/app/api/v1/todos.py b/todos/app/api/v1/todos.py
+index 54e61f4..e2fbcfc 100644
+--- a/todos/app/api/v1/todos.py
++++ b/todos/app/api/v1/todos.py
+@@ -39,6 +39,20 @@ async def get_todos(
+     )
+ 
+ 
++@router.get(
++    '/{todo_id}',
++    response_model=TodoRead,
++    responses={status.HTTP_401_UNAUTHORIZED: get_open_api_unauthorized_access_response()}
++)
++@exception_handler
++async def get_todo(
++    todo_id: int,
++    session: AsyncSession = Depends(get_async_session),
++    user: User = Depends(current_logged_user)
++) -> Todo:
++    return await db_service.get_todo(session, todo_id=todo_id)
++
++
+ @router.post(
+     '',
+     response_model=TodoRead,
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..884105c 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -108,6 +108,12 @@ class DBService:
+             limit=limit
+         )
+ 
++    async def get_todo(self, session: AsyncSession, *, todo_id: int) -> Todo:
++        todo: Optional[Todo] = await self._repo.get(session, table_model=Todo, query_filter=Todo.id == todo_id)
++        if not todo:
++            raise ResourceNotExists(resource='todo')
++        return todo
++
+     async def add_todo(
+         self,
+         session: AsyncSession,
+-- 
+2.47.0.windows.1
+

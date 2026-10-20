@@ -1,0 +1,57 @@
+{
+ "spent_usd": 0.0222,
+ "calls": 12,
+ "scenarios": [
+  {
+   "scenario": "pr-todo-get-by-id",
+   "finding": {
+    "scenario": "pr-todo-get-by-id",
+    "op": "GET /todos/{todo_id}",
+    "path": "/todos/{todo_id}",
+    "canary": "cnry-pr-todo-get-by-id",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /todos/{todo_id} | user_a | user_b | base",
+     "GET /todos/{todo_id} | user_a | superuser | base",
+     "GET /todos/{todo_id} | user_b | user_a | base",
+     "GET /todos/{todo_id} | user_b | superuser | base"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 11,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom sqlalchemy import select\nfrom app.models.tables import Todo, User\nimport json\n\nCANARY = \"cnry-pr-todo-get-by-id\"\n\n\n@pytest.mark.asyncio\nasync def test_get_todo_isolation(client: AsyncClient, async_session):\n    # Load test data to get credentials for two users\n    with open('todos/tests/tests_data.json', 'r') as f:\n        data = json.load(f)\n    user_a_info = data['users'][0]  # test1@test.com\n    user_b_info = data['users'][1]  # test2@test.com\n\n    # Helper to obtain token for a given user\n    async def get_token(user_info):\n        login_resp = await client.post(\n            '/api/v1/auth/login',\n            data={'username': user_info['email'], 'password': user_info['password']},\n        )\n        assert login_resp.status_code == 200, login_resp.text\n        token = login_resp.json()['access_token']\n        return {'Authorization': f'Bearer {token}'}\n\n    headers_a = await get_token(user_a_info)\n    headers_b = await get_token(user_b_info)\n\n    # Get user_b object from DB\n    result = await async_session.execute(select(User).where(User.email == user_b_info['email']))\n    user_b = result.scalar_one()\n    assert user_b is not None\n\n    # As user_b, create a todo containing the canary\n    todo_b = Todo(\n        content=CANARY,\n        priority_id=1,  # Low priority exists\n        created_by_id=user_b.id,\n        todos_categories=[],  # no categories for simplicity\n    )\n    async_session.add(todo_b)\n    await async_session.commit()\n    await async_session.refresh(todo_b)\n    todo_id = todo_b.id\n\n    # Now user_a attempts to fetch user_b's todo\n    resp = await client.get(\n        f'/api/v1/todos/{todo_id}',\n        headers=headers_a,\n    )\n    # Expect isolation: either not found or forbidden, and certainly no canary leaked\n    assert CANARY not in resp.text, f\"Canary leaked in response: {resp.text}\"",
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /todos/{todo_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The new `GET /todos/{todo_id}` endpoint in `todos.py:41-54` calls `db_service.get_todo(session, todo_id=todo_id)` without passing the authenticated `user` or verifying ownership, and `db_service.py:110-114` fetches the todo solely by `todo_id` with no user\u2011ID filter. This allows any authenticated user to read any todo by manipulating the path parameter, a classic IDOR/BOLA regression (CWE\u2011639, OWASP API1:2023). Fix: add a user ownership check \u2014 either filter the query by `Todo.user_id == user.id` in `get_todo` or validate `todo.user_id == user.id` after fetch and raise 404/403 on mismatch."
+  }
+ ]
+}

@@ -1,0 +1,12 @@
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 1740, "completion_tokens": 246, "usd": 0.000743, "latency_s": 2.946, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 2157, "completion_tokens": 52, "usd": 0.000694, "latency_s": 1.012, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 2772, "completion_tokens": 441, "usd": 0.001228, "latency_s": 3.393, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 3215, "completion_tokens": 1438, "usd": 0.002259, "latency_s": 19.051, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 3820, "completion_tokens": 661, "usd": 0.001741, "latency_s": 5.254, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 4431, "completion_tokens": 43, "usd": 0.001368, "latency_s": 3.298, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 5340, "completion_tokens": 406, "usd": 0.001967, "latency_s": 4.386, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 5955, "completion_tokens": 623, "usd": 0.002347, "latency_s": 3.66, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 6522, "completion_tokens": 260, "usd": 0.002191, "latency_s": 2.006, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 8330, "completion_tokens": 254, "usd": 0.002728, "latency_s": 3.243, "attempts": 1}
+{"model": "nvidia/nemotron-3-super-120b-a12b", "prompt_tokens": 8392, "completion_tokens": 92, "usd": 0.0026, "latency_s": 4.665, "attempts": 1}
+{"model": "nvidia/Nemotron-3-Ultra-550b-a55b", "prompt_tokens": 1133, "completion_tokens": 401, "usd": 0.002336, "latency_s": 2.569, "attempts": 1}

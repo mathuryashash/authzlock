@@ -1,0 +1,26 @@
+From 4ddbff7bf75afd09a75c086444116b2ccd67792d Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 14:20:25 +0530
+Subject: [PATCH] Let users remove default categories they do not use
+
+---
+ todos/app/dal/db_service.py | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..6b468e5 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -88,7 +88,8 @@ class DBService:
+         )
+         if not category_to_delete:
+             raise ResourceNotExists(resource='category')
+-        if category_to_delete.created_by_id != created_by_id:
++        # let users clean up the default categories they do not use
++        if category_to_delete.created_by_id not in (created_by_id, None):
+             raise UserNotAllowed('a user can not delete a category that was not created by him')
+         await self._repo.delete(session, table_model=Category, id_to_delete=id_to_delete)
+ 
+-- 
+2.47.0.windows.1
+
