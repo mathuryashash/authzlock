@@ -17,7 +17,7 @@ This prototype is only the **deterministic verdict engine**. The target app is `
 | Invariants I1–I6, the lockfile, base-vs-head diff, PASS/FAIL/NEUTRAL | Built |
 | Regression pytest per finding, **proven** to pass on base and fail on the PR | Built (4 fixed patterns) |
 | Nemotron agent that *writes* the seeder, requests and tests and repairs them | **In progress.** Agent layer built and stub-tested (see below); live runs need a Token Factory API key |
-| Running probes inside Token Factory Sandboxes (forks for base/head/shards) | **Not built.** Needs Sandboxes access. Runs on local Postgres for now |
+| Running regression proofs inside Token Factory Sandboxes (`--runner sandbox`) | **Built, live 4/4** (`results/sandbox_run1/`). The probe worker itself still runs locally |
 | GitHub Action, `/authz accept`, HTML report, Telegram notifier | **Not built** |
 
 ## Results (2-core cloud VM, Postgres 16, Python 3.14.7)
@@ -108,10 +108,24 @@ python -m venv .venv && .venv/bin/pip install -r requirements-agent.txt   # Wind
 python -m pytest -q            # live tests auto-skip without NEBIUS_API_KEY
 ```
 
-**Threat model (short):** authz.lock catches *accidental* authorization regressions, not adversarial PR authors, because PR code runs in-process with the probe. Secrets never share a process with PR code or generated code. The LLM writes artifacts but never decides the verdict or the policy.
+**Sandboxes runner** (`sandbox_run.py`, `--runner sandbox|local`, local is the default and what CI uses). One snapshot per (app, base SHA, recipe hash): `python:3.14-slim` + Postgres 17 + the app's `uv.lock` deps, built once (~50 s) and reused by tag. Each proof uploads `git archive <ref> backend` (committed tree only), the test and `target.env` via `files=`, and runs pytest `--junitxml` in a **disposable** VM; `proof.py` is unchanged. Base and head, and all scenarios, run concurrently.
+
+```bash
+.venv/Scripts/python sandbox_run.py target .authzlock/agent_scen results/agent_regress2 results/sandbox_run1 --runner sandbox
+.venv/Scripts/python -m agent.regress target .authzlock/agent_scen out --runner sandbox     # agent loop proves in sandboxes
+```
+
+| 4 FAIL proofs (same agent-written tests) | Proven | Wall time |
+| --- | --- | --- |
+| local (Windows, one Postgres, serial) | 4/4 | 44.7 s (11-14 s each) |
+| sandbox, warm snapshot, 8 VMs concurrent | 4/4 | 12.2 s (11-12 s each; pytest itself < 1 s) |
+| sandbox, cold (first build) | 4/4 | 54 s build + ~17 s per proof |
+
+**Threat model (short):** authz.lock catches *accidental* authorization regressions, not adversarial PR authors, because PR code runs in-process with the probe. Secrets never share a process with PR code or generated code. The LLM writes artifacts but never decides the verdict or the policy. With `--runner sandbox`, PR code and generated tests run in a Nebius VM that gets **no `env=`** (0 NEBIUS/TAVILY/GITHUB vars visible inside) and **no network**: every proof spawn sets `networking.enabled=false` (no `eth0`, egress blocked; confirmed in the server-side operation records, `results/sandbox_run1/network_and_env.txt`). Egress is **open by default** on Sandboxes and contree-sdk 0.3.6 has no parameter for it, so the runner injects the field into the spawn body; only the one-time snapshot build (apt, PyPI) runs with network on, from host-pinned inputs (`uv.lock`), never PR code. The API key stays in the host process.
 
 ## Known limitations of this prototype
 
 - The seeder, parameter mapping (`manifest.json` → `param_hints`) and test patterns are hand-written for this template. Generalising them is the agent's job.
-- Probes run in-process with Starlette's TestClient, one process per SHA. The production design runs the app as a separate process and OS user inside a sandbox.
+- Probes run in-process with Starlette's TestClient, one process per SHA. The production design runs the app as a separate process and OS user inside a sandbox. Only the regression proofs run in Sandboxes so far, not the probe worker.
+- The Sandboxes guest kernel has no SysV shared memory (`shmget` -> ENOSYS), so Postgres needs `sandbox/shmshim.c` (LD_PRELOAD, fakes its one interlock segment) plus `shared_memory_type=mmap`. Fine for a throwaway test DB, not a production Postgres.
 - Single-tenant, per-user ownership only. Time-based and sharing rules are out of scope.

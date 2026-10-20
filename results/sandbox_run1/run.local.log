@@ -1,0 +1,5 @@
+{"scenario": "pr-count-leak", "runner": "local", "proven": true, "why": [], "seconds": 11.9}
+{"scenario": "pr-export-csv", "runner": "local", "proven": true, "why": [], "seconds": 11.3}
+{"scenario": "pr-idor-refactor", "runner": "local", "proven": true, "why": [], "seconds": 11.0}
+{"scenario": "pr-mass-assign", "runner": "local", "proven": true, "why": [], "seconds": 10.4}
+local: 4/4 proven, setup 0.0s, proofs wall 44.7s

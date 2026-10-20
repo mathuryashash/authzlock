@@ -1,0 +1,45 @@
+{
+ "runner": "local",
+ "setup_seconds": 0.0,
+ "proofs_wall_seconds": 44.7,
+ "proven": 4,
+ "total": 4,
+ "scenarios": [
+  {
+   "scenario": "pr-count-leak",
+   "runner": "local",
+   "proven": true,
+   "why": [],
+   "seconds": 11.9,
+   "base_tail": ".                                                                        [100%]\n1 passed in 0.97s\n",
+   "head_tail": "ms/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\n=========================== short test summary info ===========================\nFAILED tests/authz/test_regression.py::test_count_side_channel_leak - Asserti...\n1 failed in 0.99s\n"
+  },
+  {
+   "scenario": "pr-export-csv",
+   "runner": "local",
+   "proven": true,
+   "why": [],
+   "seconds": 11.3,
+   "base_tail": ".                                                                        [100%]\n1 passed in 0.61s\n",
+   "head_tail": "---\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/login/access-token \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/items/export \"HTTP/1.1 200 OK\"\n=========================== short test summary info ===========================\nFAILED tests/authz/test_regression.py::test_export_items_isolation - Assertio...\n1 failed in 0.85s\n"
+  },
+  {
+   "scenario": "pr-idor-refactor",
+   "runner": "local",
+   "proven": true,
+   "why": [],
+   "seconds": 11.0,
+   "base_tail": ".                                                                        [100%]\n1 passed in 0.69s\n",
+   "head_tail": "quest: POST http://testserver/api/v1/login/access-token \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/login/access-token \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: POST http://testserver/api/v1/items/ \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: GET http://testserver/api/v1/items/982160cb-cf30-4ddb-89d2-cc30e1d3801d \"HTTP/1.1 200 OK\"\n=========================== short test summary info ===========================\nFAILED tests/authz/test_regression.py::test_item_read_isolation_regression - ...\n1 failed in 0.86s\n"
+  },
+  {
+   "scenario": "pr-mass-assign",
+   "runner": "local",
+   "proven": true,
+   "why": [],
+   "seconds": 10.4,
+   "base_tail": ".                                                                        [100%]\n1 passed in 0.37s\n",
+   "head_tail": "testserver/api/v1/users/me \"HTTP/1.1 200 OK\"\nINFO:httpx:HTTP Request: PATCH http://testserver/api/v1/users/me \"HTTP/1.1 200 OK\"\n------------------------------ Captured log call ------------------------------\nINFO     httpx:_client.py:1025 HTTP Request: PATCH http://testserver/api/v1/users/me \"HTTP/1.1 200 OK\"\nINFO     httpx:_client.py:1025 HTTP Request: PATCH http://testserver/api/v1/users/me \"HTTP/1.1 200 OK\"\n=========================== short test summary info ===========================\nFAILED tests/authz/test_regression.py::test_patch_users_me_mass_assignment_is_superuser\n1 failed in 0.56s\n"
+  }
+ ]
+}

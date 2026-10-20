@@ -1,0 +1,3 @@
+networking.enabled=True: secrets_in_env=0 ifaces=eth0,lo, egress=open
+networking.enabled=False: secrets_in_env=0 ifaces=lo, egress=blocked
+{"server_side_operation_records_last_12": "10 proof ops: networking.enabled=false, env={}; probe ops: 1 true, 1 false"}

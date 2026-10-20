@@ -1,0 +1,5 @@
+{"scenario": "pr-idor-refactor", "runner": "sandbox", "proven": true, "why": [], "seconds": 11.0}
+{"scenario": "pr-mass-assign", "runner": "sandbox", "proven": true, "why": [], "seconds": 11.3}
+{"scenario": "pr-export-csv", "runner": "sandbox", "proven": true, "why": [], "seconds": 11.5}
+{"scenario": "pr-count-leak", "runner": "sandbox", "proven": true, "why": [], "seconds": 12.2}
+sandbox: 4/4 proven, setup 1.3s, proofs wall 12.2s
