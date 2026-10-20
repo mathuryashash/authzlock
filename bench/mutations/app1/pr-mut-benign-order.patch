@@ -1,0 +1,26 @@
+From d96e2838a46063d0a40f46b1be2cfc6539a687f9 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:44 +0530
+Subject: [PATCH] pr-mut-benign-order: Benign: GET /items/ orders by title
+ instead of created_at for normal users
+
+---
+ backend/app/api/routes/items.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..1475ce7 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -35,7 +35,7 @@ def read_items(
+         statement = (
+             select(Item)
+             .where(Item.owner_id == current_user.id)
+-            .order_by(col(Item.created_at).desc())
++            .order_by(col(Item.title))
+             .offset(skip)
+             .limit(limit)
+         )
+-- 
+2.47.0.windows.1
+

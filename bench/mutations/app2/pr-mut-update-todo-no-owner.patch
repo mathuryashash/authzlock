@@ -1,0 +1,26 @@
+From ea8856a3d8704000878955653d1b762fc8fa8567 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:45 +0530
+Subject: [PATCH] pr-mut-update-todo-no-owner: PUT /todos/{id}: service-level
+ owner comparison removed
+
+---
+ todos/app/dal/db_service.py | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..24cb521 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -138,8 +138,6 @@ class DBService:
+         )
+         if not todo_to_update:
+             raise ResourceNotExists(resource='todo')
+-        if not todo_to_update.created_by_id == updated_todo.created_by_id:
+-            raise UserNotAllowed('a user can not update a todo that was not created by him')
+         if await self._validate_todo_categories(
+             session,
+             todo_categories_ids=updated_todo.categories_ids,
+-- 
+2.47.0.windows.1
+

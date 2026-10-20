@@ -1,0 +1,36 @@
+From 7dc84ba64ff177756237baf51e11fee89912d22f Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:45 +0530
+Subject: [PATCH] pr-mut-bulk-delete: New DELETE /todos 'clear my todos' bulk
+ endpoint deletes without an owner filter
+
+---
+ todos/app/api/v1/todos.py | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/todos/app/api/v1/todos.py b/todos/app/api/v1/todos.py
+index 54e61f4..ab06d39 100644
+--- a/todos/app/api/v1/todos.py
++++ b/todos/app/api/v1/todos.py
+@@ -107,6 +107,18 @@ async def update_todo(
+     return await db_service.update_todo(session, updated_todo=updated_todo)
+ 
+ 
++@router.delete('', status_code=status.HTTP_204_NO_CONTENT)
++async def clear_todos(
++    session: AsyncSession = Depends(get_async_session),
++    user: User = Depends(current_logged_user)
++) -> None:
++    from sqlalchemy import delete
++    from app.models.tables import TodoCategory
++    await session.execute(delete(TodoCategory))
++    await session.execute(delete(Todo))
++    await session.commit()
++
++
+ @router.delete(
+     '/{todo_id}',
+     status_code=status.HTTP_204_NO_CONTENT,
+-- 
+2.47.0.windows.1
+

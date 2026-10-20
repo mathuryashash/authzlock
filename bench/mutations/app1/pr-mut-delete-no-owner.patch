@@ -1,0 +1,26 @@
+From 751e47877a776818c40b2ea9b0ebf88867f1c6ad Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:41 +0530
+Subject: [PATCH] pr-mut-delete-no-owner: DELETE /items/{id}: ownership check
+ dropped
+
+---
+ backend/app/api/routes/items.py | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..b7aaf29 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -106,8 +106,6 @@ def delete_item(
+     item = session.get(Item, id)
+     if not item:
+         raise HTTPException(status_code=404, detail="Item not found")
+-    if not current_user.is_superuser and (item.owner_id != current_user.id):
+-        raise HTTPException(status_code=403, detail="Not enough permissions")
+     session.delete(item)
+     session.commit()
+     return Message(message="Item deleted successfully")
+-- 
+2.47.0.windows.1
+

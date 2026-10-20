@@ -1,0 +1,4491 @@
+{
+ "cells": {
+  "DELETE /items/{id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /items/{id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /items/{id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /items/{id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /items/{id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /items/{id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /items/{id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /items/{id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /items/{id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | superuser | superuser | base": {
+   "count": null,
+   "db": [
+    "delete:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /items/{id} | superuser | user_a | base": {
+   "count": null,
+   "db": [
+    "delete:item:user_a"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /items/{id} | superuser | user_b | base": {
+   "count": null,
+   "db": [
+    "delete:item:user_b"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /items/{id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | user_a | user_a | base": {
+   "count": null,
+   "db": [
+    "delete:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /items/{id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /items/{id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /items/{id} | user_b | user_b | base": {
+   "count": null,
+   "db": [
+    "delete:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /users/me | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/me | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /users/me | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/me | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/me | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/me | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /users/me | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/me | user_a | - | base": {
+   "count": null,
+   "db": [
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /users/me | user_b | - | base": {
+   "count": null,
+   "db": [
+    "delete:item:self",
+    "delete:item:self",
+    "delete:item:self",
+    "delete:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /users/{user_id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /users/{user_id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /users/{user_id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /users/{user_id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "DELETE /users/{user_id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/{user_id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/{user_id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/{user_id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/{user_id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /users/{user_id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /users/{user_id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /users/{user_id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "DELETE /users/{user_id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "DELETE /users/{user_id} | superuser | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | superuser | user_a | base": {
+   "count": null,
+   "db": [
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:item:user_a",
+    "delete:user:user_a"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /users/{user_id} | superuser | user_b | base": {
+   "count": null,
+   "db": [
+    "delete:item:user_b",
+    "delete:item:user_b",
+    "delete:item:user_b",
+    "delete:user:user_b"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "DELETE /users/{user_id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "DELETE /users/{user_id} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /items/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /items/ | superuser | - | base": {
+   "count": 14,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "inactive",
+    "self",
+    "user_a",
+    "user_b"
+   ],
+   "status": 200
+  },
+  "GET /items/ | user_a | - | base": {
+   "count": 7,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /items/ | user_b | - | base": {
+   "count": 3,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /items/{id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /items/{id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /items/{id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /items/{id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /items/{id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /items/{id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /items/{id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /items/{id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /items/{id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | superuser | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /items/{id} | superuser | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "GET /items/{id} | superuser | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "GET /items/{id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /items/{id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /items/{id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /items/{id} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/ | superuser | - | base": {
+   "count": 4,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "inactive",
+    "self",
+    "user_a",
+    "user_b"
+   ],
+   "status": 200
+  },
+  "GET /users/ | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/ | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/me | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/me | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/me | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/me | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/me | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/me | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/me | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/me | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/me | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/{user_id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/{user_id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/{user_id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/{user_id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "GET /users/{user_id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/{user_id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/{user_id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/{user_id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/{user_id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/{user_id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/{user_id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/{user_id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "GET /users/{user_id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "GET /users/{user_id} | superuser | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/{user_id} | superuser | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "GET /users/{user_id} | superuser | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "GET /users/{user_id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /users/{user_id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "GET /users/{user_id} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "GET /utils/health-check/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "GET /utils/health-check/ | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | alg_none | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/me | anonymous | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/me | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/me | deleted_user | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/me | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | expired | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | forged_sig | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/me | inactive | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/me | superuser | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me | superuser | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me | user_a | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me | user_a | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me | user_b | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me | user_b | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/me/password | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | alg_none | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/me/password | anonymous | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/me/password | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/me/password | deleted_user | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/me/password | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | expired | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | forged_sig | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/me/password | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/me/password | inactive | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/me/password | superuser | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me/password | superuser | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me/password | user_a | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me/password | user_a | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me/password | user_b | - | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/me/password | user_b | - | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | alg_none | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | anonymous | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PATCH /users/{user_id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | deleted_user | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | expired | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | forged_sig | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | inactive | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PATCH /users/{user_id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | superuser | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PATCH /users/{user_id} | superuser | superuser | base": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | superuser | superuser | hostile": {
+   "count": null,
+   "db": [
+    "update:user:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | superuser | user_a | base": {
+   "count": null,
+   "db": [
+    "update:user:user_a"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | superuser | user_a | hostile": {
+   "count": null,
+   "db": [
+    "update:user:user_a[priv:is_superuser]"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | superuser | user_b | base": {
+   "count": null,
+   "db": [
+    "update:user:user_b"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | superuser | user_b | hostile": {
+   "count": null,
+   "db": [
+    "update:user:user_b[priv:is_superuser]"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "PATCH /users/{user_id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_a | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PATCH /users/{user_id} | user_b | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | alg_none | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /items/ | anonymous | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /items/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /items/ | deleted_user | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /items/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | expired | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | forged_sig | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /items/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /items/ | inactive | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /items/ | superuser | - | base": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /items/ | superuser | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /items/ | user_a | - | base": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /items/ | user_a | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /items/ | user_b | - | base": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /items/ | user_b | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /login/access-token | alg_none | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | alg_none | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | alg_none | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | alg_none | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | alg_none | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | alg_none | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | alg_none | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | alg_none | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | anonymous | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | anonymous | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | anonymous | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | anonymous | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | anonymous | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | anonymous | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | anonymous | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | anonymous | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | deleted_user | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | deleted_user | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | deleted_user | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | deleted_user | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | deleted_user | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | deleted_user | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | deleted_user | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | deleted_user | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | expired | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | expired | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | expired | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | expired | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | expired | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | expired | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | expired | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | expired | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | forged_sig | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | forged_sig | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | forged_sig | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | forged_sig | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | forged_sig | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | forged_sig | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | forged_sig | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | forged_sig | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | inactive | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | inactive | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | inactive | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | inactive | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | inactive | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | inactive | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | inactive | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | inactive | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | superuser | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | superuser | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | superuser | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | superuser | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | superuser | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | superuser | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | superuser | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | superuser | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_a | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_a | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_a | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_a | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_a | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_a | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_a | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_a | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_b | nonexistent | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_b | nonexistent | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_b | superuser | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_b | superuser | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_b | user_a | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_b | user_a | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/access-token | user_b | user_b | valid_creds": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /login/access-token | user_b | user_b | wrong_password": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/test-token | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /login/test-token | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /login/test-token | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /login/test-token | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /login/test-token | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /login/test-token | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /login/test-token | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /login/test-token | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /login/test-token | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "POST /password-recovery-html-content/{email} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /password-recovery-html-content/{email} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /password-recovery-html-content/{email} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /password-recovery-html-content/{email} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /password-recovery-html-content/{email} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /password-recovery-html-content/{email} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /password-recovery-html-content/{email} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /password-recovery-html-content/{email} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /password-recovery-html-content/{email} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /password-recovery-html-content/{email} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /password-recovery-html-content/{email} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /password-recovery-html-content/{email} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /password-recovery-html-content/{email} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /password-recovery-html-content/{email} | superuser | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "INCONCLUSIVE",
+   "leaks": [],
+   "status": 599
+  },
+  "POST /password-recovery-html-content/{email} | superuser | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "INCONCLUSIVE",
+   "leaks": [],
+   "status": 599
+  },
+  "POST /password-recovery-html-content/{email} | superuser | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "INCONCLUSIVE",
+   "leaks": [],
+   "status": 599
+  },
+  "POST /password-recovery-html-content/{email} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery-html-content/{email} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /password-recovery/{email} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | superuser | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | superuser | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | superuser | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_a | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /password-recovery/{email} | user_b | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /reset-password/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | alg_none | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | anonymous | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | deleted_user | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | expired | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | forged_sig | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | inactive | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | superuser | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | user_a | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /reset-password/ | user_b | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /users/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | alg_none | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /users/ | anonymous | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /users/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /users/ | deleted_user | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /users/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | expired | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | forged_sig | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /users/ | inactive | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /users/ | superuser | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/ | superuser | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new[privileged]"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/ | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | user_a | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/ | user_b | - | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /users/signup | alg_none | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | alg_none | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | anonymous | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | anonymous | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | deleted_user | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | deleted_user | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | expired | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | expired | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | forged_sig | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | forged_sig | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | inactive | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | inactive | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | superuser | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | superuser | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | user_a | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | user_a | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | user_b | - | base": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /users/signup | user_b | - | hostile": {
+   "count": null,
+   "db": [
+    "insert:user:new"
+   ],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 200
+  },
+  "POST /utils/test-email/ | alg_none | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /utils/test-email/ | anonymous | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "POST /utils/test-email/ | deleted_user | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "POST /utils/test-email/ | expired | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /utils/test-email/ | forged_sig | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /utils/test-email/ | inactive | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "POST /utils/test-email/ | superuser | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "ALLOW",
+   "leaks": [],
+   "status": 201
+  },
+  "POST /utils/test-email/ | user_a | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "POST /utils/test-email/ | user_b | - | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | alg_none | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | anonymous | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | anonymous | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 401
+  },
+  "PUT /items/{id} | deleted_user | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | deleted_user | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | expired | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | expired | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | forged_sig | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | inactive | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | inactive | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 400
+  },
+  "PUT /items/{id} | superuser | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | superuser | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | superuser | superuser | base": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | superuser | superuser | hostile": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | superuser | user_a | base": {
+   "count": null,
+   "db": [
+    "update:item:user_a"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | superuser | user_a | hostile": {
+   "count": null,
+   "db": [
+    "update:item:user_a"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_a"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | superuser | user_b | base": {
+   "count": null,
+   "db": [
+    "update:item:user_b"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | superuser | user_b | hostile": {
+   "count": null,
+   "db": [
+    "update:item:user_b"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "user_b"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | user_a | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | user_a | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | user_a | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_a | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_a | user_a | base": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | user_a | user_a | hostile": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | user_a | user_b | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_a | user_b | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_b | nonexistent | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | user_b | nonexistent | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 404
+  },
+  "PUT /items/{id} | user_b | superuser | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_b | superuser | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_b | user_a | base": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_b | user_a | hostile": {
+   "count": null,
+   "db": [],
+   "decision": "DENY",
+   "leaks": [],
+   "status": 403
+  },
+  "PUT /items/{id} | user_b | user_b | base": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  },
+  "PUT /items/{id} | user_b | user_b | hostile": {
+   "count": null,
+   "db": [
+    "update:item:self"
+   ],
+   "decision": "ALLOW",
+   "leaks": [
+    "self"
+   ],
+   "status": 200
+  }
+ },
+ "coverage": {
+  "operations": 22,
+  "probed": 20,
+  "unprobed": [
+   "POST /password-recovery-html-content/{email}",
+   "POST /reset-password/"
+  ],
+  "unsupported": []
+ },
+ "elapsed_s": 61.0,
+ "format": "authz.lock/v0",
+ "harness": {
+  "failures": [],
+  "valid": true
+ },
+ "probes": 603,
+ "tag": "pr_mut_benign_helper",
+ "violations": []
+}

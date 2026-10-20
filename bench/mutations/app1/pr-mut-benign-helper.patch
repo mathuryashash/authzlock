@@ -1,0 +1,46 @@
+From d71a75504aeb61159acaba48a906d4b5f88ea845 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:44 +0530
+Subject: [PATCH] pr-mut-benign-helper: Benign refactor: item lookup +
+ ownership check moved into one helper used by GET/PUT/DELETE
+
+---
+ backend/app/api/routes/items.py | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..a828c30 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -45,11 +45,7 @@ def read_items(
+     return ItemsPublic(data=items_public, count=count)
+ 
+ 
+-@router.get("/{id}", response_model=ItemPublic)
+-def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+-    """
+-    Get item by ID.
+-    """
++def _owned_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Item:
+     item = session.get(Item, id)
+     if not item:
+         raise HTTPException(status_code=404, detail="Item not found")
+@@ -58,6 +54,15 @@ def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) ->
+     return item
+ 
+ 
++@router.get("/{id}", response_model=ItemPublic)
++def read_item(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
++    """
++    Get item by ID.
++    """
++    item = _owned_item(session, current_user, id)
++    return item
++
++
+ @router.post("/", response_model=ItemPublic)
+ def create_item(
+     *, session: SessionDep, current_user: CurrentUser, item_in: ItemCreate
+-- 
+2.47.0.windows.1
+

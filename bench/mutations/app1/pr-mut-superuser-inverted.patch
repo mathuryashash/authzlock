@@ -1,0 +1,26 @@
+From 4329184879ece53408aca19f7f8466cad7acb63f Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:42 +0530
+Subject: [PATCH] pr-mut-superuser-inverted: GET /items/: superuser branch
+ condition inverted (`if not current_user.is_superuser`)
+
+---
+ backend/app/api/routes/items.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..6ac08e5 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -18,7 +18,7 @@ def read_items(
+     Retrieve items.
+     """
+ 
+-    if current_user.is_superuser:
++    if not current_user.is_superuser:
+         count_statement = select(func.count()).select_from(Item)
+         count = session.exec(count_statement).one()
+         statement = (
+-- 
+2.47.0.windows.1
+

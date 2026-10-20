@@ -1,0 +1,408 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "PUT /todos/{todo_id} | superuser | user_a | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_a",
+     "update:todo:user_a->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | superuser | user_a | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_a",
+     "update:todo:user_a->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | superuser | user_b | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_b",
+     "update:todo:user_b->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | superuser | user_b | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_b",
+     "update:todo:user_b->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:superuser",
+     "update:todo:superuser->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:superuser",
+     "update:todo:superuser->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_b",
+     "update:todo:user_b->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_b",
+     "update:todo:user_b->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:superuser",
+     "update:todo:superuser->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:superuser",
+     "update:todo:superuser->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | base",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_a",
+     "update:todo:user_a->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  },
+  {
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | hostile",
+   "class": "WIDENED",
+   "base": {
+    "count": null,
+    "db": [],
+    "decision": "DENY",
+    "leaks": [],
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:todo_category:user_a",
+     "update:todo:user_a->self"
+    ],
+    "count": null,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_b",
+   "variant": "base",
+   "detail": "user_a updated a todo row owned by user_b (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_b",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_b",
+   "variant": "hostile",
+   "detail": "user_a updated a todo row owned by user_b (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | user_b | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_b",
+   "variant": "hostile",
+   "detail": "user_a deleted a todo_category row owned by user_b"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_a updated a todo row owned by superuser (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_a deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "superuser",
+   "variant": "hostile",
+   "detail": "user_a updated a todo row owned by superuser (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_a | superuser | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "superuser",
+   "variant": "hostile",
+   "detail": "user_a deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_a",
+   "variant": "base",
+   "detail": "user_b updated a todo row owned by user_a (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_a",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_a",
+   "variant": "hostile",
+   "detail": "user_b updated a todo row owned by user_a (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | user_a | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_a",
+   "variant": "hostile",
+   "detail": "user_b deleted a todo_category row owned by user_a"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_b updated a todo row owned by superuser (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | base",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_b deleted a todo_category row owned by superuser"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "superuser",
+   "variant": "hostile",
+   "detail": "user_b updated a todo row owned by superuser (ownership moved to self)"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "PUT /todos/{todo_id} | user_b | superuser | hostile",
+   "op": "PUT /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "superuser",
+   "variant": "hostile",
+   "detail": "user_b deleted a todo_category row owned by superuser"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

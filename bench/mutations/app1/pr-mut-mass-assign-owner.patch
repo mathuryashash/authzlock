@@ -1,0 +1,40 @@
+From ad4948754ab3e47ec861285a0686b44de9aec94b Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:43 +0530
+Subject: [PATCH] pr-mut-mass-assign-owner: POST /items/: client may set
+ owner_id (added to ItemCreate, honoured if sent)
+
+---
+ backend/app/api/routes/items.py | 2 +-
+ backend/app/models.py           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..22108ca 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -65,7 +65,7 @@ def create_item(
+     """
+     Create new item.
+     """
+-    item = Item.model_validate(item_in, update={"owner_id": current_user.id})
++    item = Item.model_validate(item_in, update={"owner_id": item_in.owner_id or current_user.id})
+     session.add(item)
+     session.commit()
+     session.refresh(item)
+diff --git a/backend/app/models.py b/backend/app/models.py
+index dcedf9a..387bc1d 100644
+--- a/backend/app/models.py
++++ b/backend/app/models.py
+@@ -78,7 +78,7 @@ class ItemBase(SQLModel):
+ 
+ # Properties to receive on item creation
+ class ItemCreate(ItemBase):
+-    pass
++    owner_id: uuid.UUID | None = None
+ 
+ 
+ # Properties to receive on item update
+-- 
+2.47.0.windows.1
+

@@ -1,0 +1,25 @@
+From 1f57499f2d27f94d7509b3fc78652ec0098340d0 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:42 +0530
+Subject: [PATCH] pr-mut-list-leak: GET /items/: non-superuser list query loses
+ its owner filter (count kept)
+
+---
+ backend/app/api/routes/items.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..421ace8 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -34,7 +34,6 @@ def read_items(
+         count = session.exec(count_statement).one()
+         statement = (
+             select(Item)
+-            .where(Item.owner_id == current_user.id)
+             .order_by(col(Item.created_at).desc())
+             .offset(skip)
+             .limit(limit)
+-- 
+2.47.0.windows.1
+

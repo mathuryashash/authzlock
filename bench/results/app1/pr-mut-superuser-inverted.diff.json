@@ -1,0 +1,105 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "GET /items/ | superuser | - | base",
+   "class": "CHANGED",
+   "base": {
+    "count": 14,
+    "db": [],
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "self",
+     "user_a",
+     "user_b"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "db": [],
+    "count": 2,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /items/ | user_a | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": 7,
+    "db": [],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "self",
+     "superuser",
+     "user_b"
+    ],
+    "db": [],
+    "count": 14,
+    "status": 200
+   }
+  },
+  {
+   "cell": "GET /items/ | user_b | - | base",
+   "class": "WIDENED",
+   "base": {
+    "count": 3,
+    "db": [],
+    "decision": "ALLOW",
+    "leaks": [
+     "self"
+    ],
+    "status": 200
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [
+     "inactive",
+     "self",
+     "superuser",
+     "user_a"
+    ],
+    "db": [],
+    "count": 14,
+    "status": 200
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /items/ | user_a | - | base",
+   "op": "GET /items/",
+   "identity": "user_a",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_a received data owned by inactive, superuser, user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /items/ | user_b | - | base",
+   "op": "GET /items/",
+   "identity": "user_b",
+   "target": "-",
+   "variant": "base",
+   "detail": "user_b received data owned by inactive, superuser, user_a"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

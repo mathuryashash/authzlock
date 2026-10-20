@@ -1,0 +1,25 @@
+From a497a202ad71ccd39557661ff8863ba919a64568 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:43 +0530
+Subject: [PATCH] pr-mut-users-no-role: GET /users/: superuser dependency
+ removed from the user list
+
+---
+ backend/app/api/routes/users.py | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/backend/app/api/routes/users.py b/backend/app/api/routes/users.py
+index 1748f58..133af0c 100644
+--- a/backend/app/api/routes/users.py
++++ b/backend/app/api/routes/users.py
+@@ -31,7 +31,6 @@ router = APIRouter(prefix="/users", tags=["users"])
+ 
+ @router.get(
+     "/",
+-    dependencies=[Depends(get_current_active_superuser)],
+     response_model=UsersPublic,
+ )
+ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
+-- 
+2.47.0.windows.1
+

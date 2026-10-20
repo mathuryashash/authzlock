@@ -1,0 +1,26 @@
+From 8c6520d14d0dc9390a2de5f2043c04766bb11003 Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:46 +0530
+Subject: [PATCH] pr-mut-foreign-category-link: Todo create/update: category
+ validation drops the per-user filter (link another user's category)
+
+---
+ todos/app/dal/db_service.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..20fcf21 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -27,7 +27,7 @@ class DBService:
+         # validates that the todo categories are valid to the user + no duplications
+         default_categories_filter = Category.created_by_id.is_(None)
+         user_categories_filter = Category.created_by_id == created_by_id
+-        valid_categories_filter = or_(default_categories_filter, user_categories_filter)
++        valid_categories_filter = or_(default_categories_filter, user_categories_filter, Category.id.isnot(None))
+         todo_categories_ids_filter = Category.id.in_(todo_categories_ids)
+ 
+         categories_from_db: list[Category] = await self._repo.get_multi(
+-- 
+2.47.0.windows.1
+

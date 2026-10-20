@@ -1,0 +1,26 @@
+From be4a7e7993847265839f323ab95e22e841508b9f Mon Sep 17 00:00:00 2001
+From: authzlock <authzlock@example.com>
+Date: Tue, 20 Oct 2026 16:03:45 +0530
+Subject: [PATCH] pr-mut-categories-list-leak: GET /categories: user filter
+ replaced by `created_by_id.isnot(None) | default` (all users' categories)
+
+---
+ todos/app/dal/db_service.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/todos/app/dal/db_service.py b/todos/app/dal/db_service.py
+index dd8b852..dc70aa0 100644
+--- a/todos/app/dal/db_service.py
++++ b/todos/app/dal/db_service.py
+@@ -50,7 +50,7 @@ class DBService:
+         limit: int = GET_MULTI_DEFAULT_LIMIT
+     ) -> list[Category]:
+         default_categories_filter = Category.created_by_id.is_(None)
+-        user_categories_filter = Category.created_by_id == created_by_id
++        user_categories_filter = Category.created_by_id.isnot(None)
+         query_filter = or_(user_categories_filter, default_categories_filter)
+         return await self._repo.get_multi(
+             session,
+-- 
+2.47.0.windows.1
+
