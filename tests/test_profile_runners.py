@@ -67,8 +67,8 @@ def test_base_image_is_imported_once_when_the_registry_lacks_it():
             calls.append(("use", tag))
             raise sr_missing()
 
-        def pull(self, ref, new_tag=None, timeout=None):
-            calls.append(("pull", ref, new_tag))
+        def import_from(self, ref, tag=None, timeout=None):
+            calls.append(("import", ref, tag))
             return "IMG"
 
     class C:
@@ -79,4 +79,4 @@ def test_base_image_is_imported_once_when_the_registry_lacks_it():
     def sr_missing():
         return ContreeError()
     assert sr.base_image(C(), "python:3.9-slim") == "IMG"
-    assert calls == [("use", "python:3.9-slim"), ("pull", "docker.io/library/python:3.9-slim", "python:3.9-slim")]
+    assert calls == [("use", "python:3.9-slim"), ("import", "docker.io/library/python:3.9-slim", "python:3.9-slim")]
