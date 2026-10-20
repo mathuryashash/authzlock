@@ -103,3 +103,21 @@ def test_dotenv_reader_strips_quotes_and_comments(tmp_path):
     f.write_text('# c\nJWT_SECRET_KEY="abc"\nX=1\n')
     assert pl.read_dotenv(f) == {"JWT_SECRET_KEY": "abc", "X": "1"}
     assert pl.read_dotenv(tmp_path / "missing.env") == {}
+
+
+def test_seeder_runs_in_its_own_process(tmp_path):
+    # D5: an agent seeder that leaves the app's global async engine pooled on a closed event loop poisoned
+    # every later request in the probe process. A subprocess makes that impossible.
+    s = tmp_path / "seeder.py"
+    s.write_text("import os\nLEAK = []\ndef seed(roles):\n    LEAK.append(1)\n"
+                 "    return {r: {'user_id': os.getpid(), 'email': v['token'], 'items': []} for r, v in roles.items()}\n")
+    got = pl.run_seeder(str(s), {"user_a": {"token": "t1", "password": "p", "spec": {}}})
+    assert got["user_a"]["email"] == "t1" and got["user_a"]["user_id"] != __import__("os").getpid()
+    bad = tmp_path / "bad.py"
+    bad.write_text("def seed(roles):\n    raise ValueError('boom')\n")
+    try:
+        pl.run_seeder(str(bad), {})
+    except RuntimeError as e:
+        assert "ValueError: boom" in str(e)
+    else:
+        raise AssertionError("seeder failure must raise")

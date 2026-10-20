@@ -9,6 +9,7 @@ Verdict path is deterministic: no LLM decides anything here.
 """
 import argparse
 import json
+import re
 import os
 import shutil
 import subprocess
@@ -163,9 +164,9 @@ def root_error(stderr: str) -> str:
     """Final line of the first traceback (later ones are interpreter-shutdown noise), else the last line."""
     tb = stderr.split("Traceback (most recent call last):")
     if len(tb) > 1:
-        lines = [ln for ln in tb[1].splitlines() if ln.strip() and not ln.startswith(" ")]
-        if lines:
-            return lines[-1] if not lines[-1].startswith("Exception ignored") else lines[0]
+        exc = [ln for ln in tb[1].splitlines() if re.match(r"^[\w.]*(Error|Exception|Exit):", ln)]
+        if exc:
+            return exc[-1]
     return (stderr.strip().splitlines() or [""])[-1]
 
 

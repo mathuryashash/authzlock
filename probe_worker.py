@@ -107,14 +107,15 @@ ASYNC = SessionCls.__name__.startswith("Async")
 
 # Seeder plugin: hand-written reference or the agent's artifact. It gets only roles/canaries/passwords;
 # the gates below re-check its work against the seed DB instead of trusting what it returns.
-import importlib.util  # noqa: E402
-
-_spec = importlib.util.spec_from_file_location("authz_seeder", args.seeder)
-seeder = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(seeder)
+# It runs in its own process (D5): leaked engines/event loops from LLM-written async code die with it.
 want = {role: {"spec": spec, "token": secrets.token_hex(5), "password": "Pw-" + secrets.token_hex(8)}
         for role, spec in MAN["identities"].items() if spec["kind"] in ("login", "minted")}
-got = seeder.seed({r: dict(v) for r, v in want.items()})
+_senv = dict(os.environ, PYTHONPATH=os.pathsep.join([os.getcwd(), *(os.path.abspath(x) for x in PROF["pythonpath"]),
+                                                      os.environ.get("PYTHONPATH", "")]))
+try:
+    got = pl.run_seeder(os.path.abspath(args.seeder), {r: dict(v) for r, v in want.items()}, env=_senv)
+except RuntimeError as e:
+    sys.exit(str(e))
 roles: dict[str, dict] = {}
 for role, w in want.items():
     g = got.get(role)

@@ -56,3 +56,9 @@ def test_worker_failure_leads_with_the_root_exception_not_shutdown_noise():
     assert authzlock.root_error(err) == "AttributeError: 'dict' object has no attribute 'password'"
     assert authzlock.root_error("harness invalid: seeder returned nothing for user_a\n") == \
         "harness invalid: seeder returned nothing for user_a"
+
+
+def test_root_error_picks_the_exception_line_not_a_validation_detail():
+    err = ("Traceback (most recent call last):\n  File \"x.py\", line 1\npydantic.error_wrappers.ValidationError: 2 "
+           "validation errors for Settings\nSMTP_PORT\n  value is not a valid integer\nEMAILS_FROM_EMAIL\n")
+    assert authzlock.root_error(err).startswith("pydantic.error_wrappers.ValidationError: 2 validation errors")

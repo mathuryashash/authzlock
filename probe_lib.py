@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import base64
 import json
+import re
 import os
 import uuid
 from pathlib import Path
@@ -130,3 +131,24 @@ def token_shape(token: str):
 def swap_identity(claims: dict, frm: dict, to: dict) -> dict:
     m = {frm["user_id"]: to["user_id"], frm["email"]: to["email"]}
     return {k: m.get(v, v) if isinstance(v, str) else v for k, v in claims.items()}
+
+
+SEED_MAIN = r"""import importlib.util, json, sys
+spec = importlib.util.spec_from_file_location("authz_seeder", sys.argv[1])
+m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+out = m.seed(json.loads(sys.stdin.read()))
+sys.stdout.write("\nAUTHZ_SEED " + json.dumps(out, default=str) + "\n")
+"""
+
+
+def run_seeder(path: str, roles: dict, cwd=None, env=None) -> dict:
+    """Run the (LLM-written) seeder in its own process: its engines, event loops and globals die with it."""
+    import subprocess
+    import sys
+    p = subprocess.run([sys.executable, "-c", SEED_MAIN, path], input=json.dumps(roles), capture_output=True,
+                       text=True, cwd=cwd, env=env, timeout=600)
+    line = next((x for x in reversed(p.stdout.splitlines()) if x.startswith("AUTHZ_SEED ")), None)
+    if p.returncode != 0 or line is None:
+        tb = [x for x in p.stderr.splitlines() if re.match(r"^[\w.]*(Error|Exception):", x)]
+        raise RuntimeError(f"seeder failed (exit {p.returncode}): {tb[-1] if tb else ''}\n{p.stderr[-2500:]}")
+    return json.loads(line[len("AUTHZ_SEED "):])
