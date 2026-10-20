@@ -30,6 +30,16 @@ def test_probe_workflow_has_no_secrets_and_reads_policy_from_base():
     assert "diff.json" in s
 
 
+def test_probe_build_does_not_check_out_side_branches_in_target():
+    # git refuses `worktree add` for a branch already checked out in target/ (first live run failed so)
+    build = read("authz-probe.yml").split("Build target app", 1)[1].split("- name:", 1)[0]
+    assert "git checkout" not in build and "worktree add" in build
+
+
+def test_comment_skips_failed_probe_runs():
+    assert "github.event.workflow_run.conclusion == 'success'" in read("authz-comment.yml")
+
+
 def test_comment_workflow_only_renders_artifact():
     s = read("authz-comment.yml")
     assert "workflow_run:" in s and "pull-requests: write" in s
