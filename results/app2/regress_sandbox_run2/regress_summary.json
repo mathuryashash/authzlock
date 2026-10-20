@@ -1,0 +1,131 @@
+{
+ "spent_usd": 0.0832,
+ "calls": 32,
+ "scenarios": [
+  {
+   "scenario": "pr-category-cleanup",
+   "finding": {
+    "scenario": "pr-category-cleanup",
+    "op": "DELETE /categories/{category_id}",
+    "path": "/categories/{category_id}",
+    "canary": "cnry-pr-category-cleanup",
+    "rules": [
+     "I3 write-isolation"
+    ],
+    "cells": [
+     "DELETE /categories/{category_id} | user_a | shared | base",
+     "DELETE /categories/{category_id} | user_b | shared | base"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 1,
+   "agent_turns": 6,
+   "written": [
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\nfrom sqlalchemy.ext.asyncio import AsyncSession\nfrom app.models.tables import Category\n\nCANARY = \"cnry-pr-category-cleanup\"\n\n\n@pytest.mark.asyncio\nasync def test_user_cannot_delete_default_category_without_ownership(\n    client: AsyncClient,\n    user_token_headers: dict[str, str],\n    async_session: AsyncSession,\n):\n    # Create a default category (created_by_id=None) containing the canary\n    default_cat = Category(name=f\"{CANARY}-default\", created_by_id=None)\n    async_session.add(default_cat)\n    await async_session.commit()\n    await async_session.refresh(default_cat)\n    cat_id = default_cat.id\n\n    # Attempt to delete it as a regular user\n    resp = await client.delete(\n        f\"/api/v1/categories/{cat_id}\", headers=user_token_headers\n    )\n    # On base branch this should be forbidden (403)\n    assert resp.status_code == 403, f\"Expected 403, got {resp.status_code}\"\n    # Ensure the category still exists (optional)\n    result = await async_session.get(Category, cat_id)\n    assert result is not None, \"Category should not have been deleted\"",
+   "citations": [
+    {
+     "rule": "I3 write-isolation",
+     "op": "DELETE /categories/{category_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "as described in the OWASP Top Ten, is broader than this CWE because it also covers path traversal (CWE-22). Within the context of vulnerability theory, there is a similarity between the OWASP concept and CWE-706: Use of Incorrectly-Resolved Name or Reference. | | Broken Object Level Authorization / "
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "## References\n\n### OWASP\n\n Authorization Cheat Sheet\n Authorization Testing Automation Cheat Sheet\n\n### External\n\n CWE-285: Improper Authorization\n CWE-639: Authorization Bypass Through User-Controlled Key [...] ## Is the API Vulnerable?\n\nObject level authorization is an access control mechanism tha"
+      },
+      {
+       "title": "CWE - CWE-1450: Weaknesses in OWASP Top Ten RC1 (2025) (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/1450.html",
+       "snippet": "authorization functionality does not prevent one user from gaining access to another user's data or record by modifying the key value identifying the data.  Insecure Direct Object Reference / IDOR Broken Object Level Authorization / BOLA Horizontal Authorization     Variant Variant - a weakness that"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff at line 91\u201192 relaxes the ownership check from `created_by_id != created_by_id` to `created_by_id not in (created_by_id, None)`, so any user may now delete a category whose `created_by_id` is `None` (the shared default categories). This widens DELETE `/categories/{category_id}` to `superuser`, `user_a`, and `user_b` on the same shared objects, breaking write\u2011isolation by letting one user remove another user\u2019s accessible default categories \u2014 a classic Broken Object Level Authorization / IDOR flaw (OWASP API1:2023, CWE\u2011639). Restore the strict creator\u2011only check or gate default\u2011category deletion behind a superuser role."
+  },
+  {
+   "scenario": "pr-todo-get-by-id",
+   "finding": {
+    "scenario": "pr-todo-get-by-id",
+    "op": "GET /todos/{todo_id}",
+    "path": "/todos/{todo_id}",
+    "canary": "cnry-pr-todo-get-by-id",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /todos/{todo_id} | user_a | user_b | base",
+     "GET /todos/{todo_id} | user_a | superuser | base",
+     "GET /todos/{todo_id} | user_b | user_a | base",
+     "GET /todos/{todo_id} | user_b | superuser | base"
+    ]
+   },
+   "status": "unproven",
+   "why": [
+    "base: every test must run and pass",
+    "writes outside tests/authz/: ['todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py']"
+   ],
+   "prove_runs": 1,
+   "agent_turns": 24,
+   "written": [
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py",
+    "todos/tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom httpx import AsyncClient\n\nCANARY = \"cnry-pr-todo-get-by-id\"\n\n@pytest.mark.asyncio\nasync def test_get_todo_isolation(client: AsyncClient, user_token_headers: dict[str, str]):\n    # user_a is logged in via user_token_headers (test1@test.com)\n    # Obtain token for user_b (test2@test.com) to create a todo with CANARY\n    login_data = {\n        'username': 'test2@test.com',\n        'password': 'test',\n    }\n    res = await client.post('/api/v1/auth/login', data=login_data)\n    assert res.status_code == 200, f'User B login failed: {res.status_code}'\n    user_b_token = res.json()['access_token']\n    user_b_headers = {'Authorization': f'Bearer {user_b_token}'}\n\n    # Create a todo for user_b containing the canary in its content\n    todo_payload = {\n        'content': CANARY,\n        'priority_id': 1,  # Low priority exists\n        # categories optional; we can omit\n    }\n    create_res = await client.post('/api/v1/todos/', json=todo_payload, headers=user_b_headers)\n    assert create_res.status_code == 200, f'Create todo failed: {create_res.status_code}'\n    todo_id = create_res.json()['id']\n\n    # Now user_a attempts to read that todo\n    resp = await client.get(f'/api/v1/todos/{todo_id}', headers=user_token_headers)\n    # On base branch the endpoint does not exist -> 404\n    # On a correct implementation with authz -> 403 or 404\n    # In either case we must not get 200 with the private data\n    assert resp.status_code != 200, f'Expected non-200, got {resp.status_code}'\n    # Additionally ensure the canary string is not leaked in error body\n    if resp.status_code == 200:\n        # This branch should never be hit due to the assert above,\n        # but keep for clarity.\n        assert CANARY not in resp.text",
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /todos/{todo_id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The new `GET /{todo_id}` endpoint (todos.py:47\u201158) accepts a user\u2011supplied `todo_id` and injects `current_logged_user` but never uses that user to filter the query. The DAL method `get_todo` (db_service.py:111\u2011115) fetches the todo solely by `todo_id`, allowing any authenticated user to read any todo object \u2014 a classic IDOR/BOLA regression (CWE\u2011639, API1:2023). Fix: add an ownership check in the repository query, e.g. `Todo.id == todo_id and Todo.user_id == user.id`, and pass `user.id` from the endpoint to the service layer."
+  },
+  {
+   "scenario": "pr-todos-completed-filter",
+   "verdict": "PASS",
+   "status": "no test (not FAIL)"
+  }
+ ]
+}

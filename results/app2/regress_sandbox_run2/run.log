@@ -1,0 +1,4 @@
+{"scenario": "pr-category-cleanup", "status": "proven", "prove_runs": 1, "why": []}
+{"scenario": "pr-todo-get-by-id", "status": "unproven", "prove_runs": 1, "why": ["base: every test must run and pass", "writes outside tests/authz/: ['todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py', 'todos/tests/authz/test_regression.py']"]}
+{"scenario": "pr-todos-completed-filter", "status": "no test (not FAIL)", "prove_runs": null, "why": null}
+spent $0.0832 in 32 calls

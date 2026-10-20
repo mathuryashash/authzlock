@@ -112,6 +112,10 @@ class RegressTools(Tools):
         self.written, self.prove_runs, self.last = [], 0, None
 
     def write_file(self, path: str, content: str) -> str:
+        rel = Path(path).as_posix().lstrip("./")
+        if rel != TEST and rel.endswith(TEST):  # the test, mis-placed under the app's test dir: refuse, don't
+            return (f"error: write the test as {TEST} exactly (it is placed in the app's test dir for you); "
+                    "nothing written")  # record (other outside writes still void the proof)
         out = super().write_file(path, content)
         self.written.append((self.art / path).resolve().relative_to(self.art.resolve()).as_posix())
         return out
@@ -142,7 +146,19 @@ class RegressTools(Tools):
             return "PROVEN: passes on base, fails on head with an AssertionError inside the test. Call done."
         raw = r["raw"] or {}
         return ("NOT PROVEN: " + "; ".join(r["why"]) + f"\n[prove runs left: {MAX_PROVE - self.prove_runs}]"
+                + "".join(f"\n--- {k} failing tests ---\n" + "\n".join(failures(raw[k]["junit"])) for k in raw)
                 + "".join(f"\n--- {k} pytest output ---\n{raw[k]['stdout'][-1500:]}" for k in raw))
+
+
+def failures(junit: str) -> list[str]:
+    """One line per failing/erroring testcase: name + junit message (the log tail is mostly SQL echo)."""
+    import xml.etree.ElementTree as ET
+    try:
+        root = ET.fromstring(junit)
+    except ET.ParseError:
+        return []
+    return [f"{tc.get('name')}: {(bad.get('message') or '')[:400]}" for tc in root.iter("testcase")
+            for bad in list(tc) if bad.tag in ("failure", "error")]
 
 
 def test_files(repo: Path, prof: dict) -> list[str]:

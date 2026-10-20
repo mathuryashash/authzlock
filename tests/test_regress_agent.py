@@ -112,3 +112,22 @@ def test_user_prompt_carries_api_prefix_and_the_apps_test_files(tmp_path):
     assert "todos/tests/conftest_utils.py" in first and "todos/tests/api/test_todos.py" in first
     import inspect
     assert inspect.signature(regress.prove_scenario).parameters["max_turns"].default == 24
+
+
+def test_wrong_path_is_refused_without_writing_so_the_scenario_stays_provable(tmp_path):
+    # D5 live run: the agent wrote todos/tests/authz/test_regression.py once; recorded as an outside write it made
+    # the scenario unprovable forever. Refuse it instead: nothing is written, nothing is recorded.
+    llm = StubLLM([tool_msg("write_file", {"path": "todos/tests/authz/test_regression.py", "content": GOOD}, id="a"),
+                   tool_msg("write_file", {"path": "tests/authz/test_regression.py", "content": GOOD}, id="b"),
+                   tool_msg("run", {"template": "prove"}, id="c"), tool_msg("done", {"summary": "ok"}, id="d")])
+    r = regress.prove_scenario(tmp_path, dict(FAIL_DIFF), "pr-x", llm, prove=fake_prove())
+    assert r["status"] == "proven", r
+    assert "write the test as tests/authz/test_regression.py exactly" in llm.requests[1]["messages"][-1]["content"]
+    assert not (tmp_path / ".authzlock/artifacts/regress/pr-x/todos").exists()
+
+
+def test_not_proven_feedback_leads_with_junit_failure_messages():
+    xml = ('<testsuite><testcase classname="t" name="test_x"><failure message="AssertionError: User B login failed: '
+           '400">long traceback</failure></testcase></testsuite>')
+    assert regress.failures(xml) == ["test_x: AssertionError: User B login failed: 400"]
+    assert regress.failures('<testsuite><testcase classname="t" name="ok"/></testsuite>') == []
