@@ -1,0 +1,11 @@
+{
+ "status": "max_turns",
+ "turns": 40,
+ "summary": "",
+ "restored_last_green": false,
+ "errors": [
+  "artifacts never locked green (harness valid) inside the loop"
+ ],
+ "spent_usd": 0.288,
+ "calls": 40
+}

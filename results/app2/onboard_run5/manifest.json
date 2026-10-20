@@ -1,0 +1,55 @@
+{
+  "api_prefix": "/api/v1",
+  "identities": {
+    "anonymous": {"kind": "anonymous"},
+    "user_a": {"kind": "login", "owns_items": 7},
+    "user_b": {"kind": "login", "owns_items": 3},
+    "superuser": {"kind": "login", "owns_items": 2, "superuser": true},
+    "inactive": {"kind": "minted", "owns_items": 2, "is_active": false},
+    "forged_sig": {"kind": "forged", "as": "user_a"},
+    "expired": {"kind": "expired", "as": "user_a"},
+    "alg_none": {"kind": "alg_none", "as": "superuser"},
+    "deleted_user": {"kind": "deleted"}
+  },
+  "privileged_identities": ["superuser"],
+  "invalid_identities": ["anonymous", "inactive", "forged_sig", "expired", "alg_none", "deleted_user"],
+  "targets": ["user_a", "user_b", "superuser", "nonexistent"],
+  "ownership": {
+    "user": {"owner": "self"},
+    "category": {"owner_column": "created_by_id"},
+    "todo": {"owner_column": "created_by_id"},
+    "todo_category": {"owner_column": "todo_id", "parent": "todo"}
+  },
+  "privilege_columns": {
+    "user": ["is_superuser"]
+  },
+  "ignored_columns": [],
+  "param_hints": {
+    "id": "user_id",
+    "category_id": "row:category",
+    "todo_id": "row:todo"
+  },
+  "public_operations": [
+    "POST /auth/register",
+    "POST /auth/login",
+    "POST /auth/forgot-password",
+    "POST /auth/reset-password",
+    "POST /auth/request-verify-token",
+    "POST /auth/verify",
+    "GET /health"
+  ],
+  "exceptions": [
+    {
+      "op": "POST /auth/register",
+      "identity": "*",
+      "allow": "insert_user_nonprivileged",
+      "reason": "Self-registration endpoint"
+    }
+  ],
+  "app": {
+    "db_dependency": "app.core.db:get_async_session",
+    "session_class": "sqlalchemy.ext.asyncio:AsyncSession",
+    "db_driver": "postgresql+asyncpg",
+    "jwt_secret_setting": "JWT_SECRET_KEY"
+  }
+}

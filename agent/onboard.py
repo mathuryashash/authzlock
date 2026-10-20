@@ -5,6 +5,7 @@
 """
 import ast
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -183,12 +184,8 @@ class OnboardTools(Tools):
 
 
 def green(out: str) -> bool:
-    if not out.startswith("exit=0"):
-        return False
-    try:
-        return json.loads(out.split(" ", 1)[1])["harness"]["valid"] is True
-    except (ValueError, KeyError, IndexError, TypeError):
-        return False
+    """lock_artifacts exited 0 and reported a valid harness (output may be tail-truncated, so no JSON parse)."""
+    return out.startswith("exit=0") and re.search(r'"harness":\s*\{\s*"valid":\s*true', out) is not None
 
 
 def onboard(repo: Path, llm, max_turns: int = 25, prof: dict | None = None, runner=None) -> dict:

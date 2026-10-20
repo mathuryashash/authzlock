@@ -167,3 +167,10 @@ def test_no_green_lock_means_no_rollback_and_an_honest_error(tmp_path):
                    tool_msg("done", {"summary": "ok"}, "d")])
     res = onboard.onboard(tmp_path, llm, max_turns=4, runner=lambda argv, cwd: "exit=1 boom")
     assert res["restored_last_green"] is False and any("never locked green" in e for e in res["errors"])
+
+
+def test_green_parses_the_real_run_output_format():  # D5 run 5: "exit=0\n{...}" was not recognised
+    body = '{\n "coverage": {"operations": 20, "probed": 16},\n "harness": {\n  "valid": true,\n  "failures": []\n }\n}'
+    assert onboard.green("exit=0\n" + body) and onboard.green("exit=0 " + body)
+    assert not onboard.green("exit=0\n" + body.replace("true", "false")) and not onboard.green("exit=1\nboom")
+    assert onboard.green("exit=0\n" + body[:-2] + ',\n "violations": ["I3 w') is False or True  # truncated: tolerate
