@@ -132,6 +132,7 @@ def worker_env() -> dict:
 
 def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int, manifest: Path = MANIFEST,
                seeder: Path | None = None) -> dict:
+    checkout = Path(checkout).absolute()  # cwd=backend below; absolute(), not resolve(): keep the venv symlink
     backend = checkout / "backend"
     venv_py = next((p for p in (checkout / ".venv" / "bin" / "python", checkout / ".venv" / "Scripts" / "python.exe")
                     if p.exists()), Path(os.environ.get("AUTHZ_PY", sys.executable)))

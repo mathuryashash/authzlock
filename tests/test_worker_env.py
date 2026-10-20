@@ -1,4 +1,5 @@
 import authzlock
+from pathlib import Path
 
 
 def test_worker_env_excludes_secrets(monkeypatch):
@@ -17,3 +18,24 @@ def test_worker_env_excludes_secrets(monkeypatch):
 
 def test_worker_env_forces_utf8():  # Windows default cp1252 broke the template email reads (500s)
     assert authzlock.worker_env()["PYTHONUTF8"] == "1"
+
+
+def test_run_worker_uses_absolute_python_for_relative_checkout(tmp_path, monkeypatch):
+    # CI passes `--checkout wt_base`; the worker runs with cwd=backend, so a relative interpreter path breaks
+    py = tmp_path / "wt" / ".venv" / "bin" / "python"
+    py.parent.mkdir(parents=True)
+    py.write_text("")
+    (tmp_path / "wt" / "backend").mkdir()
+    monkeypatch.chdir(tmp_path)
+    seen = {}
+
+    def fake_run(argv, **kw):
+        seen["argv"] = argv
+        raise SystemExit("stop")
+
+    monkeypatch.setattr(authzlock.subprocess, "run", fake_run)
+    try:
+        authzlock.run_worker(Path("wt"), "t", tmp_path / "o.json", 1025)
+    except SystemExit:
+        pass
+    assert Path(seen["argv"][0]).is_absolute()
