@@ -159,3 +159,64 @@ def effective_targets(targets: list, own: dict, by_uid: dict, snap: dict) -> lis
     non-owners may mutate those is exactly the question a PR can silently change, so it is always probed."""
     has_shared = any(row_owner(t, r, own, by_uid, snap) == "shared" for t in own for r in snap.get(t, {}).values())
     return list(targets) + (["shared"] if has_shared and "shared" not in targets else [])
+
+
+# ---------------------------------------------------------------- foreign-reference variant
+REF_HINTS = ("item_id", "user_id")  # hint kinds that name a principal or one of its rows (never emails)
+
+
+def _singular(w: str) -> str:
+    return w[:-3] + "y" if w.endswith("ies") else w[:-1] if w.endswith("s") and not w.endswith("ss") else w
+
+
+def ref_hint(name: str, hints: dict, own: dict):
+    """(hint, many) when a query param / body field NAME looks like a reference to someone's resource, else None.
+    Generic, from the manifest only: `<x>_id` / `<x>_ids` where <x> has a param hint (category_id -> row:category),
+    is an owned table (item_ids -> row:item), is the user table (user_id), or the name is an owner column
+    (owner_id, created_by_id). Unowned tables (priority_id) and unknown names are left alone: no guessing."""
+    if name.endswith("_ids"):
+        stem, many = name[:-4], True
+    elif name.endswith("_id"):
+        stem, many = name[:-3], False
+    else:
+        return None
+    if not stem:
+        return None
+    owner_cols = {o["owner_column"] for o in own.values() if o.get("owner_column") and not o.get("parent")}
+    if not many and name in owner_cols:
+        return "user_id", many
+    for s in dict.fromkeys((stem, _singular(stem))):
+        h = hints.get(s + "_id")
+        if h and (h in REF_HINTS or h.startswith("row:")):
+            return h, many
+        o = own.get(s)
+        if o and o.get("owner") == "self":
+            return "user_id", many
+        if o and o.get("owner_column") and not o.get("parent"):
+            return "row:" + s, many
+    if _singular(stem) + "_id" in owner_cols:  # owner_ids
+        return "user_id", many
+    return None
+
+
+def ref_fields(params: list, body_props: dict, hints: dict, own: dict) -> list:
+    """Every query param (required or not) and body field of an operation that ref_hint() recognises.
+    Path params are excluded: they are already probed per target."""
+    out = []
+    for p in params:
+        if p.get("in") == "query" and ref_hint(p["name"], hints, own):
+            h, many = ref_hint(p["name"], hints, own)
+            out.append({"in": "query", "name": p["name"], "hint": h, "many": many, "schema": p.get("schema", {})})
+    for n, sch in (body_props or {}).items():
+        if ref_hint(n, hints, own):
+            h, many = ref_hint(n, hints, own)
+            out.append({"in": "body", "name": n, "hint": h, "many": many, "schema": sch})
+    return out
+
+
+def ref_value(raw: str, schema: dict, many: bool):
+    """The victim's id cast to the field's (resolved) schema type; a list when the field is a list."""
+    if many or schema.get("type") == "array":
+        item = schema.get("items", {}) if schema.get("type") == "array" else schema
+        return [ref_value(raw, item, False)]
+    return int(raw) if schema.get("type") == "integer" and str(raw).lstrip("-").isdigit() else raw

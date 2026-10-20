@@ -362,8 +362,10 @@ for path, methods in schema["paths"].items():
             body_kind, body_schema = "json", content["application/json"]["schema"]
         elif "application/x-www-form-urlencoded" in content:
             body_kind, body_schema = "form", content["application/x-www-form-urlencoded"]["schema"]
+        props = resolve(body_schema).get("properties", {}) if body_kind == "json" else {}
+        refs = pl.ref_fields(params, {k: resolve(v) for k, v in props.items()}, MAN["param_hints"], MAN["ownership"])
         ops.append({"key": f"{method.upper()} {path[len(PREFIX):]}", "method": method.upper(),
-                    "path": path, "params": params, "path_params": path_params,
+                    "path": path, "params": params, "path_params": path_params, "refs": refs,
                     "unsupported": unsupported, "body_kind": body_kind, "body_schema": body_schema})
 
 # ---------------------------------------------------------------- probing
@@ -384,6 +386,8 @@ for op in ops:
     variants = ["base"]
     if op["body_kind"] == "json" and op["method"] in ("POST", "PUT", "PATCH"):
         variants.append("hostile")
+    if op["refs"]:  # foreign reference: optional *_id(s) params / body fields pointing at another user's data
+        variants.append("foreign_ref")
     if creds_op:
         variants = ["valid_creds", "wrong_password"]
     for identity in MAN["identities"]:
@@ -398,10 +402,14 @@ for op in ops:
                 query = {p["name"]: gen_value(p["name"], p.get("schema", {}), caller)
                          for p in op["params"] if p["in"] == "query" and p.get("required")}
                 kw = {"params": query}
+                victim = "user_b" if identity != "user_b" else "user_a"
+                body = gen_body(op["body_schema"], caller) if op["body_kind"] == "json" else None
+                if variant == "foreign_ref":
+                    for f in op["refs"]:
+                        v = pl.ref_value(target_value(f["hint"], victim, f["schema"]), resolve(f["schema"]), f["many"])
+                        (query if f["in"] == "query" else body)[f["name"]] = v
                 if op["body_kind"] == "json":
-                    body = gen_body(op["body_schema"], caller)
                     if variant == "hostile":
-                        victim = "user_b" if identity != "user_b" else "user_a"
                         body = pl.hostile(body, MAN["ownership"], roles[victim]["user_id"])
                     kw["json"] = body
                 elif op["body_kind"] == "form":

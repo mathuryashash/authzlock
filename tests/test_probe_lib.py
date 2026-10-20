@@ -132,3 +132,51 @@ def test_shared_target_comes_from_the_seed_db_not_the_agents_discretion():
     assert pl.effective_targets(["user_a", "shared"], own, {"u-a": "user_a"}, snap) == ["user_a", "shared"]
     no_shared = {"category": {"2": {"id": "2", "created_by_id": "u-a"}}}
     assert pl.effective_targets(["user_a"], own, {"u-a": "user_a"}, no_shared) == ["user_a"]
+
+
+def test_ref_hint_finds_reference_fields_beyond_path_params():
+    hints = {"id": "user_id", "category_id": "row:category", "todo_id": "row:todo", "email": "user_email"}
+    assert pl.ref_hint("user_id", hints, OWN) == ("user_id", False)          # optional ?user_id= query param
+    assert pl.ref_hint("created_by_id", hints, OWN) == ("user_id", False)    # an owner column by name
+    assert pl.ref_hint("categories_ids", hints, OWN) == ("row:category", True)  # list of foreign keys
+    assert pl.ref_hint("todo_ids", hints, OWN) == ("row:todo", True)
+    assert pl.ref_hint("email", hints, OWN) is None      # identifiers only: emails stay generated
+    assert pl.ref_hint("skip", hints, OWN) is None and pl.ref_hint("content", hints, OWN) is None
+
+
+def test_ref_value_casts_to_the_schema_type():
+    assert pl.ref_value("7", {"type": "integer"}, False) == 7
+    assert pl.ref_value("7", {"type": "array", "items": {"type": "integer"}}, True) == [7]
+    assert pl.ref_value("u-b", {"type": "string", "format": "uuid"}, False) == "u-b"
+
+
+def test_ref_hint_leaves_non_references_alone():
+    hints = {"id": "user_id", "category_id": "row:category", "todo_id": "row:todo"}
+    for n in ("id", "priority_id", "limit", "is_completed", "token", "session_id", "categories"):
+        assert pl.ref_hint(n, hints, OWN) is None, n   # priority: unowned table; session: unknown -> no guess
+
+
+def test_ref_fields_lists_optional_query_params_and_body_fields_but_never_path_params():
+    hints = {"id": "user_id", "category_id": "row:category", "todo_id": "row:todo"}
+    params = [{"name": "todo_id", "in": "path", "schema": {"type": "integer"}},
+              {"name": "skip", "in": "query", "schema": {"type": "integer"}},
+              {"name": "user_id", "in": "query", "schema": {"type": "string", "format": "uuid"}}]
+    body = {"content": {"type": "string"}, "priority_id": {"type": "integer"},
+            "categories_ids": {"type": "array", "items": {"type": "integer"}}}
+    got = pl.ref_fields(params, body, hints, OWN)
+    assert [(f["in"], f["name"], f["hint"], f["many"]) for f in got] == [
+        ("query", "user_id", "user_id", False), ("body", "categories_ids", "row:category", True)]
+
+
+def test_ref_fields_is_empty_for_an_operation_with_only_benign_inputs():
+    params = [{"name": "skip", "in": "query", "schema": {"type": "integer"}},
+              {"name": "limit", "in": "query", "schema": {"type": "integer"}}]
+    assert pl.ref_fields(params, {"title": {"type": "string"}}, {"id": "item_id"},
+                         {"user": {"owner": "self"}, "item": {"owner_column": "owner_id"}}) == []
+
+
+def test_ref_hint_uses_the_ownership_map_for_tables_and_owner_columns():
+    own1 = {"user": {"owner": "self"}, "item": {"owner_column": "owner_id"}}
+    assert pl.ref_hint("owner_id", {}, own1) == ("user_id", False)
+    assert pl.ref_hint("item_ids", {}, own1) == ("row:item", True)
+    assert pl.ref_hint("user_ids", {}, own1) == ("user_id", True)
