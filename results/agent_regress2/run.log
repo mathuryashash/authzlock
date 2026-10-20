@@ -1,0 +1,7 @@
+{"scenario": "pr-benign-pagination", "status": "no test (not FAIL)", "prove_runs": null, "why": null}
+{"scenario": "pr-benign-stats", "status": "no test (not FAIL)", "prove_runs": null, "why": null}
+{"scenario": "pr-count-leak", "status": "proven", "prove_runs": 2, "why": []}
+{"scenario": "pr-export-csv", "status": "proven", "prove_runs": 2, "why": []}
+{"scenario": "pr-idor-refactor", "status": "proven", "prove_runs": 2, "why": []}
+{"scenario": "pr-mass-assign", "status": "proven", "prove_runs": 2, "why": []}
+spent $0.0894 in 47 calls

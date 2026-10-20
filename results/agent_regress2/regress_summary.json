@@ -1,0 +1,198 @@
+{
+ "spent_usd": 0.0894,
+ "calls": 47,
+ "scenarios": [
+  {
+   "scenario": "pr-benign-pagination",
+   "verdict": "PASS",
+   "status": "no test (not FAIL)"
+  },
+  {
+   "scenario": "pr-benign-stats",
+   "verdict": "PASS",
+   "status": "no test (not FAIL)"
+  },
+  {
+   "scenario": "pr-count-leak",
+   "finding": {
+    "scenario": "pr-count-leak",
+    "op": "GET /items/",
+    "path": "/items/",
+    "canary": "cnry-pr-count-leak",
+    "rules": [
+     "count side channel (7 -> 14)"
+    ],
+    "cells": [
+     "GET /items/ | user_a | - | base",
+     "GET /items/ | user_b | - | base"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 10,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom tests.utils.user import create_random_user, authentication_token_from_email\nfrom app.models import ItemCreate\n\nCANARY = \"cnry-pr-count-leak\"\n\ndef test_count_side_channel_leak(client, db):\n    # Create two normal users\n    user_a = create_random_user(db)\n    user_b = create_random_user(db)\n\n    # Get tokens\n    headers_a = authentication_token_from_email(client=client, email=user_a.email, db=db)\n    headers_b = authentication_token_from_email(client=client, email=user_b.email, db=db)\n\n    # User A creates 5 items, one containing the canary in title\n    for i in range(5):\n        title = f\"item{i}\" + (CANARY if i == 0 else \"\")\n        item_in = ItemCreate(title=title, description=f\"desc{i}\", price=i*10.0)\n        response = client.post(\"/api/v1/items/\", json=item_in.model_dump(), headers=headers_a)\n        assert response.status_code == 200, f\"Failed to create item for user_a: {response.text}\"\n\n    # User B creates 3 items without canary\n    for i in range(3):\n        item_in = ItemCreate(title=f\"bitem{i}\", description=f\"bdesc{i}\", price=i*5.0)\n        response = client.post(\"/api/v1/items/\", json=item_in.model_dump(), headers=headers_b)\n        assert response.status_code == 200, f\"Failed to create item for user_b: {response.text}\"\n\n    # Now request items as user B\n    resp = client.get(\"/api/v1/items/\", headers=headers_b)\n    assert resp.status_code == 200\n    data = resp.json()\n    # On base, count should be only user B's items (3)\n    expected_count = 3\n    assert data[\"count\"] == expected_count, f\"Expected count {expected_count} but got {data['count']}\"\n    # Ensure canary not present in any returned item\n    for item in data[\"data\"]:\n        assert CANARY not in item[\"title\"], f\"Canary leaked in item title: {item['title']}\"\n        assert CANARY not in item[\"description\"], f\"Canary leaked in item description: {item['description']}\"",
+   "citations": [],
+   "root_cause": "The diff removes the `where(Item.owner_id == current_user.id)` filter from the count query (line -3 to -5 replaced by line +3), causing `count_statement` to return the total number of all items instead of only the current user's items. This widens the authorization scope: both `user_a` and `user_b` now receive a global item count, leaking information about other users' data. Restore the ownership filter, e.g., `select(func.count()).select_from(Item).where(Item.owner_id == current_user.id)`, so the count remains scoped to the authenticated user."
+  },
+  {
+   "scenario": "pr-export-csv",
+   "finding": {
+    "scenario": "pr-export-csv",
+    "op": "GET /items/export",
+    "path": "/items/export",
+    "canary": "cnry-pr-export-csv",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /items/export | user_a | - | base",
+     "GET /items/export | user_b | - | base"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 15,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom fastapi.testclient import TestClient\nfrom sqlmodel import Session\n\nfrom tests.utils.user import authentication_token_from_email, create_random_user\nfrom app import crud\nfrom app.models import Item, ItemCreate\nfrom app.core.config import settings\n\nCANARY = \"cnry-pr-export-csv\"\n\n\ndef test_export_items_isolation(client: TestClient, db: Session, normal_user_token_headers: dict[str, str]):\n    # User A from fixture\n    user_a_headers = normal_user_token_headers\n    # Random user B\n    user_b = create_random_user(db)\n    user_b_headers = authentication_token_from_email(\n        client=client, email=user_b.email, db=db\n    )\n\n    # Each user creates an item with the canary in title\n    item_in_a = ItemCreate(title=f\"{CANARY}-a\", description=\"desc-a\")\n    item_in_b = ItemCreate(title=f\"{CANARY}-b\", description=\"desc-b\")\n\n    def create_item(headers, item_in):\n        resp = client.post(\n            f\"{settings.API_V1_STR}/items/\",\n            json=item_in.model_dump(),\n            headers=headers,\n        )\n        assert resp.status_code == 200, f\"create item failed: {resp.text}\"\n        return resp.json()\n\n    item_a = create_item(user_a_headers, item_in_a)\n    item_b = create_item(user_b_headers, item_in_b)\n\n    # Try to access export endpoint\n    resp = client.get(f\"{settings.API_V1_STR}/items/export\", headers=user_a_headers)\n    # If the endpoint does not exist (or any non-200), test passes on base\n    if resp.status_code != 200:\n        return\n\n    # Head branch: endpoint exists\n    assert resp.status_code == 200, f\"export failed: {resp.text}\"\n    csv_text = resp.text\n    # User A should see their own item\n    assert f\"{CANARY}-a\" in csv_text, f\"User A did not see own item. CSV: {csv_text}\"\n    # Isolation violation: user A must NOT see user B's canary\n    assert f\"{CANARY}-b\" not in csv_text, f\"User A saw user B's item. CSV: {csv_text}\"",
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /items/export",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The new `export_items` endpoint (lines 48-57) queries **all** `Item` rows via `session.exec(select(Item).order_by(...)).all()` without filtering by `current_user`, so any authenticated caller can download every item's data via `GET /items/export`. This widens the attack surface for **I1 read-isolation** by bypassing the per-object authorization that protects the regular list and detail routes, constituting an **Insecure Direct Object Reference** / **Broken Object Level Authorization** flaw (CWE\u2011639, API1:2023). The fix is to scope the query to the current user's authorized items (e.g., `select(Item).where(Item.owner_id == current_user.id)`) or enforce the same policy check used in `read_items`."
+  },
+  {
+   "scenario": "pr-idor-refactor",
+   "finding": {
+    "scenario": "pr-idor-refactor",
+    "op": "GET /items/{id}",
+    "path": "/items/{id}",
+    "canary": "cnry-pr-idor-refactor",
+    "rules": [
+     "I1 read-isolation"
+    ],
+    "cells": [
+     "GET /items/{id} | user_a | user_b | base",
+     "GET /items/{id} | user_a | superuser | base",
+     "GET /items/{id} | user_b | user_a | base",
+     "GET /items/{id} | user_b | superuser | base"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 9,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import uuid\n\nfrom tests.utils.user import create_random_user, authentication_token_from_email\n\nCANARY = \"cnry-pr-idor-refactor\"\n\n\ndef test_item_read_isolation_regression(client, db):\n    # create two normal users\n    user_a = create_random_user(db)\n    headers_a = authentication_token_from_email(\n        client=client, email=user_a.email, db=db\n    )\n    user_b = create_random_user(db)\n    headers_b = authentication_token_from_email(\n        client=client, email=user_b.email, db=db\n    )\n\n    # user_a creates an item with the canary in description\n    item_data = {\n        \"title\": \"private item\",\n        \"description\": CANARY,\n    }\n    resp = client.post(\"/api/v1/items/\", json=item_data, headers=headers_a)\n    assert resp.status_code == 200, resp.text\n    item_id = resp.json()[\"id\"]\n\n    # user_b tries to read the item\n    resp = client.get(f\"/api/v1/items/{item_id}\", headers=headers_b)\n    # In the base version this should be forbidden (403)\n    # After the regression it becomes allowed (200) and leaks the canary\n    assert resp.status_code == 403, f\"Expected 403, got {resp.status_code}: {resp.json()}\"",
+   "citations": [
+    {
+     "rule": "I1 read-isolation",
+     "op": "GET /items/{id}",
+     "citations": [
+      {
+       "title": "CWE - CWE-639: Authorization Bypass Through User-Controlled Key (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/639.html",
+       "snippet": "| |  | | --- | | CWE Glossary Definition | |  |  CWE-639: Authorization Bypass Through User-Controlled Key  |  | | --- | | Weakness ID: 639   Vulnerability Mapping: ALLOWED This CWE ID may be used to map to real-world vulnerabilities     Abstraction: Base Base - a weakness that is still mostly indep"
+      },
+      {
+       "title": "API1:2023 Broken Object Level Authorization - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2023/en/0xa1-broken-object-level-authorization",
+       "snippet": "# API1:2023 Broken Object Level Authorization. | Attackers can exploit API endpoints that are vulnerable to broken object-level authorization by manipulating the ID of an object that is sent within the request. Object level authorization is an access control mechanism that is usually implemented at "
+      },
+      {
+       "title": "Insecure Direct Object Reference Prevention - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Insecure_Direct_Object_Reference_Prevention_Cheat_Sheet.html",
+       "snippet": "Insecure Direct Object Reference (IDOR) is a vulnerability that arises when attackers can access or modify objects by manipulating identifiers used in a web application's URLs or parameters. 2. A **reference** to that object in the form of an ID, UUID, account number, token or slug. 3. A **missing o"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff removes the ownership check from `read_item` (old lines 55\u201159: `if not current_user.is_superuser and (item.owner_id != current_user.id): raise HTTPException(403)`). The new helper `_get_item_or_404` (lines 48\u201152) only validates existence, so `read_item` now returns any item by ID without verifying the caller owns it or is a superuser. This widens access to all users, violating I1 read\u2011isolation (CWE\u2011639, API1:2023). Fix: re\u2011add the permission check after `_get_item_or_404` (or inside it) before returning the item."
+  },
+  {
+   "scenario": "pr-mass-assign",
+   "finding": {
+    "scenario": "pr-mass-assign",
+    "op": "PATCH /users/me",
+    "path": "/users/me",
+    "canary": "cnry-pr-mass-assign",
+    "rules": [
+     "I4 privilege"
+    ],
+    "cells": [
+     "PATCH /users/me | user_a | - | hostile",
+     "PATCH /users/me | user_b | - | hostile"
+    ]
+   },
+   "status": "proven",
+   "why": [],
+   "prove_runs": 2,
+   "agent_turns": 9,
+   "written": [
+    "tests/authz/test_regression.py",
+    "tests/authz/test_regression.py"
+   ],
+   "test": "import pytest\nfrom fastapi.testclient import TestClient\n\nCANARY = \"cnry-pr-mass-assign\"\n\ndef test_patch_users_me_mass_assignment_is_superuser(client: TestClient, normal_user_token_headers: dict[str, str]):\n    # Set victim's full_name to include CANARY via allowed field\n    resp = client.patch(\n        \"/api/v1/users/me\",\n        json={\"full_name\": CANARY},\n        headers=normal_user_token_headers,\n    )\n    assert resp.status_code == 200\n    data = resp.json()\n    assert data[\"full_name\"] == CANARY\n\n    # Attempt to escalate privileges via mass assignment of is_superuser\n    resp = client.patch(\n        \"/api/v1/users/me\",\n        json={\"is_superuser\": True, \"full_name\": CANARY},  # keep CANARY to see it\n        headers=normal_user_token_headers,\n    )\n    assert resp.status_code == 200\n    data = resp.json()\n    # CANARY should still be present in full_name\n    assert data[\"full_name\"] == CANARY\n    # The is_superuser flag must remain False (mass assignment should not succeed)\n    assert data.get(\"is_superuser\") is False, \"Mass assignment allowed setting is_superuser\"",
+   "citations": [
+    {
+     "rule": "I4 privilege",
+     "op": "PATCH /users/me",
+     "citations": [
+      {
+       "title": "Mass Assignment - OWASP Cheat Sheet Series",
+       "url": "https://cheatsheetseries.owasp.org/cheatsheets/Mass_Assignment_Cheat_Sheet.html",
+       "snippet": "# Mass Assignment Cheat Sheet[\u00b6](#mass-assignment-cheat-sheet \"Permanent link\"). ### Example[\u00b6](#example \"Permanent link\"). For example, [Spring supports both constructor and setter binding](https://docs.spring.io/spring-framework/reference/web/webmvc/mvc-data-binding.html). * Prefer dedicated input"
+      },
+      {
+       "title": "API6:2019 - Mass Assignment - OWASP API Security Top 10",
+       "url": "https://owasp.org/API-Security/editions/2019/en/0xa6-mass-assignment",
+       "snippet": "| Exploitation usually requires an understanding of the business logic, objects' relations, and the API structure. Exploitation of mass assignment is easier in APIs, since by design they expose the underlying implementation of the application along with the properties\u2019 names. | Modern frameworks enc"
+      },
+      {
+       "title": "CWE - CWE-732: Incorrect Permission Assignment for Critical Resource (4.20)",
+       "url": "https://cwe.mitre.org/data/definitions/732.html",
+       "snippet": "CWE Top 25 Most Dangerous Weaknesses. | |  | | --- | | CWE Glossary Definition | |  |  CWE-732: Incorrect Permission Assignment for Critical Resource  |  | | --- | | Weakness ID: 732   Vulnerability Mapping: ALLOWED This CWE ID could be used to map to real-world vulnerabilities in limited situations"
+      }
+     ]
+    }
+   ],
+   "root_cause": "The diff adds `is_active: bool | None = None` and `is_superuser: bool | None = None` to `UserUpdateMe` (lines 44-45), which is the request model for `PATCH /users/me`. This exposes critical authorization fields to self-service updates, letting any authenticated user toggle their own active status or grant themselves superuser privileges \u2014 a classic mass-assignment / privilege-escalation flaw (OWASP Mass Assignment Cheat Sheet; CWE-732). Remove those two fields from `UserUpdateMe` (or gate them behind an admin-only endpoint) so users cannot modify their own role/state."
+  }
+ ]
+}
