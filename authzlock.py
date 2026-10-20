@@ -17,6 +17,8 @@ import time
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import probe_lib
+
 HERE = Path(__file__).resolve().parent
 MANIFEST = HERE / "manifest.json"
 DENY_STATUSES = "any 4xx except none"  # documented rule, see decide()
@@ -131,15 +133,17 @@ def worker_env() -> dict:
 
 
 def run_worker(checkout: Path, tag: str, out_raw: Path, smtp_port: int, manifest: Path = MANIFEST,
-               seeder: Path | None = None) -> dict:
-    checkout = Path(checkout).absolute()  # cwd=backend below; absolute(), not resolve(): keep the venv symlink
-    backend = checkout / "backend"
+               seeder: Path | None = None, prof: dict | None = None) -> dict:
+    prof = prof or probe_lib.profile()
+    checkout = Path(checkout).absolute()  # cwd below; absolute(), not resolve(): keep the venv symlink
+    backend = checkout / prof["cwd"]
     venv_py = next((p for p in (checkout / ".venv" / "bin" / "python", checkout / ".venv" / "Scripts" / "python.exe")
                     if p.exists()), Path(os.environ.get("AUTHZ_PY", sys.executable)))
     env = worker_env()
     argv = [str(venv_py), str(HERE / "probe_worker.py"), "--manifest", str(Path(manifest).resolve()),
             "--out", str(Path(out_raw).resolve()), "--tag", tag, "--smtp-port", str(smtp_port),
-            "--pg", os.environ.get("AUTHZ_PG", "postgresql://postgres@localhost:5432/postgres")]
+            "--pg", os.environ.get("AUTHZ_PG", "postgresql://postgres@localhost:5432/postgres"),
+            "--profile-json", json.dumps(prof), "--dotenv", str(checkout / ".env")]
     if seeder:
         argv += ["--seeder", str(Path(seeder).resolve())]
     p = subprocess.run(argv, cwd=backend, env=env, capture_output=True, text=True, timeout=1800)
