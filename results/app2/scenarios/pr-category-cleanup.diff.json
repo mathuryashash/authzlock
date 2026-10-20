@@ -1,0 +1,90 @@
+{
+ "verdict": "FAIL",
+ "changes": [
+  {
+   "cell": "DELETE /categories/{category_id} | superuser | shared | base",
+   "class": "WIDENED",
+   "base": {
+    "decision": "DENY",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:category:shared"
+    ],
+    "count": null,
+    "status": 204
+   }
+  },
+  {
+   "cell": "DELETE /categories/{category_id} | user_a | shared | base",
+   "class": "WIDENED",
+   "base": {
+    "decision": "DENY",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:category:shared"
+    ],
+    "count": null,
+    "status": 204
+   }
+  },
+  {
+   "cell": "DELETE /categories/{category_id} | user_b | shared | base",
+   "class": "WIDENED",
+   "base": {
+    "decision": "DENY",
+    "leaks": [],
+    "db": [],
+    "count": null,
+    "status": 403
+   },
+   "head": {
+    "decision": "ALLOW",
+    "leaks": [],
+    "db": [
+     "delete:category:shared"
+    ],
+    "count": null,
+    "status": 204
+   }
+  }
+ ],
+ "new_violations": [
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /categories/{category_id} | user_a | shared | base",
+   "op": "DELETE /categories/{category_id}",
+   "identity": "user_a",
+   "target": "shared",
+   "variant": "base",
+   "detail": "user_a deleted a category row owned by shared"
+  },
+  {
+   "rule": "I3 write-isolation",
+   "cell": "DELETE /categories/{category_id} | user_b | shared | base",
+   "op": "DELETE /categories/{category_id}",
+   "identity": "user_b",
+   "target": "shared",
+   "variant": "base",
+   "detail": "user_b deleted a category row owned by shared"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

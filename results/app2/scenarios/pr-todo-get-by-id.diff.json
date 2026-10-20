@@ -1,0 +1,49 @@
+{
+ "verdict": "FAIL",
+ "changes": [],
+ "new_violations": [
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /todos/{todo_id} | user_a | user_b | base",
+   "op": "GET /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "user_b",
+   "variant": "base",
+   "detail": "user_a received data owned by user_b"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /todos/{todo_id} | user_a | superuser | base",
+   "op": "GET /todos/{todo_id}",
+   "identity": "user_a",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_a received data owned by superuser"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /todos/{todo_id} | user_b | user_a | base",
+   "op": "GET /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "user_a",
+   "variant": "base",
+   "detail": "user_b received data owned by user_a"
+  },
+  {
+   "rule": "I1 read-isolation",
+   "cell": "GET /todos/{todo_id} | user_b | superuser | base",
+   "op": "GET /todos/{todo_id}",
+   "identity": "user_b",
+   "target": "superuser",
+   "variant": "base",
+   "detail": "user_b received data owned by superuser"
+  }
+ ],
+ "fixed_violations": [],
+ "new_ops": [
+  "GET /todos/{todo_id}"
+ ],
+ "removed_ops": [],
+ "new_unprobed": [],
+ "harness_invalid": []
+}

@@ -36,7 +36,8 @@ PASSES on the base branch and FAILS (with a plain `assert` inside the test) on t
   are available. Read them first with read_file (paths are relative to the checkout, e.g. @EXAMPLES@).
 - Create the victim data yourself inside the test. Put the CANARY string literally in the test source and in
   the victim's data (e.g. an item title/description, or a user's full_name), and assert the attacker never
-  sees it / the privilege is never granted. The URL path of the finding must appear literally in the test.
+  sees it / the privilege is never granted / the victim's row is still there unchanged afterwards (for write
+  findings; a "shared" target is a row with a NULL owner, e.g. a system default every user can see). The URL path of the finding must appear literally in the test.
 - Only test the finding; a test that fails for any other reason (import error, fixture error, 500) is
   not a proof. Do not write anything outside tests/authz/.
 - run("prove") runs your file on base and on head and tells you PROVEN or why not. Repair and re-run.

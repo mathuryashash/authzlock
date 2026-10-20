@@ -1,0 +1,3 @@
+base lock: 639 probes, 106.0s, violations=0, coverage=17/20
+{'scenario': 'pr-todos-completed-filter', 'description': "Benign: optional ?completed= filter on the user's own GET /todos", 'expected': 'PASS', 'verdict': 'PASS', 'changed_cells': 0, 'widened_cells': 0, 'new_violations': 0, 'rules': [], 'new_ops': [], 'head_seconds': 101.9}
+done in 109.9 s

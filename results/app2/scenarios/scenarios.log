@@ -1,0 +1,6 @@
+base lock: 639 probes, 106.0s, violations=0, coverage=17/20
+{'scenario': 'same SHA twice', 'expected': 'PASS', 'verdict': 'PASS', 'harness': {'valid': True, 'failures': []}, 'changed_cells': 0, 'new_violations': 0}
+{'scenario': 'pr-todo-get-by-id', 'description': 'New GET /todos/{todo_id} endpoint looks the todo up by id only (no created_by_id filter)', 'expected': 'FAIL', 'verdict': 'FAIL', 'changed_cells': 0, 'widened_cells': 0, 'new_violations': 4, 'rules': ['I1 read-isolation'], 'new_ops': ['GET /todos/{todo_id}'], 'head_seconds': 108.6}
+{'scenario': 'pr-category-cleanup', 'description': "'Let users clean up default categories': delete_category also allows rows with created_by_id NULL", 'expected': 'FAIL', 'verdict': 'FAIL', 'changed_cells': 3, 'widened_cells': 3, 'new_violations': 2, 'rules': ['I3 write-isolation'], 'new_ops': [], 'head_seconds': 102.3}
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', 'D:\\hackathons\\nebius-nvidia\\authzlock\\target2', 'worktree', 'add', '--detach', 'D:\\hackathons\\nebius-nvidia\\authzlock\\results\\app2\\scenarios\\wt_pr-todos-completed-filter', 'pr-todos-completed-filter']' returned non-zero exit status 128.

@@ -63,17 +63,22 @@ def lock_for(ref: str, tag: str, env_file: Path) -> dict:
 
 summary = []
 t = time.time()
-base = lock_for("base", "base_run1", PROD_ENV)
+ONLY = [x for x in os.environ.get("AUTHZ_ONLY", "").split(",") if x]  # resume: reuse the cached base lock
+cached = OUT / "base_run1.lock.json"
+base = json.loads(cached.read_text()) if ONLY and cached.exists() else lock_for("base", "base_run1", PROD_ENV)
 print(f"base lock: {base['probes']} probes, {base['elapsed_s']}s, violations={len(base['violations'])}, "
       f"coverage={base['coverage']['probed']}/{base['coverage']['operations']}", flush=True)
 
 # 1. determinism: same SHA, fresh seed + fresh random canaries
-again = lock_for("base", "base_run2", PROD_ENV)
-d = diff(base, again)
-(OUT / "same-sha.report.md").write_text(render_report("base vs base (same SHA, second run)", base, again, d))
-summary.append({"scenario": "same SHA twice", "expected": "PASS", "verdict": d["verdict"], "harness": base["harness"],
-                "changed_cells": len(d["changes"]), "new_violations": len(d["new_violations"])})
-print(summary[-1], flush=True)
+if ONLY:
+    SCENARIOS = [x for x in SCENARIOS if x[0] in ONLY]
+if not ONLY:
+    again = lock_for("base", "base_run2", PROD_ENV)
+    d = diff(base, again)
+    (OUT / "same-sha.report.md").write_text(render_report("base vs base (same SHA, second run)", base, again, d))
+    summary.append({"scenario": "same SHA twice", "expected": "PASS", "verdict": d["verdict"], "harness": base["harness"],
+                    "changed_cells": len(d["changes"]), "new_violations": len(d["new_violations"])})
+    print(summary[-1], flush=True)
 
 # 2. PR scenarios
 for ref, expected, desc in SCENARIOS:
@@ -100,7 +105,7 @@ if "scenarios" not in PROF:
                     "rules": sorted({v["rule"] for v in d["new_violations"]})})
     print(summary[-1], flush=True)
 
-(OUT / "summary.json").write_text(json.dumps({"total_seconds": round(time.time() - t, 1),
+(OUT / ("summary.json" if not ONLY else "summary.only.json")).write_text(json.dumps({"total_seconds": round(time.time() - t, 1),
                                               "base_coverage": base["coverage"],
                                               "base_violations": base["violations"],
                                               "scenarios": summary}, indent=1))

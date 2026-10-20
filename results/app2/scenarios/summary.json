@@ -1,0 +1,74 @@
+{
+ "note": "merged from two run_scenarios.py invocations (the first crashed on a stale git worktree before the benign PR; benign re-run with AUTHZ_ONLY reusing the cached base lock). Logs: scenarios.log, scenarios_benign.log",
+ "base_coverage": {
+  "operations": 20,
+  "probed": 17,
+  "unprobed": [
+   "DELETE /users/{id}",
+   "POST /auth/reset-password",
+   "POST /auth/verify"
+  ],
+  "unsupported": []
+ },
+ "base_probes": 639,
+ "base_violations": [],
+ "harness": {
+  "failures": [],
+  "valid": true
+ },
+ "scenarios": [
+  {
+   "scenario": "same SHA twice",
+   "expected": "PASS",
+   "verdict": "PASS",
+   "harness": {
+    "valid": true,
+    "failures": []
+   },
+   "changed_cells": 0,
+   "new_violations": 0
+  },
+  {
+   "scenario": "pr-todo-get-by-id",
+   "description": "New GET /todos/{todo_id} endpoint looks the todo up by id only (no created_by_id filter)",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 0,
+   "widened_cells": 0,
+   "new_violations": 4,
+   "rules": [
+    "I1 read-isolation"
+   ],
+   "new_ops": [
+    "GET /todos/{todo_id}"
+   ],
+   "head_seconds": 108.6
+  },
+  {
+   "scenario": "pr-category-cleanup",
+   "description": "'Let users clean up default categories': delete_category also allows rows with created_by_id NULL",
+   "expected": "FAIL",
+   "verdict": "FAIL",
+   "changed_cells": 3,
+   "widened_cells": 3,
+   "new_violations": 2,
+   "rules": [
+    "I3 write-isolation"
+   ],
+   "new_ops": [],
+   "head_seconds": 102.3
+  },
+  {
+   "scenario": "pr-todos-completed-filter",
+   "description": "Benign: optional ?completed= filter on the user's own GET /todos",
+   "expected": "PASS",
+   "verdict": "PASS",
+   "changed_cells": 0,
+   "widened_cells": 0,
+   "new_violations": 0,
+   "rules": [],
+   "new_ops": [],
+   "head_seconds": 101.9
+  }
+ ]
+}
