@@ -1,0 +1,25 @@
+From 4a9a07bd3e55aa13a11e768e9f6abfc08a79755e Mon Sep 17 00:00:00 2001
+From: demo <demo@example.com>
+Date: Fri, 25 Sep 2026 11:02:23 +0000
+Subject: [PATCH] feat(items): smaller default page size
+
+---
+ backend/app/api/routes/items.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/backend/app/api/routes/items.py b/backend/app/api/routes/items.py
+index f0eb30e..523a1b1 100644
+--- a/backend/app/api/routes/items.py
++++ b/backend/app/api/routes/items.py
+@@ -12,7 +12,7 @@ router = APIRouter(prefix="/items", tags=["items"])
+ 
+ @router.get("/", response_model=ItemsPublic)
+ def read_items(
+-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
++    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 50
+ ) -> Any:
+     """
+     Retrieve items.
+-- 
+2.43.0
+
