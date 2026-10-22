@@ -140,7 +140,7 @@ Keyless replay (any OS, stdlib only) recomputes every verdict and proof and rend
 python replay.py site        # exit 1 if any recorded verdict does not reproduce
 ```
 
-Full run (needs Docker Postgres; the LLM steps need `NEBIUS_API_KEY`):
+Full run (needs Docker Postgres; the LLM steps need `NEBIUS_API_KEY`). Copy `.env.example` to `.env` for the variable names:
 
 ```bash
 docker run -d -p 5433:5432 --tmpfs /var/lib/postgresql/data -e POSTGRES_HOST_AUTH_METHOD=trust postgres:16 -c fsync=off
