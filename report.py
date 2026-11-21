@@ -15,7 +15,7 @@ from authzlock import diff
 from comment import redact
 
 CSS = """:root{--bg:#f8f9fb;--surface:#fff;--surface2:#f2f4f7;--line:#dee2e8;--ink:#111827;
---ink2:#4b5565;--muted:#6b7487;--pass:#15803d;--pass-bg:#dcfce7;--fail:#b91c1c;
+--ink2:#4b5565;--muted:#6b7386;--pass:#15803d;--pass-bg:#dcfce7;--fail:#b91c1c;
 --fail-bg:#fee2e2;--warn:#92400e;--warn-bg:#fef3c7;--mono:ui-monospace,'Cascadia Mono',Consolas,monospace}
 *{box-sizing:border-box}
 body{font:14px/1.6 system-ui,-apple-system,'Segoe UI',sans-serif;margin:0;background:var(--bg);
