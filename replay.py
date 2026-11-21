@@ -58,7 +58,7 @@ def main(site: Path) -> int:
             miss = "" if d["verdict"] == s["expected"] else "  <- benchmark MISS (expected differs)"
             print(f"{'ok ' if ok else 'BAD'} {app:5} {s['id']:34} expected {s['expected']:4} got {d['verdict']:7}"
                   + ("" if pok is None else f" proof={'proven' if pok else 'NOT proven'}") + miss)
-    idx = ["<!doctype html><html><head><meta charset=utf-8>",
+    idx = ["<!doctype html><html lang=en><head><meta charset=utf-8>",
            "<meta http-equiv=Content-Security-Policy content=\"default-src 'none'; style-src 'unsafe-inline'\">",
            f"<title>authz.lock reports</title><style>{report.CSS}</style></head><body><h1>authz.lock reports</h1>",
            "<p>Rendered by <code>python replay.py</code> from committed lockfiles; verdicts recomputed keylessly "

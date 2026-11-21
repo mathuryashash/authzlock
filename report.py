@@ -87,7 +87,7 @@ def render(lock: dict, title: str, base: dict | None = None, meta: dict | None =
     widened = {c["cell"] for c in d["changes"] if c["class"] == "WIDENED"} if d else set()
     ops, idents, g = grid(lock, bad, widened)
     cov = lock["coverage"]
-    L = ["<!doctype html><html><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>",
+    L = ["<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>",
          "<meta http-equiv=Content-Security-Policy content=\"default-src 'none'; style-src 'unsafe-inline'\">",
          f"<title>{e(title)}</title><style>{CSS}</style></head><body><div class=page-wrap>", f"<h1>authz.lock: {e(title)}</h1>"]
     if d:
