@@ -2,7 +2,7 @@ import json
 from types import SimpleNamespace as NS
 
 from agent import onboard
-from agent.tools import TEMPLATES, Tools
+from agent.tools import TEMPLATES
 
 GOOD = {
     "api_prefix": "/api/v1",

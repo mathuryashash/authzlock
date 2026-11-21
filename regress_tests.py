@@ -6,7 +6,6 @@ base-pass / head-fail proof holds. Here the tests come from 4 fixed patterns tha
 finding shapes in the demo scenarios.
 """
 import json
-import os
 import re
 import shutil
 import subprocess
