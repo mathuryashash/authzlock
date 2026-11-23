@@ -47,7 +47,7 @@ def e(s) -> str:
 
 
 def grid(lock: dict) -> tuple[list, list, dict]:
-    """(op, identity) -> list of cell keys. bad/widened: sets of cell keys."""
+    """(op, identity) -> list of cell keys."""
     g = defaultdict(list)
     for k in lock["cells"]:
         op, ident = k.split(" | ")[:2]

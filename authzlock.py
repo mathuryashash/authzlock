@@ -22,7 +22,7 @@ import probe_lib
 
 HERE = Path(__file__).resolve().parent
 MANIFEST = HERE / "manifest.json"
-DENY_STATUSES = "any 4xx except none"  # documented rule, see decide()
+# DENY: any 4xx status (see decide())
 
 
 def decide(status: int, foreign_leak: bool, foreign_db: bool) -> str:
