@@ -25,7 +25,6 @@ import re
 import secrets
 import subprocess
 import sys
-import threading
 import time
 import types
 import uuid
@@ -234,7 +233,6 @@ except Exception as ex:  # pragma: no cover
 
 # ---------------------------------------------------------------- identities
 client = TestClient(app, raise_server_exceptions=bool(os.environ.get("AUTHZ_DEBUG")))
-seed_snapshot = None
 tokens: dict[str, str | None] = {}
 name = new_clone()
 seed_snapshot = snapshot()
