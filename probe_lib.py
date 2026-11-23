@@ -204,12 +204,15 @@ def ref_fields(params: list, body_props: dict, hints: dict, own: dict) -> list:
     Path params are excluded: they are already probed per target."""
     out = []
     for p in params:
-        if p.get("in") == "query" and ref_hint(p["name"], hints, own):
-            h, many = ref_hint(p["name"], hints, own)
-            out.append({"in": "query", "name": p["name"], "hint": h, "many": many, "schema": p.get("schema", {})})
+        if p.get("in") == "query":
+            rh = ref_hint(p["name"], hints, own)
+            if rh:
+                h, many = rh
+                out.append({"in": "query", "name": p["name"], "hint": h, "many": many, "schema": p.get("schema", {})})
     for n, sch in (body_props or {}).items():
-        if ref_hint(n, hints, own):
-            h, many = ref_hint(n, hints, own)
+        rh = ref_hint(n, hints, own)
+        if rh:
+            h, many = rh
             out.append({"in": "body", "name": n, "hint": h, "many": many, "schema": sch})
     return out
 
