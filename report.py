@@ -46,7 +46,7 @@ def e(s) -> str:
     return html.escape(redact(str(s)))
 
 
-def grid(lock: dict, bad: set, widened: set) -> tuple[list, list, dict]:
+def grid(lock: dict) -> tuple[list, list, dict]:
     """(op, identity) -> list of cell keys. bad/widened: sets of cell keys."""
     g = defaultdict(list)
     for k in lock["cells"]:
@@ -85,7 +85,7 @@ def render(lock: dict, title: str, base: dict | None = None, meta: dict | None =
         viol_by_cell[v["cell"]].append(f'{v["rule"]}: {v["detail"]}')
     bad = set(viol_by_cell)
     widened = {c["cell"] for c in d["changes"] if c["class"] == "WIDENED"} if d else set()
-    ops, idents, g = grid(lock, bad, widened)
+    ops, idents, g = grid(lock)
     cov = lock["coverage"]
     L = ["<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content='width=device-width,initial-scale=1'>",
          "<meta http-equiv=Content-Security-Policy content=\"default-src 'none'; style-src 'unsafe-inline'\">",

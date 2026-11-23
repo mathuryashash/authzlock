@@ -27,6 +27,7 @@ import subprocess
 import sys
 import threading
 import time
+import types
 import uuid
 from datetime import datetime, timedelta, timezone
 
@@ -134,12 +135,7 @@ canaries = {r: pl.canaries(v) for r, v in roles.items()}
 _clone_n = 0
 
 
-class Holder:
-    clone = None       # current per-probe DB name (snapshots read it with plain psycopg)
-    app_engine = None  # engine the app's own session dependency gets (async for async apps)
-
-
-H = Holder()
+H = types.SimpleNamespace(clone=None, app_engine=None)  # clone: per-probe DB name; app_engine: session dep engine
 
 if ASYNC:
     from sqlalchemy.ext.asyncio import create_async_engine  # noqa: E402
@@ -170,7 +166,8 @@ def new_clone():
 
 
 def end_clone(name):
-    H.app_engine.dispose() if not ASYNC else None  # async NullPool engine holds no connections
+    if not ASYNC:
+        H.app_engine.dispose()  # async NullPool engine holds no connections
     H.app_engine = None
     drop_db(name)
 
@@ -304,13 +301,14 @@ def resolve(s: dict) -> dict:
     return s
 
 
-counter = [0]
+counter = 0
 
 
 def gen_value(name: str, s: dict, caller: str | None):
     s = resolve(s)
-    counter[0] += 1
-    n = counter[0]
+    global counter
+    counter += 1
+    n = counter
     t, fmt = s.get("type"), s.get("format")
     if "password" in name:
         if name == "current_password":
